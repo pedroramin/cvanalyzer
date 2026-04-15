@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CVAnalyzer — Análise de Currículo com IA</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&display=swap');
 
@@ -11,9 +12,13 @@
   :root {
     --bg: #0d0d0d;
     --surface: #141414;
+    --surface2: #1a1a1a;
     --border: #2a2a2a;
     --accent: #c8f060;
     --accent2: #f0c860;
+    --purple: #b788ff;
+    --purple-dim: rgba(183,136,255,0.12);
+    --purple-border: rgba(183,136,255,0.35);
     --text: #e8e8e0;
     --muted: #666;
     --danger: #ff6b6b;
@@ -25,7 +30,9 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    padding: 32px 24px;
+    padding: 24px 20px 60px;
+    max-width: 860px;
+    margin: 0 auto;
   }
 
   /* ── COIN BAR ── */
@@ -35,706 +42,413 @@
     justify-content: space-between;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 2px;
+    border-radius: 3px;
     padding: 10px 16px;
     margin-bottom: 28px;
     gap: 12px;
+    flex-wrap: wrap;
   }
-
-  .coin-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
+  .coin-left { display: flex; align-items: center; gap: 10px; }
   .coin-icon { font-size: 1.1rem; }
-
-  .coin-info {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .coin-label {
-    font-size: 0.6rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .coin-count {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--gold);
-    font-family: 'Playfair Display', serif;
-  }
-
+  .coin-info { display: flex; flex-direction: column; }
+  .coin-label { font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .coin-count { font-size: 1rem; font-weight: 500; color: var(--gold); font-family: 'Playfair Display', serif; }
   .coin-count span { font-size: 0.65rem; color: var(--muted); margin-left: 4px; }
-
-  .coin-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
+  .coin-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
   .btn-buy {
-    background: var(--gold);
-    color: #000;
-    border: none;
-    border-radius: 2px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    font-weight: 500;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 7px 14px;
-    cursor: pointer;
-    transition: all 0.2s;
+    background: var(--gold); color: #000; border: none; border-radius: 2px;
+    font-family: 'DM Mono', monospace; font-size: 0.65rem; font-weight: 500;
+    letter-spacing: 2px; text-transform: uppercase; padding: 7px 14px;
+    cursor: pointer; transition: all 0.2s;
   }
-
   .btn-buy:hover { background: #ffd970; transform: translateY(-1px); }
 
   .btn-redeem {
-    background: transparent;
-    color: var(--muted);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 7px 14px;
-    cursor: pointer;
-    transition: all 0.2s;
+    background: transparent; color: var(--muted); border: 1px solid var(--border);
+    border-radius: 2px; font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 2px; text-transform: uppercase; padding: 7px 14px;
+    cursor: pointer; transition: all 0.2s;
   }
-
   .btn-redeem:hover { color: var(--text); border-color: var(--text); }
 
-  /* ── MODAL BASE ── */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-  }
+  /* ── HEADER ── */
+  .header { text-align: center; margin-bottom: 36px; }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 900; line-height: 1; letter-spacing: -1px; }
+  .header h1 span { color: var(--accent); }
+  .header p { color: var(--muted); font-size: 0.78rem; margin-top: 10px; letter-spacing: 2px; text-transform: uppercase; }
+  .tag-ia { display: inline-block; background: var(--accent); color: #000; font-size: 0.62rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; padding: 3px 10px; margin-bottom: 14px; }
 
-  .modal-overlay.show { display: flex; }
-
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 32px;
-    width: 100%;
-    max-width: 460px;
-    animation: fadeUp 0.25s ease;
-  }
-
-  .modal h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
-    margin-bottom: 6px;
-  }
-
-  .modal h2 span { color: var(--gold); }
-
-  .modal-sub {
-    color: var(--muted);
-    font-size: 0.72rem;
-    margin-bottom: 24px;
-    line-height: 1.6;
-  }
-
-  .plan-grid {
+  /* ── MODE TOGGLE ── */
+  .mode-toggle {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
 
-  .plan-card {
+  .mode-card {
     border: 1.5px solid var(--border);
-    border-radius: 2px;
-    padding: 14px 10px;
-    text-align: center;
+    border-radius: 3px;
+    padding: 16px;
     cursor: pointer;
     transition: all 0.2s;
     position: relative;
+    background: var(--surface);
   }
 
-  .plan-card:hover { border-color: var(--gold); background: #1a1a10; }
-  .plan-card.selected { border-color: var(--gold); background: #1a1a10; }
+  .mode-card:hover { border-color: #444; }
 
-  .plan-card .plan-badge {
-    position: absolute;
-    top: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--gold);
-    color: #000;
-    font-size: 0.55rem;
+  .mode-card.active-standard {
+    border-color: var(--accent);
+    background: #151a0a;
+  }
+
+  .mode-card.active-premium {
+    border-color: var(--purple);
+    background: #130f1a;
+  }
+
+  .mode-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .mode-icon { font-size: 1.1rem; }
+
+  .mode-title {
+    font-size: 0.82rem;
     font-weight: 500;
+    flex: 1;
+  }
+
+  .mode-badge {
+    font-size: 0.58rem;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    padding: 2px 8px;
-    border-radius: 10px;
-    white-space: nowrap;
+    padding: 2px 7px;
+    border-radius: 20px;
   }
 
-  .plan-coins {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
-    color: var(--gold);
-    display: block;
-    margin-bottom: 2px;
-  }
+  .badge-standard { background: rgba(200,240,96,0.12); color: var(--accent); border: 1px solid rgba(200,240,96,0.3); }
+  .badge-premium { background: var(--purple-dim); color: var(--purple); border: 1px solid var(--purple-border); }
 
-  .plan-coin-label {
-    font-size: 0.6rem;
+  .mode-desc {
+    font-size: 0.7rem;
     color: var(--muted);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 8px;
-  }
-
-  .plan-price {
-    font-size: 0.9rem;
-    color: var(--text);
-    font-weight: 500;
-  }
-
-  .plan-price-label {
-    font-size: 0.6rem;
-    color: var(--muted);
-    display: block;
-  }
-
-  .plan-saving {
-    font-size: 0.6rem;
-    color: var(--accent);
-    margin-top: 4px;
-    letter-spacing: 1px;
-  }
-
-  .modal-btn-row {
-    display: flex;
-    gap: 10px;
-    margin-top: 4px;
-  }
-
-  .btn-modal-confirm {
-    flex: 1;
-    background: var(--gold);
-    color: #000;
-    border: none;
-    border-radius: 2px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 13px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .btn-modal-confirm:hover { background: #ffd970; }
-
-  .btn-modal-cancel {
-    background: transparent;
-    color: var(--muted);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 13px 20px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .btn-modal-cancel:hover { color: var(--text); border-color: var(--text); }
-
-  /* redeem modal */
-  .redeem-input-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-
-  .redeem-input-row input {
-    flex: 1;
-    background: var(--bg);
-    border: 1.5px solid var(--border);
-    border-radius: 2px;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
-    padding: 10px 12px;
-    outline: none;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    transition: border-color 0.2s;
-  }
-
-  .redeem-input-row input:focus { border-color: var(--gold); }
-  .redeem-input-row input::placeholder { text-transform: none; letter-spacing: 0; color: var(--muted); }
-
-  .redeem-msg {
-    font-size: 0.72rem;
-    min-height: 18px;
-    margin-bottom: 16px;
-  }
-
-  .redeem-msg.ok { color: var(--accent); }
-  .redeem-msg.err { color: var(--danger); }
-
-  /* coin low warning */
-  .coin-low-warning {
-    display: none;
-    background: rgba(255,107,107,0.08);
-    border: 1px solid rgba(255,107,107,0.3);
-    border-radius: 2px;
-    padding: 12px 16px;
-    font-size: 0.75rem;
-    color: var(--danger);
-    margin-bottom: 16px;
     line-height: 1.6;
-    text-align: center;
+    margin-bottom: 10px;
   }
 
-  .coin-low-warning.show { display: block; }
-  .coin-low-warning a { color: var(--gold); cursor: pointer; text-decoration: underline; }
-
-  /* ── HEADER ── */
-  .header {
-    text-align: center;
-    margin-bottom: 40px;
-  }
-
-  .header h1 {
+  .mode-cost {
+    font-size: 0.72rem;
     font-family: 'Playfair Display', serif;
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    font-weight: 900;
-    line-height: 1;
-    letter-spacing: -1px;
   }
 
-  .header h1 span { color: var(--accent); }
+  .mode-cost.standard { color: var(--accent); }
+  .mode-cost.premium { color: var(--purple); }
 
-  .header p {
-    color: var(--muted);
-    font-size: 0.8rem;
-    margin-top: 12px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+  .mode-check {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    opacity: 0;
+    transition: opacity 0.2s;
   }
+  .active-standard .mode-check { opacity: 1; background: var(--accent); color: #000; }
+  .active-premium .mode-check { opacity: 1; background: var(--purple); color: #fff; }
 
-  .tag {
-    display: inline-block;
-    background: var(--accent);
-    color: #000;
-    font-size: 0.65rem;
-    font-weight: 500;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 3px 10px;
+  /* ── PREMIUM PANEL ── */
+  .premium-panel {
+    display: none;
+    border: 1.5px solid var(--purple-border);
+    border-radius: 3px;
+    background: #0f0c14;
+    padding: 20px;
     margin-bottom: 16px;
+    animation: fadeUp 0.25s ease;
+  }
+  .premium-panel.show { display: block; }
+
+  .premium-panel-title {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
-  /* ── UPLOAD ── */
-  .upload-area {
-    border: 1.5px dashed var(--border);
-    border-radius: 2px;
-    padding: 48px 24px;
+  .premium-panel-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--purple-border);
+  }
+
+  /* job image upload */
+  .job-upload-area {
+    border: 1.5px dashed var(--purple-border);
+    border-radius: 3px;
+    padding: 32px 20px;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
     position: relative;
-    background: var(--surface);
-    margin-bottom: 16px;
+    background: var(--purple-dim);
+    margin-bottom: 12px;
   }
+  .job-upload-area:hover, .job-upload-area.drag-over { border-color: var(--purple); background: rgba(183,136,255,0.18); }
+  .job-upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .job-upload-icon { font-size: 2rem; margin-bottom: 8px; display: block; }
+  .job-upload-area h4 { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--purple); margin-bottom: 4px; }
+  .job-upload-area p { color: var(--muted); font-size: 0.7rem; }
 
-  .upload-area:hover, .upload-area.drag-over {
-    border-color: var(--accent);
-    background: #1a1f0d;
+  .job-preview {
+    display: none;
+    position: relative;
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid var(--purple-border);
+    margin-bottom: 12px;
   }
-
-  .upload-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
-
-  .upload-area h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.2rem;
-    margin-bottom: 6px;
-  }
-
-  .upload-area p { color: var(--muted); font-size: 0.75rem; }
-
-  .upload-area input[type="file"] {
+  .job-preview.show { display: block; }
+  .job-preview img { width: 100%; max-height: 220px; object-fit: cover; display: block; }
+  .job-preview-overlay {
     position: absolute;
     inset: 0;
-    opacity: 0;
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
+    background: linear-gradient(to top, rgba(13,8,20,0.9) 0%, transparent 60%);
+    display: flex;
+    align-items: flex-end;
+    padding: 12px;
+    gap: 8px;
   }
+  .job-preview-name { font-size: 0.72rem; color: var(--purple); flex: 1; }
+  .btn-remove-job {
+    background: rgba(255,107,107,0.15); border: 1px solid rgba(255,107,107,0.3);
+    color: var(--danger); border-radius: 2px; font-size: 0.65rem; padding: 4px 10px;
+    cursor: pointer; font-family: 'DM Mono', monospace; transition: all 0.2s;
+  }
+  .btn-remove-job:hover { background: rgba(255,107,107,0.25); }
+
+  .job-desc-label {
+    font-size: 0.65rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  /* ── UPLOAD (CV) ── */
+  .upload-area {
+    border: 1.5px dashed var(--border); border-radius: 3px; padding: 40px 20px;
+    text-align: center; cursor: pointer; transition: all 0.2s; position: relative;
+    background: var(--surface); margin-bottom: 14px;
+  }
+  .upload-area:hover, .upload-area.drag-over { border-color: var(--accent); background: #151a0a; }
+  .upload-icon { font-size: 2.2rem; margin-bottom: 10px; display: block; }
+  .upload-area h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 4px; }
+  .upload-area p { color: var(--muted); font-size: 0.72rem; }
+  .upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 
   .file-info {
-    display: none;
-    background: #1a1f0d;
-    border: 1px solid var(--accent);
-    border-radius: 2px;
-    padding: 12px 16px;
-    font-size: 0.78rem;
-    color: var(--accent);
-    margin-bottom: 16px;
-    align-items: center;
-    gap: 10px;
-    justify-content: space-between;
+    display: none; background: #151a0a; border: 1px solid var(--accent); border-radius: 3px;
+    padding: 10px 14px; font-size: 0.75rem; color: var(--accent); margin-bottom: 14px;
+    align-items: center; gap: 10px; justify-content: space-between;
   }
-
   .file-info.show { display: flex; }
-
-  .file-info-left { display: flex; align-items: center; gap: 10px; }
-
-  .btn-remove-file {
-    background: none;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 1rem;
-    line-height: 1;
-    padding: 0 4px;
-    transition: color 0.2s;
-  }
-
+  .file-info-left { display: flex; align-items: center; gap: 8px; }
+  .btn-remove-file { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.9rem; transition: color 0.2s; }
   .btn-remove-file:hover { color: var(--danger); }
 
-  /* ── DIVIDER / TEXTAREA ── */
   .or-divider {
-    text-align: center;
-    color: var(--muted);
-    font-size: 0.7rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin: 16px 0;
-    position: relative;
+    text-align: center; color: var(--muted); font-size: 0.68rem; letter-spacing: 3px;
+    text-transform: uppercase; margin: 14px 0; position: relative;
   }
-
-  .or-divider::before, .or-divider::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 43%;
-    height: 1px;
-    background: var(--border);
-  }
-
+  .or-divider::before, .or-divider::after { content: ''; position: absolute; top: 50%; width: 43%; height: 1px; background: var(--border); }
   .or-divider::before { left: 0; }
   .or-divider::after { right: 0; }
 
   textarea {
-    width: 100%;
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 2px;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
-    padding: 16px;
-    resize: vertical;
-    min-height: 160px;
-    outline: none;
-    transition: border-color 0.2s;
-    line-height: 1.7;
+    width: 100%; background: var(--surface); border: 1.5px solid var(--border); border-radius: 3px;
+    color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.76rem; padding: 14px;
+    resize: vertical; min-height: 140px; outline: none; transition: border-color 0.2s; line-height: 1.7;
   }
-
   textarea:focus { border-color: var(--accent); }
   textarea::placeholder { color: var(--muted); }
 
   /* ── OPTIONS ── */
-  .options-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin: 16px 0;
-  }
-
-  .opt-group label {
-    display: block;
-    font-size: 0.65rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 6px;
-  }
+  .options-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+  .opt-group label { display: block; font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
 
   select {
-    width: 100%;
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 2px;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
-    padding: 10px 12px;
-    outline: none;
-    cursor: pointer;
-    appearance: none;
+    width: 100%; background: var(--surface); border: 1.5px solid var(--border); border-radius: 3px;
+    color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.76rem; padding: 10px 12px;
+    outline: none; cursor: pointer; appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    transition: border-color 0.2s;
+    background-repeat: no-repeat; background-position: right 12px center; transition: border-color 0.2s;
   }
-
   select:focus { border-color: var(--accent); }
 
   /* ── ANALYZE BTN ── */
   .btn-analyze {
-    width: 100%;
-    background: var(--accent);
-    color: #000;
-    border: none;
-    border-radius: 2px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
-    font-weight: 500;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    padding: 16px;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 8px;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    width: 100%; border: none; border-radius: 3px; font-family: 'DM Mono', monospace;
+    font-size: 0.8rem; font-weight: 500; letter-spacing: 3px; text-transform: uppercase;
+    padding: 16px; cursor: pointer; transition: all 0.25s; margin-top: 10px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
   }
+  .btn-analyze.standard-btn { background: var(--accent); color: #000; }
+  .btn-analyze.standard-btn:hover:not(:disabled) { background: #d9ff70; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(200,240,96,0.2); }
+  .btn-analyze.premium-btn { background: var(--purple); color: #fff; }
+  .btn-analyze.premium-btn:hover:not(:disabled) { background: #c8a0ff; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(183,136,255,0.25); }
+  .btn-analyze:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
 
-  .btn-analyze:hover:not(:disabled) {
-    background: #d9ff70;
-    transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(200, 240, 96, 0.2);
-  }
-
-  .btn-analyze:disabled {
-    background: var(--border);
-    color: var(--muted);
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .btn-cost-badge {
-    background: rgba(0,0,0,0.18);
-    border-radius: 20px;
-    font-size: 0.6rem;
-    padding: 2px 8px;
-    letter-spacing: 1px;
-  }
+  .btn-cost-badge { background: rgba(0,0,0,0.2); border-radius: 20px; font-size: 0.58rem; padding: 2px 9px; letter-spacing: 1px; }
 
   /* ── LOADING ── */
   .loading { display: none; text-align: center; padding: 48px 0; }
   .loading.show { display: block; }
-
-  .loader-bar {
-    width: 100%;
-    height: 2px;
-    background: var(--border);
-    border-radius: 1px;
-    overflow: hidden;
-    margin-bottom: 24px;
-  }
-
-  .loader-bar-inner {
-    height: 100%;
-    background: var(--accent);
-    animation: loadbar 2s ease-in-out infinite;
-  }
-
-  @keyframes loadbar {
-    0% { width: 0; margin-left: 0; }
-    50% { width: 80%; margin-left: 0; }
-    100% { width: 0; margin-left: 100%; }
-  }
-
-  .loading p {
-    color: var(--muted);
-    font-size: 0.75rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    animation: pulse 1.5s ease-in-out infinite;
-  }
-
+  .loader-bar { width: 100%; height: 2px; background: var(--border); border-radius: 1px; overflow: hidden; margin-bottom: 20px; }
+  .loader-bar-inner { height: 100%; animation: loadbar 2s ease-in-out infinite; }
+  .loader-bar-inner.standard { background: var(--accent); }
+  .loader-bar-inner.premium { background: var(--purple); }
+  @keyframes loadbar { 0%{width:0;margin-left:0} 50%{width:80%;margin-left:0} 100%{width:0;margin-left:100%} }
+  .loading p { color: var(--muted); font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; animation: pulse 1.5s ease-in-out infinite; }
+  .loading-sub { font-size: 0.62rem !important; color: #444 !important; margin-top: 6px; letter-spacing: 1px !important; }
   @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
 
   /* ── RESULTS ── */
   .results { display: none; animation: fadeUp 0.4s ease; }
   .results.show { display: block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
 
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  .results-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); gap: 12px; }
+  .results-header-left h2 { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 4px; }
+  .results-mode-tag { font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; }
+  .results-mode-tag.standard { background: rgba(200,240,96,0.1); color: var(--accent); border: 1px solid rgba(200,240,96,0.3); }
+  .results-mode-tag.premium { background: var(--purple-dim); color: var(--purple); border: 1px solid var(--purple-border); }
 
-  .results-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border);
-  }
+  .score-wrap { text-align: right; flex-shrink: 0; }
+  .score-badge { font-size: 2.2rem; font-weight: 700; font-family: 'Playfair Display', serif; display: block; }
+  .score-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
 
-  .results-header h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
-  }
+  /* match score (premium) */
+  .match-bar-wrap { margin-bottom: 20px; padding: 14px 16px; border: 1px solid var(--purple-border); border-radius: 3px; background: var(--purple-dim); }
+  .match-bar-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .match-bar-label span { font-size: 0.68rem; color: var(--purple); letter-spacing: 1px; text-transform: uppercase; }
+  .match-bar-label strong { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--purple); }
+  .match-bar-track { width: 100%; height: 4px; background: rgba(183,136,255,0.15); border-radius: 2px; overflow: hidden; }
+  .match-bar-fill { height: 100%; background: var(--purple); border-radius: 2px; transition: width 1s ease; }
+  .match-bar-desc { font-size: 0.68rem; color: var(--muted); margin-top: 8px; line-height: 1.6; }
 
-  .score-badge {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--accent);
-    font-family: 'Playfair Display', serif;
-  }
-
-  .section-block {
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    margin-bottom: 12px;
-    overflow: hidden;
-  }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    background: var(--surface);
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.15s;
-  }
-
+  .section-block { border: 1px solid var(--border); border-radius: 3px; margin-bottom: 10px; overflow: hidden; }
+  .section-header { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--surface); cursor: pointer; user-select: none; transition: background 0.15s; }
   .section-header:hover { background: #1c1c1c; }
-
-  .section-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9rem;
-    flex-shrink: 0;
-  }
-
+  .section-icon { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; }
   .icon-critical { background: rgba(255,107,107,0.15); color: var(--danger); }
   .icon-warn { background: rgba(240,200,96,0.15); color: var(--accent2); }
   .icon-ok { background: rgba(200,240,96,0.15); color: var(--accent); }
-
-  .section-title { flex: 1; font-size: 0.82rem; font-weight: 500; }
-
-  .section-tag {
-    font-size: 0.6rem;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    padding: 2px 8px;
-    border-radius: 20px;
-  }
-
+  .icon-match { background: var(--purple-dim); color: var(--purple); }
+  .section-title { flex: 1; font-size: 0.8rem; font-weight: 500; }
+  .section-tag { font-size: 0.58rem; letter-spacing: 1.5px; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; }
   .tag-critical { background: rgba(255,107,107,0.1); color: var(--danger); border: 1px solid rgba(255,107,107,0.3); }
   .tag-warn { background: rgba(240,200,96,0.1); color: var(--accent2); border: 1px solid rgba(240,200,96,0.3); }
   .tag-ok { background: rgba(200,240,96,0.1); color: var(--accent); border: 1px solid rgba(200,240,96,0.3); }
-
-  .section-chevron { color: var(--muted); font-size: 0.7rem; transition: transform 0.2s; }
+  .tag-match { background: var(--purple-dim); color: var(--purple); border: 1px solid var(--purple-border); }
+  .section-chevron { color: var(--muted); font-size: 0.65rem; transition: transform 0.2s; }
   .section-chevron.open { transform: rotate(180deg); }
-
-  .section-body {
-    display: none;
-    padding: 16px;
-    border-top: 1px solid var(--border);
-    font-size: 0.78rem;
-    line-height: 1.8;
-    color: #b0b0a8;
-  }
-
+  .section-body { display: none; padding: 14px 16px; border-top: 1px solid var(--border); font-size: 0.75rem; line-height: 1.8; color: #b0b0a8; }
   .section-body.open { display: block; }
   .section-body ul { list-style: none; padding: 0; }
-
-  .section-body li {
-    padding: 6px 0;
-    padding-left: 20px;
-    position: relative;
-    border-bottom: 1px solid var(--border);
-  }
-
+  .section-body li { padding: 6px 0; padding-left: 18px; position: relative; border-bottom: 1px solid var(--border); }
   .section-body li:last-child { border-bottom: none; }
+  .section-body li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
 
-  .section-body li::before {
-    content: '→';
-    position: absolute;
-    left: 0;
-    color: var(--accent);
-  }
-
-  .btn-new {
-    width: 100%;
-    background: transparent;
-    color: var(--muted);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 12px;
-    cursor: pointer;
-    margin-top: 20px;
-    transition: all 0.2s;
-  }
-
+  .btn-new { width: 100%; background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 3px; font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; padding: 12px; cursor: pointer; margin-top: 18px; transition: all 0.2s; }
   .btn-new:hover { color: var(--text); border-color: var(--text); }
 
-  .error-msg {
-    display: none;
-    background: rgba(255,107,107,0.08);
-    border: 1px solid rgba(255,107,107,0.3);
-    border-radius: 2px;
-    padding: 12px 16px;
-    color: var(--danger);
-    font-size: 0.78rem;
-    margin-top: 12px;
-  }
-
+  .error-msg { display: none; background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.3); border-radius: 3px; padding: 10px 14px; color: var(--danger); font-size: 0.75rem; margin-top: 10px; line-height: 1.6; }
   .error-msg.show { display: block; }
 
-  /* ── TOAST ── */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    background: var(--surface);
-    border: 1px solid var(--accent);
-    border-radius: 2px;
-    padding: 12px 18px;
-    font-size: 0.75rem;
-    color: var(--accent);
-    letter-spacing: 1px;
-    z-index: 999;
-    transform: translateY(80px);
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-  }
+  /* ── COIN LOW WARNING ── */
+  .coin-low-warning { display: none; background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.3); border-radius: 3px; padding: 12px 14px; font-size: 0.73rem; color: var(--danger); margin-bottom: 14px; line-height: 1.6; text-align: center; }
+  .coin-low-warning.show { display: block; }
+  .coin-low-warning a { color: var(--gold); cursor: pointer; text-decoration: underline; }
 
+  /* ── MODALS ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 28px; width: 100%; max-width: 480px; animation: fadeUp 0.25s ease; }
+  .modal h2 { font-family: 'Playfair Display', serif; font-size: 1.35rem; margin-bottom: 6px; }
+  .modal h2 span { color: var(--gold); }
+  .modal-sub { color: var(--muted); font-size: 0.7rem; margin-bottom: 22px; line-height: 1.6; }
+
+  .plan-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+  .plan-card { border: 1.5px solid var(--border); border-radius: 3px; padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
+  .plan-card:hover, .plan-card.selected { border-color: var(--gold); background: #1a1a10; }
+  .plan-badge { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; font-size: 0.52rem; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+  .plan-coins { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--gold); display: block; margin-bottom: 2px; }
+  .plan-coin-label { font-size: 0.58rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px; }
+  .plan-price { font-size: 0.88rem; color: var(--text); font-weight: 500; }
+  .plan-price-label { font-size: 0.58rem; color: var(--muted); display: block; }
+  .plan-saving { font-size: 0.58rem; color: var(--accent); margin-top: 4px; letter-spacing: 1px; }
+
+  .modal-btn-row { display: flex; gap: 10px; margin-top: 6px; }
+  .btn-modal-confirm { flex: 1; background: var(--gold); color: #000; border: none; border-radius: 2px; font-family: 'DM Mono', monospace; font-size: 0.72rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; padding: 13px; cursor: pointer; transition: all 0.2s; }
+  .btn-modal-confirm:hover { background: #ffd970; }
+  .btn-modal-cancel { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 2px; font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; padding: 13px 18px; cursor: pointer; transition: all 0.2s; }
+  .btn-modal-cancel:hover { color: var(--text); border-color: var(--text); }
+
+  .redeem-input-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .redeem-input-row input { flex: 1; background: var(--bg); border: 1.5px solid var(--border); border-radius: 2px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.76rem; padding: 10px 12px; outline: none; text-transform: uppercase; letter-spacing: 2px; transition: border-color 0.2s; }
+  .redeem-input-row input:focus { border-color: var(--gold); }
+  .redeem-msg { font-size: 0.7rem; min-height: 18px; margin-bottom: 14px; }
+  .redeem-msg.ok { color: var(--accent); }
+  .redeem-msg.err { color: var(--danger); }
+
+  /* ── TOAST ── */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--accent); border-radius: 3px; padding: 11px 16px; font-size: 0.72rem; color: var(--accent); letter-spacing: 1px; z-index: 999; transform: translateY(80px); opacity: 0; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); max-width: 280px; }
   .toast.show { transform: translateY(0); opacity: 1; }
   .toast.gold { border-color: var(--gold); color: var(--gold); }
+  .toast.purple { border-color: var(--purple); color: var(--purple); }
+
+  /* ── PREMIUM UPSELL BANNER ── */
+  .upsell-banner {
+    border: 1px solid var(--purple-border);
+    border-radius: 3px;
+    background: var(--purple-dim);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .upsell-banner:hover { background: rgba(183,136,255,0.18); }
+  .upsell-text { flex: 1; }
+  .upsell-text strong { display: block; font-size: 0.78rem; color: var(--purple); margin-bottom: 2px; }
+  .upsell-text span { font-size: 0.68rem; color: var(--muted); line-height: 1.5; }
+  .upsell-arrow { color: var(--purple); font-size: 1rem; }
+
+  @media (max-width: 520px) {
+    .mode-toggle { grid-template-columns: 1fr; }
+    .plan-grid { grid-template-columns: 1fr; }
+    .options-row { grid-template-columns: 1fr; }
+    body { padding: 16px 14px 60px; }
+  }
 </style>
 </head>
 <body>
@@ -756,18 +470,67 @@
 
 <!-- HEADER -->
 <div class="header">
-  <div class="tag">IA Powered</div>
+  <div class="tag-ia">IA Powered</div>
   <h1>Analise seu<br><span>Currículo</span></h1>
   <p>Feedback profissional em segundos</p>
 </div>
 
 <!-- INPUT SECTION -->
 <div id="inputSection">
+
   <div class="coin-low-warning" id="coinWarning">
-    ⚠ Você não tem moedas suficientes para analisar.<br>
+    ⚠ Moedas insuficientes para analisar.<br>
     <a onclick="openBuyModal()">Compre mais moedas</a> ou <a onclick="openRedeemModal()">resgate um código</a>.
   </div>
 
+  <!-- MODE SELECTOR -->
+  <div class="mode-toggle">
+    <div class="mode-card active-standard" id="modeCardStandard" onclick="setMode('standard')">
+      <span class="mode-check">✓</span>
+      <div class="mode-card-header">
+        <span class="mode-icon">📄</span>
+        <span class="mode-title">Análise Geral</span>
+        <span class="mode-badge badge-standard">Padrão</span>
+      </div>
+      <p class="mode-desc">Análise completa do seu currículo com pontos de melhoria, estrutura, impacto e competências.</p>
+      <span class="mode-cost standard">1 moeda por análise</span>
+    </div>
+    <div class="mode-card" id="modeCardPremium" onclick="setMode('premium')">
+      <span class="mode-check">✓</span>
+      <div class="mode-card-header">
+        <span class="mode-icon">🎯</span>
+        <span class="mode-title">Match por Vaga</span>
+        <span class="mode-badge badge-premium">Premium</span>
+      </div>
+      <p class="mode-desc">Envie o print da vaga desejada. A IA cruza seu currículo com os requisitos e mostra seu % de compatibilidade.</p>
+      <span class="mode-cost premium">3 moedas por análise</span>
+    </div>
+  </div>
+
+  <!-- PREMIUM PANEL: job image upload -->
+  <div class="premium-panel" id="premiumPanel">
+    <div class="premium-panel-title">📸 Print ou Screenshot da Vaga</div>
+
+    <div class="job-upload-area" id="jobDropZone">
+      <input type="file" id="jobFileInput" accept="image/*">
+      <span class="job-upload-icon">🖼️</span>
+      <h4>Arraste o print da vaga aqui</h4>
+      <p>PNG, JPG, WEBP · LinkedIn, Indeed, Catho, Gupy…</p>
+    </div>
+
+    <div class="job-preview" id="jobPreview">
+      <img id="jobPreviewImg" src="" alt="Print da vaga">
+      <div class="job-preview-overlay">
+        <span class="job-preview-name" id="jobPreviewName"></span>
+        <button class="btn-remove-job" onclick="removeJobImage()">✕ Remover</button>
+      </div>
+    </div>
+
+    <span class="job-desc-label">Ou descreva a vaga (opcional, complementa o print)</span>
+    <textarea id="jobDescText" placeholder="Ex: Vaga de Desenvolvedor React Pleno na empresa X. Requisitos: 3 anos de experiência, TypeScript, Node.js, inglês intermediário..." style="min-height:90px;"></textarea>
+  </div>
+
+  <!-- CV UPLOAD -->
   <div class="upload-area" id="dropZone">
     <input type="file" id="fileInput" accept=".pdf,.txt">
     <span class="upload-icon">📄</span>
@@ -780,10 +543,10 @@
       <span>📎</span>
       <span id="fileName"></span>
     </div>
-    <button class="btn-remove-file" onclick="removeFile()" title="Remover arquivo">✕</button>
+    <button class="btn-remove-file" onclick="removeFile()" title="Remover">✕</button>
   </div>
 
-  <div class="or-divider" id="orDivider">ou cole o texto</div>
+  <div class="or-divider" id="orDivider">ou cole o texto do currículo</div>
 
   <div id="textareaWrapper">
     <textarea id="resumeText" placeholder="Cole o conteúdo do seu currículo aqui...
@@ -791,7 +554,6 @@
 Ex:
 Nome: João Silva
 Email: joao@email.com
-Cargo: Desenvolvedor Full Stack
 
 EXPERIÊNCIA
 Jan 2022 - Presente | Empresa X
@@ -827,9 +589,9 @@ Jan 2022 - Presente | Empresa X
     </div>
   </div>
 
-  <button class="btn-analyze" id="analyzeBtn" onclick="analyzeResume()">
+  <button class="btn-analyze standard-btn" id="analyzeBtn" onclick="analyzeResume()">
     ✦ Analisar Currículo
-    <span class="btn-cost-badge">1 moeda</span>
+    <span class="btn-cost-badge" id="btnCostBadge">1 moeda</span>
   </button>
 
   <div class="error-msg" id="errorMsg"></div>
@@ -837,17 +599,46 @@ Jan 2022 - Presente | Empresa X
 
 <!-- LOADING -->
 <div class="loading" id="loadingSection">
-  <div class="loader-bar"><div class="loader-bar-inner"></div></div>
-  <p>Analisando seu currículo com IA...</p>
+  <div class="loader-bar"><div class="loader-bar-inner standard" id="loaderBar"></div></div>
+  <p id="loadingText">Analisando seu currículo com IA...</p>
+  <p class="loading-sub" id="loadingSub"></p>
 </div>
 
 <!-- RESULTS -->
 <div class="results" id="resultsSection">
   <div class="results-header">
-    <h2>Análise Completa</h2>
-    <div class="score-badge" id="scoreDisplay"></div>
+    <div class="results-header-left">
+      <h2 id="resultsTitle">Análise Completa</h2>
+      <span class="results-mode-tag standard" id="resultsModeTag">Análise Geral</span>
+    </div>
+    <div class="score-wrap">
+      <span class="score-badge" id="scoreDisplay"></span>
+      <span class="score-label">score geral</span>
+    </div>
   </div>
+
+  <!-- Match bar (premium only) -->
+  <div class="match-bar-wrap" id="matchBarWrap" style="display:none">
+    <div class="match-bar-label">
+      <span>🎯 Compatibilidade com a Vaga</span>
+      <strong id="matchPct">0%</strong>
+    </div>
+    <div class="match-bar-track"><div class="match-bar-fill" id="matchBarFill" style="width:0%"></div></div>
+    <p class="match-bar-desc" id="matchBarDesc"></p>
+  </div>
+
   <div id="sectionsContainer"></div>
+
+  <!-- Upsell (shown after standard analysis) -->
+  <div class="upsell-banner" id="upsellBanner" style="display:none" onclick="setMode('premium'); document.getElementById('inputSection').style.display='block'; document.getElementById('resultsSection').classList.remove('show');">
+    <span style="font-size:1.4rem">🎯</span>
+    <div class="upsell-text">
+      <strong>Quer saber se você passa na triagem?</strong>
+      <span>Use o Match por Vaga: envie o print da vaga e descubra seu % de compatibilidade com os requisitos.</span>
+    </div>
+    <span class="upsell-arrow">→</span>
+  </div>
+
   <button class="btn-new" onclick="resetForm()">← Nova análise</button>
 </div>
 
@@ -855,16 +646,15 @@ Jan 2022 - Presente | Empresa X
 <div class="modal-overlay" id="buyModal">
   <div class="modal">
     <h2>Comprar <span>Moedas</span></h2>
-    <p class="modal-sub">Cada moeda vale 1 análise completa de currículo com IA.</p>
-
+    <p class="modal-sub">Cada moeda vale 1 análise geral. O Match por Vaga custa 3 moedas.</p>
     <div class="plan-grid">
-      <div class="plan-card" id="plan-5" onclick="selectPlan(5, 'R$ 9,90')">
+      <div class="plan-card" id="plan-5" onclick="selectPlan(5,'R$ 9,90')">
         <span class="plan-coins">5</span>
         <span class="plan-coin-label">moedas</span>
         <span class="plan-price">R$ 9,90</span>
         <span class="plan-price-label">R$ 1,98 / moeda</span>
       </div>
-      <div class="plan-card selected" id="plan-15" onclick="selectPlan(15, 'R$ 19,90')">
+      <div class="plan-card selected" id="plan-15" onclick="selectPlan(15,'R$ 19,90')">
         <span class="plan-badge">Mais Popular</span>
         <span class="plan-coins">15</span>
         <span class="plan-coin-label">moedas</span>
@@ -872,7 +662,7 @@ Jan 2022 - Presente | Empresa X
         <span class="plan-price-label">R$ 1,33 / moeda</span>
         <div class="plan-saving">economia 33%</div>
       </div>
-      <div class="plan-card" id="plan-40" onclick="selectPlan(40, 'R$ 39,90')">
+      <div class="plan-card" id="plan-40" onclick="selectPlan(40,'R$ 39,90')">
         <span class="plan-badge" style="background:var(--accent);color:#000">Melhor Valor</span>
         <span class="plan-coins">40</span>
         <span class="plan-coin-label">moedas</span>
@@ -881,12 +671,10 @@ Jan 2022 - Presente | Empresa X
         <div class="plan-saving">economia 50%</div>
       </div>
     </div>
-
-    <p style="font-size:0.65rem;color:var(--muted);margin-bottom:16px;line-height:1.6;">
-      🔒 Pagamento seguro. As moedas são creditadas instantaneamente após confirmação.
-      <br>Esta é uma demonstração — integre seu gateway de pagamento aqui.
+    <p style="font-size:0.63rem;color:var(--muted);margin-bottom:14px;line-height:1.6;">
+      🔒 Pagamento seguro. Moedas creditadas após confirmação.<br>
+      Esta é uma demonstração — integre seu gateway de pagamento aqui.
     </p>
-
     <div class="modal-btn-row">
       <button class="btn-modal-cancel" onclick="closeBuyModal()">Cancelar</button>
       <button class="btn-modal-confirm" onclick="simulatePurchase()">Confirmar Compra</button>
@@ -898,18 +686,15 @@ Jan 2022 - Presente | Empresa X
 <div class="modal-overlay" id="redeemModal">
   <div class="modal">
     <h2>Resgatar <span>Código</span></h2>
-    <p class="modal-sub">Digite o código recebido ao comprar o produto para receber suas moedas.</p>
-
+    <p class="modal-sub">Digite o código recebido para adicionar moedas à sua conta.</p>
     <div class="redeem-input-row">
       <input type="text" id="redeemInput" placeholder="Ex: CURRIC-XXXX-XXXX" maxlength="20">
-      <button class="btn-modal-confirm" style="flex:0 0 auto;padding:10px 18px;" onclick="redeemCode()">Resgatar</button>
+      <button class="btn-modal-confirm" style="flex:0 0 auto;padding:10px 16px;" onclick="redeemCode()">Resgatar</button>
     </div>
     <div class="redeem-msg" id="redeemMsg"></div>
-
-    <p style="font-size:0.65rem;color:var(--muted);line-height:1.6;margin-bottom:20px;">
-      Códigos são fornecidos no momento da compra. Cada código pode ser usado uma única vez.
+    <p style="font-size:0.63rem;color:var(--muted);line-height:1.6;margin-bottom:18px;">
+      Cada código pode ser utilizado uma única vez.
     </p>
-
     <div class="modal-btn-row">
       <button class="btn-modal-cancel" onclick="closeRedeemModal()">Fechar</button>
     </div>
@@ -920,8 +705,10 @@ Jan 2022 - Presente | Empresa X
 <div class="toast" id="toast"></div>
 
 <script>
-// ── VALID CODES (customize: code -> coins) ──────────────────────────────────
-// In a real product, validate server-side. These are demo codes.
+// ── CONFIG ───────────────────────────────────────────────────────────────────
+const COST_STANDARD = 1;
+const COST_PREMIUM  = 3;
+
 const VALID_CODES = {
   'CURRIC-DEMO-2024': 10,
   'CURRIC-FREE-TEST': 5,
@@ -929,15 +716,15 @@ const VALID_CODES = {
   'BETA-ACCESS-2025': 20,
 };
 
-const COST_PER_ANALYSIS = 1;
-
 // ── STATE ────────────────────────────────────────────────────────────────────
-let uploadedFile = null;     // { base64, mediaType, name } for PDF
-let usedCodes = JSON.parse(localStorage.getItem('usedCodes') || '[]');
-let coins = parseInt(localStorage.getItem('coins') || '0', 10);
-let selectedPlan = { coins: 15, price: 'R$ 19,90' };
+let uploadedFile  = null;   // { base64, mediaType, name }
+let uploadedJob   = null;   // { base64, mediaType, name } for job image
+let currentMode   = 'standard';
+let usedCodes     = JSON.parse(localStorage.getItem('usedCodes') || '[]');
+let coins         = parseInt(localStorage.getItem('coins') || '0', 10);
+let selectedPlan  = { coins: 15, price: 'R$ 19,90' };
 
-// ── COIN HELPERS ─────────────────────────────────────────────────────────────
+// ── COINS ────────────────────────────────────────────────────────────────────
 function saveCoins() {
   localStorage.setItem('coins', coins);
   document.getElementById('coinCount').innerHTML = coins + ' <span>moedas</span>';
@@ -945,15 +732,11 @@ function saveCoins() {
 }
 
 function updateWarning() {
-  const w = document.getElementById('coinWarning');
+  const cost = currentMode === 'premium' ? COST_PREMIUM : COST_STANDARD;
+  const w   = document.getElementById('coinWarning');
   const btn = document.getElementById('analyzeBtn');
-  if (coins < COST_PER_ANALYSIS) {
-    w.classList.add('show');
-    btn.disabled = true;
-  } else {
-    w.classList.remove('show');
-    btn.disabled = false;
-  }
+  if (coins < cost) { w.classList.add('show'); btn.disabled = true; }
+  else              { w.classList.remove('show'); btn.disabled = false; }
 }
 
 function showToast(msg, type = '') {
@@ -963,128 +746,105 @@ function showToast(msg, type = '') {
   setTimeout(() => t.className = 'toast', 2800);
 }
 
-// ── BUY MODAL ────────────────────────────────────────────────────────────────
-function openBuyModal() { document.getElementById('buyModal').classList.add('show'); }
-function closeBuyModal() { document.getElementById('buyModal').classList.remove('show'); }
+// ── MODE TOGGLE ───────────────────────────────────────────────────────────────
+function setMode(mode) {
+  currentMode = mode;
+  const cardS  = document.getElementById('modeCardStandard');
+  const cardP  = document.getElementById('modeCardPremium');
+  const panel  = document.getElementById('premiumPanel');
+  const btn    = document.getElementById('analyzeBtn');
+  const badge  = document.getElementById('btnCostBadge');
 
-function selectPlan(c, price) {
-  selectedPlan = { coins: c, price };
-  document.querySelectorAll('.plan-card').forEach(el => el.classList.remove('selected'));
-  document.getElementById('plan-' + c).classList.add('selected');
-}
+  cardS.className = 'mode-card' + (mode === 'standard' ? ' active-standard' : '');
+  cardP.className = 'mode-card' + (mode === 'premium'  ? ' active-premium'  : '');
 
-function simulatePurchase() {
-  // ── INTEGRATION POINT ──────────────────────────────────────────────────────
-  // Replace this block with your payment gateway (Stripe, Mercado Pago, etc.)
-  // On payment success callback, call: grantCoins(selectedPlan.coins)
-  // ──────────────────────────────────────────────────────────────────────────
-  grantCoins(selectedPlan.coins);
-  closeBuyModal();
-  showToast('🪙 ' + selectedPlan.coins + ' moedas adicionadas!', 'gold');
-}
-
-function grantCoins(amount) {
-  coins += amount;
-  saveCoins();
-}
-
-// ── REDEEM MODAL ─────────────────────────────────────────────────────────────
-function openRedeemModal() {
-  document.getElementById('redeemInput').value = '';
-  document.getElementById('redeemMsg').textContent = '';
-  document.getElementById('redeemMsg').className = 'redeem-msg';
-  document.getElementById('redeemModal').classList.add('show');
-}
-
-function closeRedeemModal() { document.getElementById('redeemModal').classList.remove('show'); }
-
-function redeemCode() {
-  const raw = document.getElementById('redeemInput').value.trim().toUpperCase();
-  const msgEl = document.getElementById('redeemMsg');
-
-  if (!raw) {
-    msgEl.textContent = 'Digite um código.';
-    msgEl.className = 'redeem-msg err';
-    return;
+  if (mode === 'premium') {
+    panel.classList.add('show');
+    btn.className = 'btn-analyze premium-btn';
+    badge.textContent = '3 moedas';
+  } else {
+    panel.classList.remove('show');
+    btn.className = 'btn-analyze standard-btn';
+    badge.textContent = '1 moeda';
   }
-
-  if (usedCodes.includes(raw)) {
-    msgEl.textContent = '✕ Este código já foi utilizado.';
-    msgEl.className = 'redeem-msg err';
-    return;
-  }
-
-  const amount = VALID_CODES[raw];
-  if (!amount) {
-    msgEl.textContent = '✕ Código inválido ou expirado.';
-    msgEl.className = 'redeem-msg err';
-    return;
-  }
-
-  // Mark used
-  usedCodes.push(raw);
-  localStorage.setItem('usedCodes', JSON.stringify(usedCodes));
-
-  grantCoins(amount);
-  msgEl.textContent = '✓ Código resgatado! +' + amount + ' moedas adicionadas.';
-  msgEl.className = 'redeem-msg ok';
-  showToast('🎉 +' + amount + ' moedas resgatadas!', 'gold');
-
-  setTimeout(closeRedeemModal, 2000);
+  updateWarning();
 }
 
-// ── FILE HANDLING ─────────────────────────────────────────────────────────────
-const dropZone = document.getElementById('dropZone');
+// ── JOB IMAGE UPLOAD ─────────────────────────────────────────────────────────
+const jobDropZone  = document.getElementById('jobDropZone');
+const jobFileInput = document.getElementById('jobFileInput');
+
+jobDropZone.addEventListener('dragover', e => { e.preventDefault(); jobDropZone.classList.add('drag-over'); });
+jobDropZone.addEventListener('dragleave', () => jobDropZone.classList.remove('drag-over'));
+jobDropZone.addEventListener('drop', e => {
+  e.preventDefault(); jobDropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) handleJobFile(file);
+});
+jobFileInput.addEventListener('change', () => { if (jobFileInput.files[0]) handleJobFile(jobFileInput.files[0]); });
+
+function handleJobFile(file) {
+  if (!file.type.startsWith('image/')) {
+    showToast('Formato inválido. Envie uma imagem.'); return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const base64 = e.target.result.split(',')[1];
+    const mediaType = file.type;
+    uploadedJob = { base64, mediaType, name: file.name };
+    document.getElementById('jobPreviewImg').src = e.target.result;
+    document.getElementById('jobPreviewName').textContent = file.name;
+    document.getElementById('jobPreview').classList.add('show');
+    jobDropZone.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeJobImage() {
+  uploadedJob = null;
+  jobFileInput.value = '';
+  document.getElementById('jobPreview').classList.remove('show');
+  jobDropZone.style.display = '';
+}
+
+// ── CV FILE UPLOAD ────────────────────────────────────────────────────────────
+const dropZone  = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
 dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('drag-over');
+  e.preventDefault(); dropZone.classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
   if (file) handleFile(file);
 });
-
-fileInput.addEventListener('change', () => {
-  if (fileInput.files[0]) handleFile(fileInput.files[0]);
-});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
 
 function handleFile(file) {
   const errorEl = document.getElementById('errorMsg');
   errorEl.classList.remove('show');
-
   const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-  const isTxt = file.type === 'text/plain' || file.name.toLowerCase().endsWith('.txt');
-
-  // Block unsupported types (images, docx, etc.)
+  const isTxt = file.type === 'text/plain'      || file.name.toLowerCase().endsWith('.txt');
   if (!isPdf && !isTxt) {
     errorEl.textContent = 'Formato não suportado. Use PDF ou TXT.';
-    errorEl.classList.add('show');
-    fileInput.value = '';
-    return;
+    errorEl.classList.add('show'); fileInput.value = ''; return;
   }
-
   document.getElementById('fileName').textContent = file.name;
   document.getElementById('fileInfo').classList.add('show');
-
   if (isPdf) {
     const reader = new FileReader();
     reader.onload = e => {
       const base64 = e.target.result.split(',')[1];
       uploadedFile = { base64, mediaType: 'application/pdf', name: file.name };
-      // Hide textarea — PDF is sent directly to API
       document.getElementById('orDivider').style.display = 'none';
       document.getElementById('textareaWrapper').style.display = 'none';
     };
     reader.readAsDataURL(file);
   } else {
-    // TXT: read as plain text into textarea (do NOT dump binary)
     uploadedFile = null;
     const reader = new FileReader();
     reader.onload = e => {
-      const content = e.target.result;
-      document.getElementById('resumeText').value = content;
+      document.getElementById('resumeText').value = e.target.result;
       document.getElementById('orDivider').style.display = '';
       document.getElementById('textareaWrapper').style.display = '';
     };
@@ -1093,8 +853,7 @@ function handleFile(file) {
 }
 
 function removeFile() {
-  uploadedFile = null;
-  fileInput.value = '';
+  uploadedFile = null; fileInput.value = '';
   document.getElementById('fileInfo').classList.remove('show');
   document.getElementById('fileName').textContent = '';
   document.getElementById('resumeText').value = '';
@@ -1102,94 +861,130 @@ function removeFile() {
   document.getElementById('textareaWrapper').style.display = '';
 }
 
-// ── ANALYZE ──────────────────────────────────────────────────────────────────
+// ── ANALYZE ───────────────────────────────────────────────────────────────────
 async function analyzeResume() {
-  const area = document.getElementById('areaSelect').value;
-  const level = document.getElementById('levelSelect').value;
+  const area    = document.getElementById('areaSelect').value;
+  const level   = document.getElementById('levelSelect').value;
   const errorEl = document.getElementById('errorMsg');
-  const text = document.getElementById('resumeText').value.trim();
+  const text    = document.getElementById('resumeText').value.trim();
+  const isPrem  = currentMode === 'premium';
+  const cost    = isPrem ? COST_PREMIUM : COST_STANDARD;
 
   errorEl.classList.remove('show');
 
   if (!uploadedFile && !text) {
     errorEl.textContent = 'Por favor, faça upload do currículo em PDF ou cole o texto.';
-    errorEl.classList.add('show');
-    return;
+    errorEl.classList.add('show'); return;
   }
 
-  if (coins < COST_PER_ANALYSIS) {
-    errorEl.textContent = 'Moedas insuficientes. Compre mais moedas para continuar.';
-    errorEl.classList.add('show');
-    return;
+  if (isPrem && !uploadedJob && !document.getElementById('jobDescText').value.trim()) {
+    errorEl.textContent = 'No modo Premium, envie o print da vaga ou descreva os requisitos.';
+    errorEl.classList.add('show'); return;
   }
 
-  // Deduct coin
-  coins -= COST_PER_ANALYSIS;
-  saveCoins();
+  if (coins < cost) {
+    errorEl.textContent = `Moedas insuficientes. Esta análise custa ${cost} moedas.`;
+    errorEl.classList.add('show'); return;
+  }
+
+  coins -= cost; saveCoins();
 
   document.getElementById('inputSection').style.display = 'none';
   document.getElementById('loadingSection').classList.add('show');
   document.getElementById('resultsSection').classList.remove('show');
 
-  const instruction = `Você é um especialista em recrutamento e seleção com 15 anos de experiência analisando currículos para a área de ${area}, modalidade de contratação: ${level}.
+  const loaderBar   = document.getElementById('loaderBar');
+  const loadingText = document.getElementById('loadingText');
+  const loadingSub  = document.getElementById('loadingSub');
 
-Analise o currículo e retorne SOMENTE um JSON válido com esta estrutura exata (sem markdown, sem texto fora do JSON):
+  if (isPrem) {
+    loaderBar.className = 'loader-bar-inner premium';
+    loadingText.textContent = 'Cruzando currículo com a vaga…';
+    loadingSub.textContent  = 'Isso pode levar alguns segundos a mais';
+  } else {
+    loaderBar.className = 'loader-bar-inner standard';
+    loadingText.textContent = 'Analisando seu currículo com IA…';
+    loadingSub.textContent  = '';
+  }
+
+  // Build prompt
+  const jobDesc = document.getElementById('jobDescText').value.trim();
+
+  const promptStandard = `Você é um especialista em recrutamento com 15 anos de experiência na área de ${area}, modalidade ${level}.
+
+Analise o currículo e retorne SOMENTE um JSON válido (sem markdown, sem texto fora do JSON):
 {
-  "score": <número de 0 a 100 representando a qualidade geral>,
+  "score": <0-100>,
   "sections": [
-    {
-      "title": "<título da seção de feedback>",
-      "priority": "<critical|warn|ok>",
-      "icon": "<emoji relevante>",
-      "items": ["<ponto de melhoria 1>", "<ponto de melhoria 2>", ...]
-    }
+    { "title": "<título>", "priority": "<critical|warn|ok>", "icon": "<emoji>", "items": ["<ponto 1>", ...] }
   ]
 }
 
-Analise pelo menos 5 aspectos: impacto visual/estrutura, experiência profissional, habilidades/competências, formação, e diferenciais. Use priority "critical" para problemas urgentes, "warn" para melhorias importantes, "ok" para pontos positivos. Escreva em português brasileiro. Seja específico e acionável.`;
+Analise: impacto visual/estrutura, experiência profissional, habilidades/competências, formação e diferenciais. Use "critical" para problemas urgentes, "warn" para melhorias, "ok" para pontos positivos. Escreva em português brasileiro. Seja específico e acionável.`;
 
+  const promptPremium = `Você é um especialista em recrutamento e ATS (Applicant Tracking System) com 15 anos de experiência.
+
+Analise o currículo em relação à vaga ${jobDesc ? 'descrita abaixo' : 'na imagem'}${jobDesc ? ` ("${jobDesc.substring(0,200)}")` : ''} para a área de ${area}, modalidade ${level}.
+
+Retorne SOMENTE um JSON válido (sem markdown, sem texto fora do JSON):
+{
+  "score": <0-100, qualidade geral do currículo>,
+  "match": <0-100, % de compatibilidade com a vaga>,
+  "matchSummary": "<frase curta explicando o match, ex: Você atende 7 de 10 requisitos principais>",
+  "sections": [
+    { "title": "<título>", "priority": "<critical|warn|ok|match>", "icon": "<emoji>", "items": ["<item>", ...] }
+  ]
+}
+
+Inclua obrigatoriamente uma seção com priority "match" listando os requisitos da vaga e se o candidato os atende (✓ ou ✗). Depois analise o restante do currículo normalmente. Escreva em português brasileiro.`;
+
+  // Build message content
   let messageContent;
-  if (uploadedFile) {
-    messageContent = [
-      {
-        type: 'document',
-        source: { type: 'base64', media_type: uploadedFile.mediaType, data: uploadedFile.base64 }
-      },
-      { type: 'text', text: instruction }
-    ];
+  if (isPrem) {
+    const contentArr = [];
+    if (uploadedFile) {
+      contentArr.push({ type: 'document', source: { type: 'base64', media_type: uploadedFile.mediaType, data: uploadedFile.base64 } });
+    } else {
+      contentArr.push({ type: 'text', text: 'CURRÍCULO:\n' + text.substring(0, 6000) });
+    }
+    if (uploadedJob) {
+      contentArr.push({ type: 'image', source: { type: 'base64', media_type: uploadedJob.mediaType, data: uploadedJob.base64 } });
+    }
+    contentArr.push({ type: 'text', text: promptPremium });
+    messageContent = contentArr;
   } else {
-    // Limit text to avoid token overflow
-    const safeText = text.substring(0, 6000);
-    messageContent = instruction + '\n\nCURRÍCULO:\n' + safeText;
+    if (uploadedFile) {
+      messageContent = [
+        { type: 'document', source: { type: 'base64', media_type: uploadedFile.mediaType, data: uploadedFile.base64 } },
+        { type: 'text', text: promptStandard }
+      ];
+    } else {
+      messageContent = promptStandard + '\n\nCURRÍCULO:\n' + text.substring(0, 6000);
+    }
   }
 
   try {
-    const response = await fetch("/api/analyze", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: "claude-sonnet-4-5",
+        model: 'claude-sonnet-4-5',
         max_tokens: 1500,
-        messages: [{ role: "user", content: messageContent }]
+        messages: [{ role: 'user', content: messageContent }]
       })
     });
 
     const data = await response.json();
     if (data.error) throw new Error(data.error.message);
 
-    const rawText = data.content.map(i => i.text || '').join('');
+    const rawText  = data.content.map(i => i.text || '').join('');
     const jsonMatch = rawText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('Resposta inválida da IA.');
 
     const result = JSON.parse(jsonMatch[0]);
-    renderResults(result);
+    renderResults(result, isPrem);
   } catch (err) {
-    // Refund coin on error
-    coins += COST_PER_ANALYSIS;
-    saveCoins();
-
+    coins += cost; saveCoins();
     document.getElementById('loadingSection').classList.remove('show');
     document.getElementById('inputSection').style.display = 'block';
     errorEl.textContent = 'Erro ao analisar: ' + err.message;
@@ -1197,24 +992,50 @@ Analise pelo menos 5 aspectos: impacto visual/estrutura, experiência profission
   }
 }
 
-// ── RENDER RESULTS ────────────────────────────────────────────────────────────
-function renderResults(data) {
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function renderResults(data, isPremium) {
   document.getElementById('loadingSection').classList.remove('show');
 
   const score = data.score || 0;
   document.getElementById('scoreDisplay').textContent = score + '/100';
 
+  // mode tag
+  const modeTag = document.getElementById('resultsModeTag');
+  if (isPremium) {
+    modeTag.textContent = '🎯 Match por Vaga';
+    modeTag.className = 'results-mode-tag premium';
+    document.getElementById('resultsTitle').textContent = 'Análise + Match';
+  } else {
+    modeTag.textContent = '📄 Análise Geral';
+    modeTag.className = 'results-mode-tag standard';
+    document.getElementById('resultsTitle').textContent = 'Análise Completa';
+  }
+
+  // match bar (premium)
+  const matchWrap = document.getElementById('matchBarWrap');
+  if (isPremium && data.match !== undefined) {
+    const pct = data.match;
+    matchWrap.style.display = 'block';
+    document.getElementById('matchPct').textContent = pct + '%';
+    document.getElementById('matchBarDesc').textContent = data.matchSummary || '';
+    setTimeout(() => { document.getElementById('matchBarFill').style.width = pct + '%'; }, 100);
+  } else {
+    matchWrap.style.display = 'none';
+  }
+
+  // sections
   const container = document.getElementById('sectionsContainer');
   container.innerHTML = '';
 
-  (data.sections || []).forEach((sec, i) => {
-    const pMap = {
-      critical: { tag: 'tag-critical', tagLabel: 'Urgente',    iconClass: 'icon-critical' },
-      warn:     { tag: 'tag-warn',     tagLabel: 'Importante', iconClass: 'icon-warn' },
-      ok:       { tag: 'tag-ok',       tagLabel: 'Positivo',   iconClass: 'icon-ok' }
-    };
-    const p = pMap[sec.priority] || pMap.warn;
+  const pMap = {
+    critical: { tag: 'tag-critical', tagLabel: 'Urgente',     iconClass: 'icon-critical' },
+    warn:     { tag: 'tag-warn',     tagLabel: 'Importante',  iconClass: 'icon-warn' },
+    ok:       { tag: 'tag-ok',       tagLabel: 'Positivo',    iconClass: 'icon-ok' },
+    match:    { tag: 'tag-match',    tagLabel: 'Req. da Vaga', iconClass: 'icon-match' },
+  };
 
+  (data.sections || []).forEach((sec, i) => {
+    const p = pMap[sec.priority] || pMap.warn;
     const block = document.createElement('div');
     block.className = 'section-block';
     block.innerHTML = `
@@ -1226,31 +1047,77 @@ function renderResults(data) {
       </div>
       <div class="section-body ${i === 0 ? 'open' : ''}">
         <ul>${(sec.items || []).map(item => `<li>${item}</li>`).join('')}</ul>
-      </div>
-    `;
+      </div>`;
     container.appendChild(block);
   });
+
+  // upsell only after standard analysis
+  document.getElementById('upsellBanner').style.display = isPremium ? 'none' : 'flex';
 
   document.getElementById('resultsSection').classList.add('show');
 }
 
 function toggleSection(header) {
-  const chevron = header.querySelector('.section-chevron');
-  const body = header.nextElementSibling;
-  chevron.classList.toggle('open');
-  body.classList.toggle('open');
+  header.querySelector('.section-chevron').classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
 }
 
-// ── RESET ────────────────────────────────────────────────────────────────────
 function resetForm() {
-  removeFile();
+  removeFile(); removeJobImage();
+  document.getElementById('resumeText').value = '';
+  document.getElementById('jobDescText').value = '';
   document.getElementById('errorMsg').classList.remove('show');
   document.getElementById('resultsSection').classList.remove('show');
   document.getElementById('inputSection').style.display = 'block';
+  document.getElementById('matchBarFill').style.width = '0%';
 }
 
-// ── INIT ─────────────────────────────────────────────────────────────────────
-saveCoins(); // render initial coin count + warning state
+// ── BUY MODAL ─────────────────────────────────────────────────────────────────
+function openBuyModal()  { document.getElementById('buyModal').classList.add('show'); }
+function closeBuyModal() { document.getElementById('buyModal').classList.remove('show'); }
+
+function selectPlan(c, price) {
+  selectedPlan = { coins: c, price };
+  document.querySelectorAll('.plan-card').forEach(el => el.classList.remove('selected'));
+  document.getElementById('plan-' + c).classList.add('selected');
+}
+
+function simulatePurchase() {
+  // Integration point: replace with Stripe / Mercado Pago / etc.
+  grantCoins(selectedPlan.coins);
+  closeBuyModal();
+  showToast('🪙 ' + selectedPlan.coins + ' moedas adicionadas!', 'gold');
+}
+
+function grantCoins(amount) { coins += amount; saveCoins(); }
+
+// ── REDEEM MODAL ──────────────────────────────────────────────────────────────
+function openRedeemModal() {
+  document.getElementById('redeemInput').value = '';
+  document.getElementById('redeemMsg').textContent = '';
+  document.getElementById('redeemMsg').className = 'redeem-msg';
+  document.getElementById('redeemModal').classList.add('show');
+}
+function closeRedeemModal() { document.getElementById('redeemModal').classList.remove('show'); }
+
+function redeemCode() {
+  const raw   = document.getElementById('redeemInput').value.trim().toUpperCase();
+  const msgEl = document.getElementById('redeemMsg');
+  if (!raw) { msgEl.textContent = 'Digite um código.'; msgEl.className = 'redeem-msg err'; return; }
+  if (usedCodes.includes(raw)) { msgEl.textContent = '✕ Código já utilizado.'; msgEl.className = 'redeem-msg err'; return; }
+  const amount = VALID_CODES[raw];
+  if (!amount) { msgEl.textContent = '✕ Código inválido ou expirado.'; msgEl.className = 'redeem-msg err'; return; }
+  usedCodes.push(raw);
+  localStorage.setItem('usedCodes', JSON.stringify(usedCodes));
+  grantCoins(amount);
+  msgEl.textContent = '✓ +' + amount + ' moedas adicionadas!';
+  msgEl.className = 'redeem-msg ok';
+  showToast('🎉 +' + amount + ' moedas resgatadas!', 'gold');
+  setTimeout(closeRedeemModal, 2000);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+saveCoins();
 </script>
 </body>
 </html>
