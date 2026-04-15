@@ -486,125 +486,165 @@
     background: var(--coral-border);
   }
 
-  .generator-tabs {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 16px;
+  .generator-tabs { display: none; } /* replaced by steps */
+
+  .gen-step {
+    background: rgba(255,140,105,0.05);
+    border: 1px solid var(--coral-border);
+    border-radius: 3px;
+    padding: 16px;
+    margin-bottom: 12px;
   }
-  .gen-tab {
-    flex: 1;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    padding: 8px 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
+  .gen-step-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .gen-step-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--coral); color: #000;
+    font-size: 0.65rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
   }
-  .gen-tab.active {
-    background: var(--coral-dim);
-    border-color: var(--coral-border);
-    color: var(--coral);
+  .gen-step-title { font-size: 0.78rem; font-weight: 500; color: var(--text); }
+  .gen-required {
+    font-size: 0.58rem; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--coral); background: var(--coral-dim);
+    border: 1px solid var(--coral-border); border-radius: 20px;
+    padding: 1px 7px; margin-left: 6px;
   }
-  .gen-tab:hover:not(.active) { color: var(--text); border-color: #444; }
+  .gen-step-desc { font-size: 0.68rem; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+
+  .gen-cv-choice { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .gen-choice-btn {
+    flex: 1; min-width: 140px;
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 3px; color: var(--muted);
+    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 1px; padding: 10px 14px; cursor: pointer;
+    transition: all 0.2s; text-align: center;
+  }
+  .gen-choice-btn.active { background: var(--coral-dim); border-color: var(--coral-border); color: var(--coral); }
+  .gen-choice-btn:hover:not(.active) { border-color: #555; color: var(--text); }
+
+  .gen-job-upload { margin-bottom: 8px; }
 
   .gen-pane { display: none; }
   .gen-pane.show { display: block; }
 
   .gen-field-label {
-    font-size: 0.62rem;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 6px;
-    display: block;
-    margin-top: 12px;
+    font-size: 0.62rem; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 6px; display: block; margin-top: 12px;
   }
   .gen-field-label:first-child { margin-top: 0; }
 
   .gen-input {
-    width: 100%;
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 3px;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.76rem;
-    padding: 10px 12px;
-    outline: none;
-    transition: border-color 0.2s;
+    width: 100%; background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 3px; color: var(--text); font-family: 'DM Mono', monospace;
+    font-size: 0.76rem; padding: 10px 12px; outline: none; transition: border-color 0.2s;
   }
   .gen-input:focus { border-color: var(--coral); }
   .gen-input::placeholder { color: var(--muted); }
 
   .gen-textarea {
-    width: 100%;
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 3px;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.76rem;
-    padding: 14px;
-    resize: vertical;
-    min-height: 80px;
-    outline: none;
-    transition: border-color 0.2s;
-    line-height: 1.7;
+    width: 100%; background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 3px; color: var(--text); font-family: 'DM Mono', monospace;
+    font-size: 0.76rem; padding: 14px; resize: vertical; min-height: 80px;
+    outline: none; transition: border-color 0.2s; line-height: 1.7;
   }
   .gen-textarea:focus { border-color: var(--coral); }
   .gen-textarea::placeholder { color: var(--muted); }
 
   .gen-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-  /* ── GENERATED CV RESULT ── */
+  /* ── GENERATED CV RESULT — visual model like the uploaded template ── */
   .cv-result-wrap {
-    background: var(--surface);
-    border: 1px solid var(--coral-border);
-    border-radius: 3px;
-    padding: 24px;
+    background: #fff;
+    border-radius: 4px;
+    padding: 40px 44px;
     margin-bottom: 16px;
-    white-space: pre-wrap;
-    font-size: 0.78rem;
-    line-height: 1.9;
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
+    color: #111;
+    font-family: 'Georgia', serif;
+    line-height: 1.7;
   }
-  .cv-result-wrap h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
-    color: var(--coral);
-    margin-bottom: 4px;
+  .cv-result-wrap .cv-name {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #111;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1.1;
+    margin-bottom: 2px;
+    font-family: 'Arial Black', 'Arial', sans-serif;
+  }
+  .cv-result-wrap .cv-subtitle {
+    font-size: 1rem;
+    color: #444;
+    font-family: 'Arial', sans-serif;
+    margin-bottom: 14px;
+    font-weight: 400;
+  }
+  .cv-result-wrap .cv-divider {
+    border: none; border-top: 2px solid #111;
+    margin: 10px 0 14px;
+  }
+  .cv-result-wrap .cv-contact-row {
+    display: flex; gap: 24px; flex-wrap: wrap;
+    font-size: 0.82rem; font-family: 'Arial', sans-serif;
+    color: #333; margin-bottom: 4px;
+  }
+  .cv-result-wrap .cv-contact-row span { display: flex; align-items: center; gap: 5px; }
+  .cv-result-wrap .cv-divider2 {
+    border: none; border-top: 1px solid #ccc;
+    margin: 12px 0 20px;
   }
   .cv-result-wrap .cv-section-title {
-    font-size: 0.65rem;
-    letter-spacing: 2.5px;
+    font-size: 0.82rem;
+    font-weight: 700;
     text-transform: uppercase;
-    color: var(--coral);
-    border-bottom: 1px solid var(--coral-border);
-    padding-bottom: 4px;
-    margin: 18px 0 10px;
+    letter-spacing: 2px;
+    color: #111;
+    border-bottom: 2px solid #111;
+    padding-bottom: 3px;
+    margin: 22px 0 12px;
+    font-family: 'Arial Black', 'Arial', sans-serif;
   }
-  .cv-result-wrap p, .cv-result-wrap li { margin-bottom: 4px; }
+  .cv-result-wrap .cv-exp-header {
+    font-weight: 700; font-size: 0.84rem;
+    font-family: 'Arial', sans-serif;
+    margin-bottom: 1px;
+    color: #111;
+  }
+  .cv-result-wrap .cv-exp-role {
+    font-size: 0.82rem; color: #444;
+    font-family: 'Arial', sans-serif;
+    margin-bottom: 2px;
+  }
+  .cv-result-wrap .cv-exp-desc {
+    font-size: 0.8rem; color: #333;
+    font-family: 'Arial', sans-serif;
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+  .cv-result-wrap p {
+    font-size: 0.82rem; color: #333;
+    font-family: 'Arial', sans-serif;
+    margin-bottom: 6px;
+    line-height: 1.6;
+  }
+  .cv-result-wrap ul {
+    padding-left: 0; list-style: none; margin-bottom: 6px;
+  }
+  .cv-result-wrap li {
+    font-size: 0.82rem; color: #333;
+    font-family: 'Arial', sans-serif;
+    padding: 2px 0 2px 14px;
+    position: relative; line-height: 1.5;
+  }
+  .cv-result-wrap li::before { content: '•'; position: absolute; left: 0; color: #111; }
 
   .btn-copy-cv {
-    background: var(--coral-dim);
-    border: 1px solid var(--coral-border);
-    color: var(--coral);
-    border-radius: 2px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 9px 16px;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-bottom: 16px;
+    background: var(--coral-dim); border: 1px solid var(--coral-border);
+    color: var(--coral); border-radius: 2px; font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
+    padding: 9px 16px; cursor: pointer; transition: all 0.2s; margin-bottom: 16px;
   }
   .btn-copy-cv:hover { background: rgba(255,140,105,0.22); }
 
@@ -726,59 +766,66 @@
   <div class="generator-panel" id="generatorPanel">
     <div class="generator-panel-title">✨ Gerador de Currículo com IA</div>
 
-    <!-- Tabs -->
-    <div class="generator-tabs">
-      <button class="gen-tab active" id="genTab1" onclick="switchGenTab('job')">📋 Tenho uma vaga</button>
-      <button class="gen-tab" id="genTab2" onclick="switchGenTab('old')">📄 Tenho currículo antigo</button>
-      <button class="gen-tab" id="genTab3" onclick="switchGenTab('guided')">🧭 Guiado por IA</button>
-    </div>
+    <!-- STEP 1: Vaga (obrigatório) -->
+    <div class="gen-step">
+      <div class="gen-step-header">
+        <span class="gen-step-num">1</span>
+        <span class="gen-step-title">Vaga desejada <span class="gen-required">obrigatório</span></span>
+      </div>
+      <p class="gen-step-desc">Cole o print ou o texto da vaga. A IA vai otimizar seu currículo para essa posição específica.</p>
 
-    <!-- Pane: job target -->
-    <div class="gen-pane show" id="genPaneJob">
-      <span class="gen-field-label">Cole o texto da vaga desejada *</span>
-      <textarea class="gen-textarea" id="genJobText" style="min-height:110px" placeholder="Cole aqui a descrição completa da vaga (LinkedIn, Gupy, Indeed…). A IA vai gerar um currículo otimizado para essa posição específica."></textarea>
-      <span class="gen-field-label">Suas informações pessoais (nome, contato, formação, experiência)</span>
-      <textarea class="gen-textarea" id="genJobInfo" style="min-height:100px" placeholder="Ex: Me chamo Ana Lima, tenho 26 anos, sou formada em Engenharia de Produção pela USP (2021). Trabalhei 2 anos na Embraer como analista de processos e 1 ano na startup Loggi como coordenadora de operações. Tenho inglês avançado e certificação Six Sigma."></textarea>
-    </div>
-
-    <!-- Pane: old resume -->
-    <div class="gen-pane" id="genPaneOld">
-      <span class="gen-field-label">Cole o texto do seu currículo atual / antigo *</span>
-      <textarea class="gen-textarea" id="genOldResume" style="min-height:150px" placeholder="Cole seu currículo atual aqui. A IA vai reescrever, reorganizar e fortalecer cada seção com linguagem de impacto."></textarea>
-      <span class="gen-field-label">Vaga alvo (opcional — para personalizar ainda mais)</span>
-      <textarea class="gen-textarea" id="genOldJobTarget" style="min-height:70px" placeholder="Cole a descrição da vaga para a qual quer se candidatar (opcional)."></textarea>
-    </div>
-
-    <!-- Pane: guided questions -->
-    <div class="gen-pane" id="genPaneGuided">
-      <div class="gen-row2">
-        <div>
-          <span class="gen-field-label">Nome completo *</span>
-          <input class="gen-input" id="gqName" placeholder="Ana Lima">
-        </div>
-        <div>
-          <span class="gen-field-label">Área profissional *</span>
-          <input class="gen-input" id="gqArea" placeholder="Engenharia de Produção">
+      <div class="job-upload-area gen-job-upload" id="genJobDropZone">
+        <input type="file" id="genJobFileInput" accept="image/*">
+        <span class="job-upload-icon">🖼️</span>
+        <h4>Arraste o print da vaga aqui</h4>
+        <p>PNG, JPG, WEBP · LinkedIn, Indeed, Catho, Gupy…</p>
+      </div>
+      <div class="job-preview" id="genJobPreview">
+        <img id="genJobPreviewImg" src="" alt="Print da vaga">
+        <div class="job-preview-overlay">
+          <span class="job-preview-name" id="genJobPreviewName"></span>
+          <button class="btn-remove-job" onclick="removeGenJobImage()">✕ Remover</button>
         </div>
       </div>
-      <div class="gen-row2">
-        <div>
-          <span class="gen-field-label">E-mail</span>
-          <input class="gen-input" id="gqEmail" placeholder="ana@email.com">
-        </div>
-        <div>
-          <span class="gen-field-label">Telefone / LinkedIn</span>
-          <input class="gen-input" id="gqContact" placeholder="(11) 99999-9999">
-        </div>
+      <span class="job-desc-label" style="margin-top:10px;display:block;">Ou cole o texto da vaga</span>
+      <textarea class="gen-textarea" id="genJobText" style="min-height:90px" placeholder="Ex: Desenvolvedor React Pleno — Requisitos: TypeScript, Node.js, 3 anos de exp., inglês intermediário…"></textarea>
+    </div>
+
+    <!-- STEP 2: Currículo -->
+    <div class="gen-step">
+      <div class="gen-step-header">
+        <span class="gen-step-num">2</span>
+        <span class="gen-step-title">Você tem um currículo antigo?</span>
       </div>
-      <span class="gen-field-label">Formação acadêmica *</span>
-      <textarea class="gen-textarea" id="gqEducation" style="min-height:70px" placeholder="Ex: Engenharia de Produção – USP (2021). MBA Gestão de Projetos – FGV (cursando)."></textarea>
-      <span class="gen-field-label">Experiências profissionais *</span>
-      <textarea class="gen-textarea" id="gqExperience" style="min-height:100px" placeholder="Ex: 2 anos na Embraer como analista de processos (redução de 18% no tempo de ciclo). 1 ano na Loggi como coordenadora de operações."></textarea>
-      <span class="gen-field-label">Habilidades e diferenciais</span>
-      <textarea class="gen-textarea" id="gqSkills" style="min-height:70px" placeholder="Ex: Inglês avançado, Espanhol básico, Power BI, Six Sigma Green Belt, liderança de times ágeis."></textarea>
-      <span class="gen-field-label">Tipo / nível de vaga desejado</span>
-      <input class="gen-input" id="gqLevel" placeholder="Ex: Pleno / Sênior, CLT, área de Supply Chain">
+
+      <div class="gen-cv-choice">
+        <button class="gen-choice-btn active" id="genChoiceYes" onclick="switchCvChoice('yes')">✅ Sim, tenho currículo</button>
+        <button class="gen-choice-btn" id="genChoiceNo" onclick="switchCvChoice('no')">🧭 Não tenho — preencher dados</button>
+      </div>
+
+      <!-- Has old resume -->
+      <div id="genPaneOld" class="gen-pane show">
+        <span class="gen-field-label">Cole o texto do seu currículo atual *</span>
+        <textarea class="gen-textarea" id="genOldResume" style="min-height:150px" placeholder="Cole seu currículo atual aqui. A IA vai reescrever, reorganizar e fortalecer cada seção com linguagem de impacto e palavras-chave da vaga."></textarea>
+      </div>
+
+      <!-- Guided (no resume) -->
+      <div id="genPaneGuided" class="gen-pane">
+        <div class="gen-row2">
+          <div><span class="gen-field-label">Nome completo *</span><input class="gen-input" id="gqName" placeholder="Ana Lima"></div>
+          <div><span class="gen-field-label">Área profissional *</span><input class="gen-input" id="gqArea" placeholder="Engenharia de Produção"></div>
+        </div>
+        <div class="gen-row2">
+          <div><span class="gen-field-label">E-mail</span><input class="gen-input" id="gqEmail" placeholder="ana@email.com"></div>
+          <div><span class="gen-field-label">Telefone / LinkedIn</span><input class="gen-input" id="gqContact" placeholder="(11) 99999-9999"></div>
+        </div>
+        <span class="gen-field-label">Formação acadêmica</span>
+        <textarea class="gen-textarea" id="gqEducation" style="min-height:60px" placeholder="Ex: Engenharia de Produção – USP (2021). MBA Gestão de Projetos – FGV (cursando)."></textarea>
+        <span class="gen-field-label">Experiências profissionais *</span>
+        <textarea class="gen-textarea" id="gqExperience" style="min-height:90px" placeholder="Ex: 2 anos na Embraer como analista de processos. 1 ano na Loggi como coordenadora de operações."></textarea>
+        <span class="gen-field-label">Habilidades e diferenciais</span>
+        <textarea class="gen-textarea" id="gqSkills" style="min-height:60px" placeholder="Ex: Inglês avançado, Power BI, Six Sigma Green Belt, liderança de times ágeis."></textarea>
+      </div>
     </div>
   </div>
   <div class="upload-area" id="dropZone">
@@ -1159,63 +1206,50 @@ async function analyzeResume() {
 
   // ── GENERATOR MODE ────────────────────────────────────────────────────────
   if (isGen) {
-    const activeTab = document.querySelector('.gen-tab.active')?.id;
+    const jobText    = document.getElementById('genJobText').value.trim();
+    const hasJobImg  = !!uploadedGenJob;
+    const hasOld     = document.getElementById('genChoiceYes').classList.contains('active');
+
+    // Validate: vaga obrigatória
+    if (!jobText && !hasJobImg) {
+      errorEl.textContent = 'Preencha a descrição da vaga ou envie o print. Este campo é obrigatório.';
+      errorEl.classList.add('show'); return;
+    }
+
     let genPrompt = '';
+    const contentArr = [];
 
-    if (activeTab === 'genTab1') {
-      const jobText  = document.getElementById('genJobText').value.trim();
-      const infoText = document.getElementById('genJobInfo').value.trim();
-      if (!jobText) { errorEl.textContent = 'Cole a descrição da vaga para gerar o currículo.'; errorEl.classList.add('show'); return; }
-      genPrompt = `Você é um redator de currículos profissional especialista em ATS e recrutamento.
+    if (hasJobImg) {
+      contentArr.push({ type: 'image', source: { type: 'base64', media_type: uploadedGenJob.mediaType, data: uploadedGenJob.base64 } });
+    }
 
-Gere um currículo profissional completo, em português brasileiro, otimizado para a seguinte vaga:
-
-VAGA:
-${jobText}
-
-INFORMAÇÕES DO CANDIDATO:
-${infoText || '(não fornecidas — crie um currículo modelo com placeholders para o candidato preencher)'}
-
-INSTRUÇÕES:
-- Use linguagem de impacto com verbos de ação e métricas sempre que possível
-- Organize em seções: DADOS PESSOAIS, OBJETIVO PROFISSIONAL, EXPERIÊNCIA PROFISSIONAL, FORMAÇÃO ACADÊMICA, HABILIDADES, IDIOMAS, CERTIFICAÇÕES (se houver)
-- Adapte palavras-chave ao vocabulário da vaga para passar em filtros ATS
-- Retorne APENAS o texto do currículo formatado, sem comentários extras`;
-
-    } else if (activeTab === 'genTab2') {
+    if (hasOld) {
       const oldResume = document.getElementById('genOldResume').value.trim();
-      const jobTarget = document.getElementById('genOldJobTarget').value.trim();
-      if (!oldResume) { errorEl.textContent = 'Cole seu currículo atual para reescrever.'; errorEl.classList.add('show'); return; }
-      genPrompt = `Você é um redator de currículos profissional especialista em ATS e recrutamento.
+      if (!oldResume) { errorEl.textContent = 'Cole o texto do seu currículo atual.'; errorEl.classList.add('show'); return; }
+      genPrompt = `Você é um redator de currículos profissional especialista em ATS.
 
-Reescreva e aprimore o currículo abaixo em português brasileiro, tornando-o mais profissional, impactante e moderno.${jobTarget ? ' Otimize para a vaga descrita.' : ''}
+Reescreva e aprimore o currículo abaixo em português brasileiro, tornando-o mais profissional, impactante e moderno. Otimize especificamente para a vaga ${hasJobImg ? 'na imagem' : 'descrita'}${jobText ? `: "${jobText.substring(0,300)}"` : ''}.
 
 CURRÍCULO ATUAL:
 ${oldResume}
 
-${jobTarget ? `VAGA ALVO:\n${jobTarget}` : ''}
-
 INSTRUÇÕES:
-- Fortaleça cada bullet com verbos de ação e resultados mensuráveis
-- Reorganize a estrutura se necessário
-- Elimine linguagem passiva e genérica
-- Adapte palavras-chave ao vocabulário da área
-- Retorne APENAS o texto do currículo formatado, sem comentários`;
-
+- Fortaleça com verbos de ação e métricas mensuráveis
+- Adapte palavras-chave da vaga para passar filtros ATS
+- Mantenha TODOS os dados reais (nome, contato, datas, empresas)
+- Retorne APENAS o currículo formatado em texto puro, organizado em seções claras com títulos em CAIXA ALTA`;
     } else {
-      // guided
-      const name  = document.getElementById('gqName').value.trim();
-      const area  = document.getElementById('gqArea').value.trim();
-      const edu   = document.getElementById('gqEducation').value.trim();
-      const exp   = document.getElementById('gqExperience').value.trim();
-      if (!name || !area || !exp) { errorEl.textContent = 'Preencha pelo menos nome, área e experiências.'; errorEl.classList.add('show'); return; }
+      const name = document.getElementById('gqName').value.trim();
+      const area = document.getElementById('gqArea').value.trim();
+      const exp  = document.getElementById('gqExperience').value.trim();
+      if (!name || !exp) { errorEl.textContent = 'Preencha pelo menos nome e experiências profissionais.'; errorEl.classList.add('show'); return; }
       const email   = document.getElementById('gqEmail').value.trim();
       const contact = document.getElementById('gqContact').value.trim();
+      const edu     = document.getElementById('gqEducation').value.trim();
       const skills  = document.getElementById('gqSkills').value.trim();
-      const level   = document.getElementById('gqLevel').value.trim();
-      genPrompt = `Você é um redator de currículos profissional especialista em ATS e recrutamento.
+      genPrompt = `Você é um redator de currículos profissional especialista em ATS.
 
-Crie um currículo profissional completo em português brasileiro com as informações abaixo:
+Crie um currículo profissional completo em português brasileiro com as informações abaixo, otimizado para a vaga ${hasJobImg ? 'na imagem' : 'descrita'}${jobText ? `: "${jobText.substring(0,300)}"` : ''}.
 
 Nome: ${name}
 Área: ${area}
@@ -1224,14 +1258,15 @@ ${contact ? `Contato: ${contact}` : ''}
 Formação: ${edu || 'não informada'}
 Experiências: ${exp}
 Habilidades: ${skills || 'não informadas'}
-${level ? `Nível/Tipo de vaga: ${level}` : ''}
 
 INSTRUÇÕES:
 - Use linguagem de impacto com verbos de ação e métricas
-- Organize em seções claras: DADOS PESSOAIS, OBJETIVO, EXPERIÊNCIA, FORMAÇÃO, HABILIDADES, IDIOMAS
-- Faça inferências inteligentes para completar lacunas de forma coerente
-- Retorne APENAS o texto do currículo formatado, sem comentários`;
+- Adapte palavras-chave da vaga para passar filtros ATS
+- Retorne APENAS o currículo formatado em texto puro, organizado em seções claras com títulos em CAIXA ALTA`;
     }
+
+    contentArr.push({ type: 'text', text: genPrompt });
+    const messageContent = contentArr.length === 1 ? genPrompt : contentArr;
 
     if (coins < cost) { errorEl.textContent = `Moedas insuficientes. Esta geração custa ${cost} moedas.`; errorEl.classList.add('show'); return; }
     coins -= cost; saveCoins();
@@ -1246,22 +1281,16 @@ INSTRUÇÕES:
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-5',
-          max_tokens: 2500,
-          messages: [{ role: 'user', content: genPrompt }]
-        })
+        body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 2500, messages: [{ role: 'user', content: messageContent }] })
       });
       const data = await response.json();
       if (data.error) throw new Error(data.error.message);
-      const rawText = data.content.map(i => i.text || '').join('');
-      renderGeneratedCv(rawText);
+      renderGeneratedCv(data.content.map(i => i.text || '').join(''));
     } catch (err) {
       coins += cost; saveCoins();
       document.getElementById('loadingSection').classList.remove('show');
       document.getElementById('inputSection').style.display = 'block';
-      errorEl.textContent = 'Erro ao gerar: ' + err.message;
-      errorEl.classList.add('show');
+      errorEl.textContent = 'Erro ao gerar: ' + err.message; errorEl.classList.add('show');
     }
     return;
   }
@@ -1451,7 +1480,7 @@ function renderResults(data, isPremium) {
   document.getElementById('resultsSection').classList.add('show');
 }
 
-// ── RENDER GENERATED CV ───────────────────────────────────────────────────────
+// ── RENDER GENERATED CV — visual model ────────────────────────────────────────
 function renderGeneratedCv(rawText) {
   document.getElementById('loadingSection').classList.remove('show');
   document.getElementById('sectionsContainer').innerHTML = '';
@@ -1462,25 +1491,84 @@ function renderGeneratedCv(rawText) {
   const modeTag = document.getElementById('resultsModeTag');
   modeTag.textContent = '✨ Currículo Gerado';
   modeTag.className = 'results-mode-tag';
-  modeTag.style.background = 'var(--coral-dim)';
-  modeTag.style.color = 'var(--coral)';
-  modeTag.style.border = '1px solid var(--coral-border)';
+  modeTag.style.cssText = 'background:var(--coral-dim);color:var(--coral);border:1px solid var(--coral-border)';
   document.getElementById('resultsTitle').textContent = 'Seu Novo Currículo';
   document.getElementById('scoreDisplay').textContent = '';
   document.querySelector('.score-label').textContent = '';
 
-  // Format the CV text into HTML
-  const lines = rawText.split('\n');
+  const lines = rawText.split('\n').map(l => l.trim()).filter((l, i, arr) => !(l === '' && arr[i-1] === ''));
   let html = '';
-  lines.forEach(line => {
-    const trimmed = line.trim();
-    if (!trimmed) { html += '<br>'; return; }
-    // Section headings (all caps, short)
-    if (trimmed === trimmed.toUpperCase() && trimmed.length > 2 && trimmed.length < 60 && !trimmed.includes('@')) {
-      html += `<div class="cv-section-title">${trimmed}</div>`;
-    } else {
-      html += `<p>${trimmed}</p>`;
+  let firstNameDone = false;
+
+  const SECTION_KEYWORDS = ['DADOS PESSOAIS','CONTATO','OBJETIVO','PERFIL','RESUMO','EXPERIÊNCIA','EXPERIENCIAS','FORMAÇÃO','FORMACAO','HABILIDADES','COMPETÊNCIAS','IDIOMAS','CERTIFICAÇÕES','CERTIFICACOES','CURSOS','PROJETOS'];
+  const isSectionTitle = (line) => {
+    const up = line.toUpperCase().replace(/[^A-ZÁÉÍÓÚÃÕÂÊÔÇÜ ]/g,'');
+    return SECTION_KEYWORDS.some(k => up.includes(k)) && line.length < 60;
+  };
+
+  lines.forEach((line, idx) => {
+    if (!line) { html += ''; return; }
+
+    // First non-empty line = name
+    if (!firstNameDone && line.length > 1 && line.length < 80) {
+      // Check if next line looks like a subtitle/role
+      const next = lines.slice(idx+1).find(l => l.length > 0);
+      const isTitleLine = line === line.toUpperCase() || (!isSectionTitle(line) && idx < 4);
+      if (isTitleLine) {
+        html += `<div class="cv-name">${line}</div>`;
+        if (next && !isSectionTitle(next) && next.length < 80 && idx < 5) {
+          // next line is subtitle
+        }
+        firstNameDone = true;
+        return;
+      }
     }
+
+    // Subtitle (role) — line right after name
+    if (firstNameDone && idx <= 3 && !isSectionTitle(line) && line.length < 80 && !line.includes('@') && !line.match(/\d{2}.*\d{4}/)) {
+      const alreadyName = html.includes('cv-subtitle');
+      if (!alreadyName) {
+        html += `<div class="cv-subtitle">${line}</div><hr class="cv-divider">`;
+        return;
+      }
+    }
+
+    // Contact line (has @ or phone pattern)
+    if (line.match(/@|^\(?\d{2}\)?[\s\-]?\d{4,5}/) && !isSectionTitle(line)) {
+      const parts = line.split(/\s{2,}|\|/).map(p => p.trim()).filter(Boolean);
+      if (!html.includes('cv-contact-row')) {
+        html += `<div class="cv-contact-row">${parts.map(p => `<span>${p}</span>`).join('')}</div><hr class="cv-divider2">`;
+      }
+      return;
+    }
+
+    // Section title
+    if (isSectionTitle(line)) {
+      html += `<div class="cv-section-title">${line}</div>`;
+      return;
+    }
+
+    // Exp/edu header (bold — date pattern or ALL CAPS company)
+    if (line.match(/\d{4}/) && line.length < 90) {
+      html += `<div class="cv-exp-header">${line}</div>`;
+      return;
+    }
+
+    // Bullet
+    if (line.startsWith('-') || line.startsWith('•') || line.startsWith('·')) {
+      html += `<ul><li>${line.replace(/^[-•·]\s*/,'')}</li></ul>`;
+      return;
+    }
+
+    // Short italic-ish role line after date header
+    const prev = lines[idx-1];
+    if (prev && prev.match(/\d{4}/) && line.length < 60) {
+      html += `<div class="cv-exp-role">${line}</div>`;
+      return;
+    }
+
+    // Default paragraph
+    html += `<p>${line}</p>`;
   });
 
   document.getElementById('generatedCvContent').innerHTML = html;
@@ -1493,15 +1581,47 @@ function copyCv() {
   navigator.clipboard.writeText(text).then(() => showToast('✓ Currículo copiado!', 'gold'));
 }
 
-// ── GENERATOR TABS ────────────────────────────────────────────────────────────
-function switchGenTab(tab) {
-  document.getElementById('genTab1').className = 'gen-tab' + (tab === 'job'     ? ' active' : '');
-  document.getElementById('genTab2').className = 'gen-tab' + (tab === 'old'     ? ' active' : '');
-  document.getElementById('genTab3').className = 'gen-tab' + (tab === 'guided'  ? ' active' : '');
-  document.getElementById('genPaneJob').className    = 'gen-pane' + (tab === 'job'    ? ' show' : '');
-  document.getElementById('genPaneOld').className    = 'gen-pane' + (tab === 'old'    ? ' show' : '');
-  document.getElementById('genPaneGuided').className = 'gen-pane' + (tab === 'guided' ? ' show' : '');
+// ── GENERATOR CV CHOICE ───────────────────────────────────────────────────────
+let uploadedGenJob = null;
+
+function switchCvChoice(choice) {
+  document.getElementById('genChoiceYes').className = 'gen-choice-btn' + (choice === 'yes' ? ' active' : '');
+  document.getElementById('genChoiceNo').className  = 'gen-choice-btn' + (choice === 'no'  ? ' active' : '');
+  document.getElementById('genPaneOld').className     = 'gen-pane' + (choice === 'yes' ? ' show' : '');
+  document.getElementById('genPaneGuided').className  = 'gen-pane' + (choice === 'no'  ? ' show' : '');
 }
+
+// Job image upload for generator
+const genJobDropZone  = document.getElementById('genJobDropZone');
+const genJobFileInput = document.getElementById('genJobFileInput');
+genJobDropZone.addEventListener('dragover', e => { e.preventDefault(); genJobDropZone.classList.add('drag-over'); });
+genJobDropZone.addEventListener('dragleave', () => genJobDropZone.classList.remove('drag-over'));
+genJobDropZone.addEventListener('drop', e => {
+  e.preventDefault(); genJobDropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0]; if (file) handleGenJobFile(file);
+});
+genJobFileInput.addEventListener('change', () => { if (genJobFileInput.files[0]) handleGenJobFile(genJobFileInput.files[0]); });
+
+function handleGenJobFile(file) {
+  if (!file.type.startsWith('image/')) { showToast('Formato inválido. Envie uma imagem.'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    uploadedGenJob = { base64: e.target.result.split(',')[1], mediaType: file.type, name: file.name };
+    document.getElementById('genJobPreviewImg').src = e.target.result;
+    document.getElementById('genJobPreviewName').textContent = file.name;
+    document.getElementById('genJobPreview').classList.add('show');
+    genJobDropZone.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeGenJobImage() {
+  uploadedGenJob = null; genJobFileInput.value = '';
+  document.getElementById('genJobPreview').classList.remove('show');
+  genJobDropZone.style.display = '';
+}
+
+function switchGenTab(tab) {} // kept for backward compat
 
 function toggleSection(header) {
   header.querySelector('.section-chevron').classList.toggle('open');
@@ -1509,25 +1629,21 @@ function toggleSection(header) {
 }
 
 function resetForm() {
-  removeFile(); removeJobImage();
+  removeFile(); removeJobImage(); removeGenJobImage();
   document.getElementById('resumeText').value = '';
   document.getElementById('jobDescText').value = '';
+  document.getElementById('genJobText').value = '';
   document.getElementById('errorMsg').classList.remove('show');
   document.getElementById('resultsSection').classList.remove('show');
   document.getElementById('inputSection').style.display = 'block';
   document.getElementById('matchBarFill').style.width = '0%';
   document.getElementById('generatedCvWrap').style.display = 'none';
   document.getElementById('upsellGenerator').style.display = 'none';
-  // Reset generator fields
-  ['genJobText','genJobInfo','genOldResume','genOldJobTarget',
-   'gqName','gqArea','gqEmail','gqContact','gqEducation','gqExperience','gqSkills','gqLevel']
+  ['genOldResume','gqName','gqArea','gqEmail','gqContact','gqEducation','gqExperience','gqSkills']
     .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  // Reset score label
   document.querySelector('.score-label').textContent = 'score geral';
   const modeTag = document.getElementById('resultsModeTag');
-  modeTag.style.background = '';
-  modeTag.style.color = '';
-  modeTag.style.border = '';
+  modeTag.style.cssText = '';
 }
 
 // ── BUY MODAL ─────────────────────────────────────────────────────────────────
