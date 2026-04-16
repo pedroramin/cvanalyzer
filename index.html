@@ -962,11 +962,11 @@
     </div>
 
     <p style="font-size:0.63rem;color:var(--muted);margin-bottom:14px;line-height:1.6;" id="checkoutNote">
-      🔒 Pagamento seguro. Moedas creditadas automaticamente após confirmação.
+      🔒 Após o pagamento você receberá um código por e-mail. Cole-o em "Resgatar código" para adicionar as moedas.
     </p>
     <div class="modal-btn-row">
       <button class="btn-modal-cancel" onclick="closeBuyModal()">Cancelar</button>
-      <button class="btn-modal-confirm" id="btnCheckout" onclick="startCheckout()">Ir para Pagamento →</button>
+      <button class="btn-modal-confirm" id="btnCheckout" onclick="startCheckout()">Ir para o Checkout →</button>
     </div>
   </div>
 </div>
@@ -1006,19 +1006,13 @@ const API_ENDPOINT    = '/api/analyze';                           // seu proxy A
 // URL base do site — usada nos redirects de auth (e-mail de confirmação e Google OAuth)
 // Troque pelo seu domínio real quando fizer deploy (ex: 'https://cvanalyzer.com.br')
 const SITE_URL = window.location.origin;
-// Checkout: CheckoutSeguro — URLs configuradas em CHECKOUT_URLS abaixo (não precisa de backend)
+// Moedas são creditadas via código de resgate enviado por e-mail após o pagamento
 
 const COST_STANDARD  = 1;
 const COST_PREMIUM   = 3;
 const COST_GENERATOR = 5;
 
-// Códigos de resgate válidos — idealmente validar no backend
-const VALID_CODES = {
-  'CURRIC-DEMO-2024': 10,
-  'CURRIC-FREE-TEST': 5,
-  'PROMO-LAUNCH-50':  50,
-  'BETA-ACCESS-2025': 20,
-};
+// Códigos de resgate são validados no Supabase (tabela redeem_codes) — não ficam expostos no front-end
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ── SUPABASE INIT ─────────────────────────────────────────────────────────────
@@ -1434,4 +1428,319 @@ async function runGenerator() {
     if (!sourceText) { document.getElementById('errorMsg').textContent = 'Cole seu currículo atual no campo acima.'; document.getElementById('errorMsg').classList.add('show'); return; }
   } else {
     const name = document.getElementById('gqName').value.trim();
-    const area = document.ge
+    const area = document.getElementById('gqArea').value.trim();
+    if (!name || !area) { document.getElementById('errorMsg').textContent = 'Preencha nome e área profissional.'; document.getElementById('errorMsg').classList.add('show'); return; }
+    sourceText = `Nome: ${name}\nÁrea: ${area}\nE-mail: ${document.getElementById('gqEmail').value}\nContato: ${document.getElementById('gqContact').value}\nFormação: ${document.getElementById('gqEducation').value}\nExperiências: ${document.getElementById('gqExperience').value}\nHabilidades: ${document.getElementById('gqSkills').value}`;
+  }
+
+  userContent.push({ type: 'text', text: `Você é um especialista em currículos. Gere um currículo profissional completo em português brasileiro.\n\nDados do candidato:\n${sourceText}\n\n${jobText ? 'Vaga desejada:\n' + jobText : ''}${uploadedGenJob ? '\n[Print da vaga enviado como imagem acima]' : ''}\n\nGere o currículo em texto puro estruturado, sem JSON. Comece com o nome em maiúsculas, depois cargo/área, contato, e use títulos de seção em maiúsculas (EXPERIÊNCIA, FORMAÇÃO, HABILIDADES, etc.). Use bullet points com "-" para listas. Linguagem de impacto, verbos de ação, otimizado para ATS.` });
+
+  document.getElementById('inputSection').style.display = 'none';
+  document.getElementById('loadingSection').classList.add('show');
+  document.getElementById('loaderBar').className = 'loader-bar-inner generator';
+  document.getElementById('loadingText').textContent = 'Gerando seu currículo profissional…';
+
+  try {
+    await deductCoins(cost);
+    const response = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-opus-4-5', max_tokens: 2000, messages: [{ role: 'user', content: userContent }] })
+    });
+    if (!response.ok) throw new Error('Erro');
+    const data = await response.json();
+    const rawText = data.content?.[0]?.text || '';
+    await sb.from('usage_logs').insert({ user_id: currentUser.id, mode: 'generator', coins_used: cost });
+    document.getElementById('loadingSection').classList.remove('show');
+    renderGeneratedCv(rawText);
+  } catch {
+    await grantCoins(cost);
+    document.getElementById('loadingSection').classList.remove('show');
+    document.getElementById('inputSection').style.display = 'block';
+    document.getElementById('errorMsg').textContent = '⚠ Erro ao gerar currículo. Suas moedas foram devolvidas.';
+    document.getElementById('errorMsg').classList.add('show');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── RENDER RESULTS ────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+function renderResults(result) {
+  const score = result.score || 0;
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('scoreDisplay').style.color = score >= 70 ? 'var(--accent)' : score >= 50 ? 'var(--gold)' : 'var(--danger)';
+
+  const modeTag = document.getElementById('resultsModeTag');
+  if (currentMode === 'premium') {
+    modeTag.textContent = '🎯 Match por Vaga';
+    modeTag.className = 'results-mode-tag premium';
+    document.getElementById('resultsTitle').textContent = 'Análise de Compatibilidade';
+    if (result.matchPct !== undefined) {
+      document.getElementById('matchBarWrap').style.display = 'block';
+      document.getElementById('matchPct').textContent = result.matchPct + '%';
+      setTimeout(() => document.getElementById('matchBarFill').style.width = result.matchPct + '%', 50);
+      document.getElementById('matchBarDesc').textContent = result.matchDesc || '';
+    }
+    document.getElementById('upsellBanner').style.display = 'none';
+    document.getElementById('upsellGenerator').style.display = 'flex';
+  } else {
+    modeTag.textContent = '📄 Análise Geral';
+    modeTag.className = 'results-mode-tag standard';
+    document.getElementById('resultsTitle').textContent = 'Análise Completa';
+    document.getElementById('matchBarWrap').style.display = 'none';
+    document.getElementById('upsellBanner').style.display = result.upsell ? 'flex' : 'none';
+    document.getElementById('upsellGenerator').style.display = 'flex';
+  }
+
+  const container = document.getElementById('sectionsContainer');
+  container.innerHTML = '';
+  (result.sections || []).forEach(sec => {
+    const block = document.createElement('div'); block.className = 'section-block';
+    const iconClass = sec.tag === 'critical' ? 'icon-critical' : sec.tag === 'warn' ? 'icon-warn' : sec.tag === 'match' ? 'icon-match' : 'icon-ok';
+    const tagClass = 'tag-' + (sec.tag || 'ok');
+    const tagLabel = sec.tag === 'critical' ? 'Crítico' : sec.tag === 'warn' ? 'Atenção' : sec.tag === 'match' ? 'Match' : 'OK';
+    block.innerHTML = `
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-icon ${iconClass}">${sec.icon || '📌'}</div>
+        <span class="section-title">${sec.title}</span>
+        <span class="section-tag ${tagClass}">${tagLabel}</span>
+        <span class="section-chevron">▾</span>
+      </div>
+      <div class="section-body"><div>${sec.content || ''}</div></div>`;
+    container.appendChild(block);
+    block.querySelector('.section-body').classList.add('open');
+    block.querySelector('.section-chevron').classList.add('open');
+  });
+
+  document.getElementById('generatedCvWrap').style.display = 'none';
+  document.getElementById('resultsSection').classList.add('show');
+}
+
+function renderGeneratedCv(rawText) {
+  document.getElementById('loadingSection').classList.remove('show');
+  document.getElementById('sectionsContainer').innerHTML = '';
+  document.getElementById('matchBarWrap').style.display = 'none';
+  document.getElementById('upsellBanner').style.display = 'none';
+  document.getElementById('upsellGenerator').style.display = 'none';
+  const modeTag = document.getElementById('resultsModeTag');
+  modeTag.textContent = '✨ Currículo Gerado';
+  modeTag.className = 'results-mode-tag';
+  modeTag.style.cssText = 'background:var(--coral-dim);color:var(--coral);border:1px solid var(--coral-border)';
+  document.getElementById('resultsTitle').textContent = 'Seu Novo Currículo';
+  document.getElementById('scoreDisplay').textContent = '';
+  document.querySelector('.score-label').textContent = '';
+
+  const lines = rawText.split('\n').map(l => l.trim()).filter((l, i, arr) => !(l === '' && arr[i-1] === ''));
+  let html = ''; let firstNameDone = false;
+  const SECTION_KEYWORDS = ['DADOS PESSOAIS','CONTATO','OBJETIVO','PERFIL','RESUMO','EXPERIÊNCIA','EXPERIENCIAS','FORMAÇÃO','FORMACAO','HABILIDADES','COMPETÊNCIAS','IDIOMAS','CERTIFICAÇÕES','CERTIFICACOES','CURSOS','PROJETOS'];
+  const isSectionTitle = (line) => { const up = line.toUpperCase().replace(/[^A-ZÁÉÍÓÚÃÕÂÊÔÇÜ ]/g,''); return SECTION_KEYWORDS.some(k => up.includes(k)) && line.length < 60; };
+
+  lines.forEach((line, idx) => {
+    if (!line) return;
+    if (!firstNameDone && line.length > 1 && line.length < 80) {
+      const isTitleLine = line === line.toUpperCase() || (!isSectionTitle(line) && idx < 4);
+      if (isTitleLine) { html += `<div class="cv-name">${line}</div>`; firstNameDone = true; return; }
+    }
+    if (firstNameDone && idx <= 3 && !isSectionTitle(line) && line.length < 80 && !line.includes('@') && !line.match(/\d{2}.*\d{4}/)) {
+      if (!html.includes('cv-subtitle')) { html += `<div class="cv-subtitle">${line}</div><hr class="cv-divider">`; return; }
+    }
+    if (line.match(/@|^\(?\d{2}\)?[\s\-]?\d{4,5}/) && !isSectionTitle(line)) {
+      const parts = line.split(/\s{2,}|\|/).map(p => p.trim()).filter(Boolean);
+      if (!html.includes('cv-contact-row')) { html += `<div class="cv-contact-row">${parts.map(p => `<span>${p}</span>`).join('')}</div><hr class="cv-divider2">`; } return;
+    }
+    if (isSectionTitle(line)) { html += `<div class="cv-section-title">${line}</div>`; return; }
+    if (line.match(/\d{4}/) && line.length < 90) { html += `<div class="cv-exp-header">${line}</div>`; return; }
+    if (line.startsWith('-') || line.startsWith('•') || line.startsWith('·')) { html += `<ul><li>${line.replace(/^[-•·]\s*/,'')}</li></ul>`; return; }
+    const prev = lines[idx-1];
+    if (prev && prev.match(/\d{4}/) && line.length < 60) { html += `<div class="cv-exp-role">${line}</div>`; return; }
+    html += `<p>${line}</p>`;
+  });
+
+  document.getElementById('generatedCvContent').innerHTML = html;
+  document.getElementById('generatedCvWrap').style.display = 'block';
+  document.getElementById('resultsSection').classList.add('show');
+}
+
+function copyCv() {
+  const text = document.getElementById('generatedCvContent').innerText;
+  navigator.clipboard.writeText(text).then(() => showToast('✓ Currículo copiado!', 'gold'));
+}
+
+function toggleSection(header) {
+  header.querySelector('.section-chevron').classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
+}
+
+function switchCvChoice(choice) {
+  document.getElementById('genChoiceYes').className = 'gen-choice-btn' + (choice === 'yes' ? ' active' : '');
+  document.getElementById('genChoiceNo').className  = 'gen-choice-btn' + (choice === 'no'  ? ' active' : '');
+  document.getElementById('genPaneOld').className    = 'gen-pane' + (choice === 'yes' ? ' show' : '');
+  document.getElementById('genPaneGuided').className = 'gen-pane' + (choice === 'no'  ? ' show' : '');
+}
+
+function resetForm() {
+  removeFile(); removeJobImage(); removeGenJobImage();
+  document.getElementById('resumeText').value = '';
+  document.getElementById('jobDescText').value = '';
+  document.getElementById('genJobText').value = '';
+  document.getElementById('errorMsg').classList.remove('show');
+  document.getElementById('resultsSection').classList.remove('show');
+  document.getElementById('inputSection').style.display = 'block';
+  document.getElementById('matchBarFill').style.width = '0%';
+  document.getElementById('generatedCvWrap').style.display = 'none';
+  document.getElementById('upsellGenerator').style.display = 'none';
+  ['genOldResume','gqName','gqArea','gqEmail','gqContact','gqEducation','gqExperience','gqSkills']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.querySelector('.score-label').textContent = 'score geral';
+  const modeTag = document.getElementById('resultsModeTag');
+  modeTag.style.cssText = '';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── BUY MODAL — exibe planos e redireciona para o checkout ───────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// URLs de checkout — mapeadas por priceId
+const CHECKOUT_URLS = {
+  'cs_5moedas':  'https://checkoutseguro.com.br/cvanalyzer/5moedas',   // ← troque pela URL real
+  'cs_20moedas': 'https://checkoutseguro.com.br/cvanalyzer/20moedas',  // ← troque pela URL real
+  'cs_50moedas': 'https://checkoutseguro.com.br/cvanalyzer/50moedas',  // ← troque pela URL real
+};
+
+function openBuyModal()  { document.getElementById('buyModal').classList.add('show'); }
+function closeBuyModal() { document.getElementById('buyModal').classList.remove('show'); }
+
+function selectPlan(c, price, priceId) {
+  selectedPlan = { coins: c, price, priceId };
+  document.querySelectorAll('.plan-card').forEach(el => el.classList.remove('selected'));
+  document.getElementById('plan-' + c).classList.add('selected');
+}
+
+function startCheckout() {
+  const url = CHECKOUT_URLS[selectedPlan.priceId];
+  if (!url) { showToast('⚠ Plano inválido.', ''); return; }
+  // Passa o e-mail do usuário para o checkout pré-preencher o campo
+  const params = new URLSearchParams({ email: currentUser?.email || '' });
+  window.open(url + '?' + params.toString(), '_blank');
+  closeBuyModal();
+  // Após o pagamento, o usuário receberá o código por e-mail e resgatará abaixo
+  setTimeout(() => {
+    openRedeemModal();
+    document.getElementById('redeemMsg').textContent = '💡 Cole aqui o código recebido por e-mail após o pagamento.';
+    document.getElementById('redeemMsg').className = 'redeem-msg ok';
+  }, 600);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── REDEEM MODAL — valida o código no Supabase e credita as moedas ────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+function openRedeemModal() {
+  document.getElementById('redeemInput').value = '';
+  document.getElementById('redeemMsg').textContent = '';
+  document.getElementById('redeemMsg').className = 'redeem-msg';
+  document.getElementById('redeemModal').classList.add('show');
+}
+function closeRedeemModal() { document.getElementById('redeemModal').classList.remove('show'); }
+
+async function redeemCode() {
+  const raw   = document.getElementById('redeemInput').value.trim().toUpperCase();
+  const msgEl = document.getElementById('redeemMsg');
+  const btn   = document.querySelector('#redeemModal .btn-modal-confirm');
+
+  if (!raw) { msgEl.textContent = 'Digite um código.'; msgEl.className = 'redeem-msg err'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Verificando…';
+  msgEl.textContent = '';
+  msgEl.className = 'redeem-msg';
+
+  try {
+    // ── 1. Verifica se o usuário já usou esse código ──────────────────────────
+    const { data: alreadyUsed } = await sb
+      .from('redeemed_codes')
+      .select('id')
+      .eq('user_id', currentUser.id)
+      .eq('code', raw)
+      .maybeSingle();
+
+    if (alreadyUsed) {
+      msgEl.textContent = '✕ Você já utilizou este código.';
+      msgEl.className = 'redeem-msg err';
+      return;
+    }
+
+    // ── 2. Busca o código na tabela redeem_codes do Supabase ──────────────────
+    const { data: codeRow, error: codeErr } = await sb
+      .from('redeem_codes')
+      .select('id, coins, max_uses, used_count, active')
+      .eq('code', raw)
+      .maybeSingle();
+
+    if (codeErr || !codeRow) {
+      msgEl.textContent = '✕ Código inválido ou expirado.';
+      msgEl.className = 'redeem-msg err';
+      return;
+    }
+
+    if (!codeRow.active) {
+      msgEl.textContent = '✕ Este código foi desativado.';
+      msgEl.className = 'redeem-msg err';
+      return;
+    }
+
+    if (codeRow.max_uses !== null && codeRow.used_count >= codeRow.max_uses) {
+      msgEl.textContent = '✕ Código esgotado.';
+      msgEl.className = 'redeem-msg err';
+      return;
+    }
+
+    const coinsToGrant = codeRow.coins;
+
+    // ── 3. Registra o uso (idempotência — unique constraint no banco) ─────────
+    const { error: insertErr } = await sb
+      .from('redeemed_codes')
+      .insert({ user_id: currentUser.id, code: raw, code_id: codeRow.id });
+
+    if (insertErr) {
+      // Provavelmente já foi inserido (race condition) — trata como já usado
+      msgEl.textContent = '✕ Você já utilizou este código.';
+      msgEl.className = 'redeem-msg err';
+      return;
+    }
+
+    // ── 4. Incrementa o contador de usos do código ────────────────────────────
+    await sb
+      .from('redeem_codes')
+      .update({ used_count: codeRow.used_count + 1 })
+      .eq('id', codeRow.id);
+
+    // ── 5. Credita moedas no perfil ───────────────────────────────────────────
+    await grantCoins(coinsToGrant);
+
+    msgEl.textContent = '✓ +' + coinsToGrant + ' moedas adicionadas à sua conta!';
+    msgEl.className = 'redeem-msg ok';
+    showToast('🎉 +' + coinsToGrant + ' moedas resgatadas!', 'gold');
+    setTimeout(closeRedeemModal, 2200);
+
+  } catch (err) {
+    console.error('[redeem] erro:', err.message);
+    msgEl.textContent = '⚠ Erro ao validar código. Tente novamente.';
+    msgEl.className = 'redeem-msg err';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Resgatar';
+  }
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    currentUser = session.user;
+    await loadUserProfile();
+    showApp();
+  }
+})();
+</script>
+</body>
+</html>
