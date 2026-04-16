@@ -1003,6 +1003,9 @@
 const SUPABASE_URL    = 'https://yirgryvtafquahmkwiit.supabase.co';
 const SUPABASE_ANON   = 'sb_publishable_--W-diQq8D2yp0977GeEoQ_F1yamI6x';
 const API_ENDPOINT    = '/api/analyze';                           // seu proxy Anthropic
+// URL base do site — usada nos redirects de auth (e-mail de confirmação e Google OAuth)
+// Troque pelo seu domínio real quando fizer deploy (ex: 'https://cvanalyzer.com.br')
+const SITE_URL = window.location.origin;
 // Checkout: GGCheckout — URLs configuradas em GG_CHECKOUT_URLS abaixo (não precisa de backend)
 
 const COST_STANDARD  = 1;
@@ -1069,7 +1072,7 @@ async function handleRegister() {
   btn.disabled = true; btn.textContent = 'Criando conta…';
   const { data, error } = await sb.auth.signUp({
     email, password: pass,
-    options: { data: { full_name: name } }
+    options: { data: { full_name: name }, emailRedirectTo: SITE_URL }
   });
   btn.disabled = false; btn.textContent = 'Criar conta grátis';
   if (error) { errEl.textContent = traduzirErroAuth(error.message); errEl.classList.add('show'); return; }
@@ -1081,7 +1084,7 @@ async function handleRegister() {
 async function handleGoogleLogin() {
   await sb.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.href }
+    options: { redirectTo: SITE_URL }
   });
 }
 
