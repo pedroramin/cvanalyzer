@@ -658,7 +658,7 @@
 
     <div class="auth-footer">
       🔒 Seus dados são protegidos e nunca compartilhados.<br>
-      Ao criar conta você ganha <strong style="color:var(--gold)">3 moedas grátis</strong> para começar.
+      Crie sua conta e compre moedas para começar a analisar.
     </div>
   </div>
 </div>
@@ -1066,13 +1066,16 @@ async function handleRegister() {
   btn.disabled = true; btn.textContent = 'Criando conta…';
   const { data, error } = await sb.auth.signUp({
     email, password: pass,
-    options: { data: { full_name: name }, emailRedirectTo: SITE_URL }
+    options: { data: { full_name: name } }
+    // Sem emailRedirectTo — confirmação desativada no painel Supabase
   });
   btn.disabled = false; btn.textContent = 'Criar conta grátis';
   if (error) { errEl.textContent = traduzirErroAuth(error.message); errEl.classList.add('show'); return; }
-  // Novo usuário recebe 3 moedas grátis (feito no trigger do Supabase, ver schema.sql)
-  okEl.textContent = '✓ Conta criada! Verifique seu e-mail para confirmar o cadastro.';
+  // Conta criada — pede para o usuário fazer login normalmente
+  okEl.textContent = '✓ Conta criada com sucesso! Faça login com seu e-mail e senha.';
   okEl.classList.add('show');
+  // Muda para aba de login automaticamente após 1.5s
+  setTimeout(() => showTab('login'), 1500);
 }
 
 async function handleGoogleLogin() {
@@ -1092,15 +1095,47 @@ async function handleLogout() {
 
 function traduzirErroAuth(msg) {
   if (msg.includes('Invalid login credentials')) return 'E-mail ou senha incorretos.';
-  if (msg.includes('Email not confirmed'))       return 'Confirme seu e-mail antes de entrar.';
+  if (msg.includes('Email not confirmed'))       return 'E-mail ou senha incorretos.';
   if (msg.includes('User already registered'))   return 'Esse e-mail já está cadastrado.';
   if (msg.includes('Password should be'))        return 'Senha muito curta (mínimo 6 caracteres).';
   return msg;
 }
 
 // ─── Listener de sessão ──────────────────────────────────────────────────────
-// Único ponto de controle da UI — init NÃO chama showApp diretamente
+// Bloqueia acesso via link mágico de e-mail (EMAIL_CHANGE, SIGNED_IN via token).
+// Só permite SIGNED_IN vindo de login normal (password) ou OAuth (Google).
 sb.auth.onAuthStateChange(async (event, session) => {
+
+  // Se o usuário chegou via link do e-mail (magic link / confirmação),
+  // desloga imediatamente e mostra a tela de login normal.
+  if (event === 'SIGNED_IN' && session?.user) {
+    const provider = session.user.app_metadata?.provider;
+    // 'email' sem senha = magic link. 'google', 'github' etc = OAuth normal.
+    // Login com senha usa provider 'email' mas vem do signInWithPassword — não tem
+    // access_token na URL. Identificamos magic link pela presença do hash na URL.
+    const isFromEmailLink = window.location.hash.includes('access_token') ||
+                            window.location.hash.includes('type=signup') ||
+                            window.location.hash.includes('type=recovery') ||
+                            new URLSearchParams(window.location.search).get('type') === 'signup';
+
+    if (isFromEmailLink) {
+      // Veio pelo link do e-mail — desloga e redireciona para login
+      await sb.auth.signOut();
+      // Limpa o hash/parâmetros da URL
+      window.history.replaceState({}, '', window.location.pathname);
+      document.getElementById('appContent').classList.remove('visible');
+      document.getElementById('authWall').classList.remove('hidden');
+      // Mostra mensagem orientando o usuário
+      const errEl = document.getElementById('loginError');
+      errEl.textContent = '✓ Conta confirmada! Faça login com seu e-mail e senha.';
+      errEl.style.background = 'rgba(200,240,96,0.1)';
+      errEl.style.borderColor = 'rgba(200,240,96,0.3)';
+      errEl.style.color = 'var(--accent)';
+      errEl.classList.add('show');
+      return;
+    }
+  }
+
   if (session?.user) {
     currentUser = session.user;
     try {
@@ -1121,28 +1156,31 @@ sb.auth.onAuthStateChange(async (event, session) => {
 async function loadUserProfile() {
   if (!currentUser) return;
 
-  // Tenta buscar o perfil existente primeiro
-  const { data: existing, error: fetchErr } = await sb
+  // Tenta buscar o perfil existente
+  const { data: existing } = await sb
     .from('users')
     .select('coins')
     .eq('id', currentUser.id)
     .maybeSingle();
 
   if (existing) {
-    // Perfil encontrado — usa o saldo
     coins = existing.coins ?? 0;
     return;
   }
 
-  // Perfil não existe ainda — cria (primeiro login após confirmação de e-mail)
+  // Perfil não existe — cria com 0 moedas (não há moedas grátis)
   const { data: inserted, error: insertErr } = await sb
     .from('users')
-    .insert({ id: currentUser.id, email: currentUser.email, coins: 3 })
+    .insert({
+      id:    currentUser.id,
+      email: currentUser.email,
+      coins: 0   // ← zero moedas ao cadastrar
+    })
     .select('coins')
     .single();
 
   if (insertErr) {
-    // Pode ter sido criado por trigger no meio tempo — tenta buscar de novo
+    // Race condition: outro request criou ao mesmo tempo — busca de novo
     const { data: retry } = await sb
       .from('users')
       .select('coins')
@@ -1152,7 +1190,7 @@ async function loadUserProfile() {
     return;
   }
 
-  coins = inserted?.coins ?? 3;
+  coins = inserted?.coins ?? 0;
 }
 
 function showApp() {
