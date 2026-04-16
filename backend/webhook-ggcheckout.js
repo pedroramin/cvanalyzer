@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 //
 // Variáveis de ambiente necessárias:
-//   SUPABASE_URL=https://xxx.supabase.co
+//   SUPABASE_URL=https://yirgryvtafquahmkwiit.supabase.co
 //   SUPABASE_SERVICE_ROLE_KEY=eyJ...
 //   GGCHECKOUT_SECRET=SUA_CHAVE_SECRETA   ← configure no painel GGCheckout
 //
