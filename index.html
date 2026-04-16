@@ -1099,13 +1099,20 @@ function traduzirErroAuth(msg) {
 }
 
 // ─── Listener de sessão ──────────────────────────────────────────────────────
+// Único ponto de controle da UI — init NÃO chama showApp diretamente
 sb.auth.onAuthStateChange(async (event, session) => {
   if (session?.user) {
     currentUser = session.user;
-    await loadUserProfile();
+    try {
+      await loadUserProfile();
+    } catch (e) {
+      console.warn('[auth] loadUserProfile falhou, usando coins=0:', e.message);
+      coins = 0;
+    }
     showApp();
   } else {
     currentUser = null;
+    coins = 0;
     document.getElementById('appContent').classList.remove('visible');
     document.getElementById('authWall').classList.remove('hidden');
   }
@@ -1114,19 +1121,38 @@ sb.auth.onAuthStateChange(async (event, session) => {
 async function loadUserProfile() {
   if (!currentUser) return;
 
-  // Garante que o usuário existe na tabela users (upsert seguro no primeiro login)
-  await sb.from('users').upsert(
-    { id: currentUser.id, email: currentUser.email },
-    { onConflict: 'id', ignoreDuplicates: true }
-  );
-
-  // Busca saldo atualizado
-  const { data } = await sb
+  // Tenta buscar o perfil existente primeiro
+  const { data: existing, error: fetchErr } = await sb
     .from('users')
     .select('coins')
     .eq('id', currentUser.id)
+    .maybeSingle();
+
+  if (existing) {
+    // Perfil encontrado — usa o saldo
+    coins = existing.coins ?? 0;
+    return;
+  }
+
+  // Perfil não existe ainda — cria (primeiro login após confirmação de e-mail)
+  const { data: inserted, error: insertErr } = await sb
+    .from('users')
+    .insert({ id: currentUser.id, email: currentUser.email, coins: 3 })
+    .select('coins')
     .single();
-  coins = data?.coins ?? 0;
+
+  if (insertErr) {
+    // Pode ter sido criado por trigger no meio tempo — tenta buscar de novo
+    const { data: retry } = await sb
+      .from('users')
+      .select('coins')
+      .eq('id', currentUser.id)
+      .maybeSingle();
+    coins = retry?.coins ?? 0;
+    return;
+  }
+
+  coins = inserted?.coins ?? 3;
 }
 
 function showApp() {
@@ -1751,14 +1777,11 @@ async function redeemCode() {
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-(async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session?.user) {
-    currentUser = session.user;
-    await loadUserProfile();
-    showApp();
-  }
-})();
+// onAuthStateChange já dispara automaticamente com a sessão atual ao ser registrado.
+// NÃO chamamos getSession() separado para evitar race condition com o listener.
+// O SDK do Supabase v2 garante que onAuthStateChange é chamado com INITIAL_SESSION
+// logo após o registro, incluindo quando há #access_token na URL (link de e-mail).
+
 </script>
 </body>
 </html>
