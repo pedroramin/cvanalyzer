@@ -1,19 +1,19 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// /api/webhook-ggcheckout.js — Recebe postback do GGCheckout e credita moedas
+// /api/webhook-checkoutseguro.js — Recebe postback do CheckoutSeguro e credita moedas
 // Deploy em Vercel / Next.js API Route
 // ═══════════════════════════════════════════════════════════════════════════
 //
 // Variáveis de ambiente necessárias:
 //   SUPABASE_URL=https://yirgryvtafquahmkwiit.supabase.co
-//   SUPABASE_SERVICE_ROLE_KEY=eyJ...
-//   GGCHECKOUT_SECRET=SUA_CHAVE_SECRETA   ← configure no painel GGCheckout
+//   SUPABASE_SERVICE_ROLE_KEY=sb_secret_AaZATwUJx0nDk4ktztvdyw_dGJulTTi
+//   CS_WEBHOOK_SECRET=SUA_CHAVE_SECRETA   ← configure no painel CheckoutSeguro
 //
-// No painel GGCheckout → Webhooks/Postback, adicione o endpoint:
-//   URL: https://seudominio.com/api/webhook-ggcheckout
+// No painel CheckoutSeguro → Webhooks/Postback, adicione o endpoint:
+//   URL: https://seudominio.com/api/webhook-checkoutseguro
 //   Método: POST
 //   Evento: payment_confirmed (ou equivalente da plataforma)
 //
-// O GGCheckout envia os parâmetros que você configurou na URL de retorno:
+// O CheckoutSeguro envia os parâmetros que você configurou na URL de retorno:
 //   uid, email, coins, ref  — conforme passados no checkout do front-end
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -22,14 +22,14 @@ import crypto from 'crypto';
 
 const sb = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY   // sb_secret_AaZATwUJx0nDk4ktztvdyw_dGJulTTi
 );
 
-// Mapa de coins por código de plano — deve bater com GG_CHECKOUT_URLS no front
+// Mapa de coins por código de plano — deve bater com CHECKOUT_URLS no front
 const PLAN_COINS = {
-  'gg_5moedas':  5,
-  'gg_20moedas': 20,
-  'gg_50moedas': 50,
+  'cs_5moedas':  5,
+  'cs_20moedas': 20,
+  'cs_50moedas': 50,
 };
 
 export default async function handler(req, res) {
@@ -40,15 +40,15 @@ export default async function handler(req, res) {
   // ── Validação de assinatura (se o GGCheckout suportar) ───────────────────
   // Consulte a documentação do GGCheckout para o header/campo de assinatura.
   // Exemplo genérico — adapte conforme a plataforma:
-  const secret = process.env.GGCHECKOUT_SECRET;
+  const secret = process.env.CS_WEBHOOK_SECRET;
   if (secret) {
-    const signature = req.headers['x-ggcheckout-signature'] || req.headers['x-webhook-signature'];
+    const signature = req.headers['x-checkoutseguro-signature'] || req.headers['x-webhook-signature'];
     if (signature) {
       const body    = JSON.stringify(req.body);
       const hmac    = crypto.createHmac('sha256', secret).update(body).digest('hex');
       const trusted = `sha256=${hmac}`;
       if (signature !== trusted) {
-        console.error('[webhook-gg] Assinatura inválida:', signature);
+        console.error('[webhook-cs] Assinatura inválida:', signature);
         return res.status(401).json({ error: 'Assinatura inválida' });
       }
     }
@@ -73,19 +73,19 @@ export default async function handler(req, res) {
   );
 
   if (!isPaid) {
-    console.log('[webhook-gg] Pagamento não confirmado, status:', status);
+    console.log('[webhook-cs] Pagamento não confirmado, status:', status);
     return res.status(200).json({ received: true, skipped: true });
   }
 
   if (!userId) {
-    console.error('[webhook-gg] userId ausente no postback');
+    console.error('[webhook-cs] userId ausente no postback');
     return res.status(400).json({ error: 'userId ausente' });
   }
 
   // Determina quantas moedas creditiar
   const coinsNum = parseInt(coinsRaw, 10) || PLAN_COINS[priceId] || 0;
   if (coinsNum <= 0) {
-    console.error('[webhook-gg] coins inválido:', coinsRaw, priceId);
+    console.error('[webhook-cs] coins inválido:', coinsRaw, priceId);
     return res.status(400).json({ error: 'coins inválido' });
   }
 
@@ -99,7 +99,7 @@ export default async function handler(req, res) {
         .single();
 
       if (existing?.status === 'completed') {
-        console.log('[webhook-gg] Pedido já processado:', orderId);
+        console.log('[webhook-cs] Pedido já processado:', orderId);
         return res.status(200).json({ received: true, duplicate: true });
       }
     }
@@ -112,7 +112,7 @@ export default async function handler(req, res) {
       .single();
 
     if (profileErr || !profile) {
-      console.error('[webhook-gg] Perfil não encontrado para userId:', userId);
+      console.error('[webhook-cs] Perfil não encontrado para userId:', userId);
       return res.status(404).json({ error: 'Perfil não encontrado' });
     }
 
@@ -150,11 +150,11 @@ export default async function handler(req, res) {
       await sb.from('purchases').insert(purchaseData);
     }
 
-    console.log(`[webhook-gg] ✓ ${coinsNum} moedas creditadas → userId=${userId} | novoSaldo=${newCoins}`);
+    console.log(`[webhook-cs] ✓ ${coinsNum} moedas creditadas → userId=${userId} | novoSaldo=${newCoins}`);
     return res.status(200).json({ received: true, coins_granted: coinsNum, new_balance: newCoins });
 
   } catch (err) {
-    console.error('[webhook-gg] Erro interno:', err.message);
+    console.error('[webhook-cs] Erro interno:', err.message);
     return res.status(500).json({ error: 'Erro interno ao creditar moedas.' });
   }
 }
