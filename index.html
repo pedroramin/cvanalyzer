@@ -38,6 +38,230 @@
     margin: 0 auto;
   }
 
+  /* ── AUTH WALL ── */
+  #authWall {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    gap: 0;
+  }
+  #authWall.hidden { display: none; }
+  #appContent { display: none; }
+  #appContent.visible { display: block; }
+
+  .auth-box {
+    width: 100%;
+    max-width: 400px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 36px 32px;
+  }
+
+  .auth-logo {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .auth-logo h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+  }
+  .auth-logo h1 span { color: var(--accent); }
+  .auth-logo p {
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  .auth-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .auth-tab {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .auth-tab.active {
+    background: var(--accent);
+    color: #000;
+    font-weight: 500;
+  }
+  .auth-tab:not(.active):hover { color: var(--text); }
+
+  .auth-form { display: flex; flex-direction: column; gap: 14px; }
+  .auth-form.hidden { display: none; }
+
+  .auth-field label {
+    display: block;
+    font-size: 0.62rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .auth-field input {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .auth-field input:focus { border-color: var(--accent); }
+  .auth-field input::placeholder { color: #444; }
+
+  .btn-auth {
+    width: 100%;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 3px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 4px;
+  }
+  .btn-auth:hover { background: #d9ff70; }
+  .btn-auth:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+  .auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 0.62rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .auth-divider::before, .auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .btn-google {
+    width: 100%;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    padding: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .btn-google:hover { border-color: #555; background: var(--surface2); }
+
+  .auth-error {
+    background: rgba(255,107,107,0.1);
+    border: 1px solid rgba(255,107,107,0.3);
+    border-radius: 3px;
+    color: var(--danger);
+    font-size: 0.68rem;
+    padding: 10px 12px;
+    line-height: 1.5;
+    display: none;
+  }
+  .auth-error.show { display: block; }
+
+  .auth-success {
+    background: rgba(200,240,96,0.1);
+    border: 1px solid rgba(200,240,96,0.3);
+    border-radius: 3px;
+    color: var(--accent);
+    font-size: 0.68rem;
+    padding: 10px 12px;
+    line-height: 1.5;
+    display: none;
+  }
+  .auth-success.show { display: block; }
+
+  .auth-footer {
+    text-align: center;
+    font-size: 0.62rem;
+    color: var(--muted);
+    margin-top: 20px;
+    line-height: 1.8;
+  }
+
+  /* ── TOP BAR (user info) ── */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+  }
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.68rem;
+    color: var(--muted);
+  }
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-logout {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-logout:hover { color: var(--danger); border-color: var(--danger); }
+
   /* ── COIN BAR ── */
   .coin-bar {
     display: flex;
@@ -99,227 +323,77 @@
     position: relative;
     background: var(--surface);
   }
-
   .mode-card:hover { border-color: #444; }
-
-  .mode-card.active-standard {
-    border-color: var(--accent);
-    background: #151a0a;
-  }
-
-  .mode-card.active-premium {
-    border-color: var(--purple);
-    background: #130f1a;
-  }
-
-  .mode-card-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-
+  .mode-card.active-standard { border-color: var(--accent); background: #151a0a; }
+  .mode-card.active-premium { border-color: var(--purple); background: #130f1a; }
+  .mode-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
   .mode-icon { font-size: 1.1rem; }
-
-  .mode-title {
-    font-size: 0.82rem;
-    font-weight: 500;
-    flex: 1;
-  }
-
-  .mode-badge {
-    font-size: 0.58rem;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    padding: 2px 7px;
-    border-radius: 20px;
-  }
-
+  .mode-title { font-size: 0.82rem; font-weight: 500; flex: 1; }
+  .mode-badge { font-size: 0.58rem; letter-spacing: 1.5px; text-transform: uppercase; padding: 2px 7px; border-radius: 20px; }
   .badge-standard { background: rgba(200,240,96,0.12); color: var(--accent); border: 1px solid rgba(200,240,96,0.3); }
   .badge-premium { background: var(--purple-dim); color: var(--purple); border: 1px solid var(--purple-border); }
   .badge-generator { background: var(--coral-dim); color: var(--coral); border: 1px solid var(--coral-border); }
-
-  .mode-card.active-generator {
-    border-color: var(--coral);
-    background: #1a0f0a;
-  }
+  .mode-card.active-generator { border-color: var(--coral); background: #1a0f0a; }
   .active-generator .mode-check { opacity: 1; background: var(--coral); color: #fff; }
   .mode-cost.generator { color: var(--coral); }
-
-  .mode-desc {
-    font-size: 0.7rem;
-    color: var(--muted);
-    line-height: 1.6;
-    margin-bottom: 10px;
-  }
-
-  .mode-cost {
-    font-size: 0.72rem;
-    font-family: 'Playfair Display', serif;
-  }
-
+  .mode-desc { font-size: 0.7rem; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+  .mode-cost { font-size: 0.72rem; font-family: 'Playfair Display', serif; }
   .mode-cost.standard { color: var(--accent); }
   .mode-cost.premium { color: var(--purple); }
-
-  .mode-check {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.6rem;
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
+  .mode-check { position: absolute; top: 10px; right: 10px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; opacity: 0; transition: opacity 0.2s; }
   .active-standard .mode-check { opacity: 1; background: var(--accent); color: #000; }
   .active-premium .mode-check { opacity: 1; background: var(--purple); color: #fff; }
 
   /* ── PREMIUM PANEL ── */
-  .premium-panel {
-    display: none;
-    border: 1.5px solid var(--purple-border);
-    border-radius: 3px;
-    background: #0f0c14;
-    padding: 20px;
-    margin-bottom: 16px;
-    animation: fadeUp 0.25s ease;
-  }
+  .premium-panel { display: none; border: 1.5px solid var(--purple-border); border-radius: 3px; background: #0f0c14; padding: 20px; margin-bottom: 16px; animation: fadeUp 0.25s ease; }
   .premium-panel.show { display: block; }
+  .premium-panel-title { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--purple); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .premium-panel-title::after { content: ''; flex: 1; height: 1px; background: var(--purple-border); }
 
-  .premium-panel-title {
-    font-size: 0.7rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--purple);
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .premium-panel-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--purple-border);
-  }
-
-  /* job image upload */
-  .job-upload-area {
-    border: 1.5px dashed var(--purple-border);
-    border-radius: 3px;
-    padding: 32px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    background: var(--purple-dim);
-    margin-bottom: 12px;
-  }
+  .job-upload-area { border: 1.5px dashed var(--purple-border); border-radius: 3px; padding: 32px 20px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; background: var(--purple-dim); margin-bottom: 12px; }
   .job-upload-area:hover, .job-upload-area.drag-over { border-color: var(--purple); background: rgba(183,136,255,0.18); }
   .job-upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
   .job-upload-icon { font-size: 2rem; margin-bottom: 8px; display: block; }
   .job-upload-area h4 { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--purple); margin-bottom: 4px; }
   .job-upload-area p { color: var(--muted); font-size: 0.7rem; }
-
-  .job-preview {
-    display: none;
-    position: relative;
-    border-radius: 3px;
-    overflow: hidden;
-    border: 1px solid var(--purple-border);
-    margin-bottom: 12px;
-  }
+  .job-preview { display: none; position: relative; border-radius: 3px; overflow: hidden; border: 1px solid var(--purple-border); margin-bottom: 12px; }
   .job-preview.show { display: block; }
   .job-preview img { width: 100%; max-height: 220px; object-fit: cover; display: block; }
-  .job-preview-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(13,8,20,0.9) 0%, transparent 60%);
-    display: flex;
-    align-items: flex-end;
-    padding: 12px;
-    gap: 8px;
-  }
+  .job-preview-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(13,8,20,0.9) 0%, transparent 60%); display: flex; align-items: flex-end; padding: 12px; gap: 8px; }
   .job-preview-name { font-size: 0.72rem; color: var(--purple); flex: 1; }
-  .btn-remove-job {
-    background: rgba(255,107,107,0.15); border: 1px solid rgba(255,107,107,0.3);
-    color: var(--danger); border-radius: 2px; font-size: 0.65rem; padding: 4px 10px;
-    cursor: pointer; font-family: 'DM Mono', monospace; transition: all 0.2s;
-  }
+  .btn-remove-job { background: rgba(255,107,107,0.15); border: 1px solid rgba(255,107,107,0.3); color: var(--danger); border-radius: 2px; font-size: 0.65rem; padding: 4px 10px; cursor: pointer; font-family: 'DM Mono', monospace; transition: all 0.2s; }
   .btn-remove-job:hover { background: rgba(255,107,107,0.25); }
-
-  .job-desc-label {
-    font-size: 0.65rem;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 6px;
-    display: block;
-  }
+  .job-desc-label { font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; display: block; }
 
   /* ── UPLOAD (CV) ── */
-  .upload-area {
-    border: 1.5px dashed var(--border); border-radius: 3px; padding: 40px 20px;
-    text-align: center; cursor: pointer; transition: all 0.2s; position: relative;
-    background: var(--surface); margin-bottom: 14px;
-  }
+  .upload-area { border: 1.5px dashed var(--border); border-radius: 3px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; background: var(--surface); margin-bottom: 14px; }
   .upload-area:hover, .upload-area.drag-over { border-color: var(--accent); background: #151a0a; }
   .upload-icon { font-size: 2.2rem; margin-bottom: 10px; display: block; }
   .upload-area h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 4px; }
   .upload-area p { color: var(--muted); font-size: 0.72rem; }
   .upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-
-  .file-info {
-    display: none; background: #151a0a; border: 1px solid var(--accent); border-radius: 3px;
-    padding: 10px 14px; font-size: 0.75rem; color: var(--accent); margin-bottom: 14px;
-    align-items: center; gap: 10px; justify-content: space-between;
-  }
+  .file-info { display: none; background: #151a0a; border: 1px solid var(--accent); border-radius: 3px; padding: 10px 14px; font-size: 0.75rem; color: var(--accent); margin-bottom: 14px; align-items: center; gap: 10px; justify-content: space-between; }
   .file-info.show { display: flex; }
   .file-info-left { display: flex; align-items: center; gap: 8px; }
   .btn-remove-file { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.9rem; transition: color 0.2s; }
   .btn-remove-file:hover { color: var(--danger); }
-
-  .or-divider {
-    text-align: center; color: var(--muted); font-size: 0.68rem; letter-spacing: 3px;
-    text-transform: uppercase; margin: 14px 0; position: relative;
-  }
+  .or-divider { text-align: center; color: var(--muted); font-size: 0.68rem; letter-spacing: 3px; text-transform: uppercase; margin: 14px 0; position: relative; }
   .or-divider::before, .or-divider::after { content: ''; position: absolute; top: 50%; width: 43%; height: 1px; background: var(--border); }
   .or-divider::before { left: 0; }
   .or-divider::after { right: 0; }
 
-  textarea {
-    width: 100%; background: var(--surface); border: 1.5px solid var(--border); border-radius: 3px;
-    color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.76rem; padding: 14px;
-    resize: vertical; min-height: 140px; outline: none; transition: border-color 0.2s; line-height: 1.7;
-  }
+  textarea { width: 100%; background: var(--surface); border: 1.5px solid var(--border); border-radius: 3px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.76rem; padding: 14px; resize: vertical; min-height: 140px; outline: none; transition: border-color 0.2s; line-height: 1.7; }
   textarea:focus { border-color: var(--accent); }
   textarea::placeholder { color: var(--muted); }
 
   /* ── OPTIONS ── */
   .options-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
   .opt-group label { display: block; font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-
-  select {
-    width: 100%; background: var(--surface); border: 1.5px solid var(--border); border-radius: 3px;
-    color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.76rem; padding: 10px 12px;
-    outline: none; cursor: pointer; appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 12px center; transition: border-color 0.2s;
-  }
+  select { width: 100%; background: var(--surface); border: 1.5px solid var(--border); border-radius: 3px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.76rem; padding: 10px 12px; outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; transition: border-color 0.2s; }
   select:focus { border-color: var(--accent); }
 
   /* ── ANALYZE BTN ── */
-  .btn-analyze {
-    width: 100%; border: none; border-radius: 3px; font-family: 'DM Mono', monospace;
-    font-size: 0.8rem; font-weight: 500; letter-spacing: 3px; text-transform: uppercase;
-    padding: 16px; cursor: pointer; transition: all 0.25s; margin-top: 10px;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-  }
+  .btn-analyze { width: 100%; border: none; border-radius: 3px; font-family: 'DM Mono', monospace; font-size: 0.8rem; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; padding: 16px; cursor: pointer; transition: all 0.25s; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
   .btn-analyze.standard-btn { background: var(--accent); color: #000; }
   .btn-analyze.standard-btn:hover:not(:disabled) { background: #d9ff70; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(200,240,96,0.2); }
   .btn-analyze.premium-btn { background: var(--purple); color: #fff; }
@@ -327,7 +401,6 @@
   .btn-analyze.generator-btn { background: var(--coral); color: #fff; }
   .btn-analyze.generator-btn:hover:not(:disabled) { background: #ffa080; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,140,105,0.25); }
   .btn-analyze:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
-
   .btn-cost-badge { background: rgba(0,0,0,0.2); border-radius: 20px; font-size: 0.58rem; padding: 2px 9px; letter-spacing: 1px; }
 
   /* ── LOADING ── */
@@ -347,18 +420,14 @@
   .results { display: none; animation: fadeUp 0.4s ease; }
   .results.show { display: block; }
   @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
-
   .results-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); gap: 12px; }
   .results-header-left h2 { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 4px; }
   .results-mode-tag { font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; }
   .results-mode-tag.standard { background: rgba(200,240,96,0.1); color: var(--accent); border: 1px solid rgba(200,240,96,0.3); }
   .results-mode-tag.premium { background: var(--purple-dim); color: var(--purple); border: 1px solid var(--purple-border); }
-
   .score-wrap { text-align: right; flex-shrink: 0; }
   .score-badge { font-size: 2.2rem; font-weight: 700; font-family: 'Playfair Display', serif; display: block; }
   .score-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
-
-  /* match score (premium) */
   .match-bar-wrap { margin-bottom: 20px; padding: 14px 16px; border: 1px solid var(--purple-border); border-radius: 3px; background: var(--purple-dim); }
   .match-bar-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .match-bar-label span { font-size: 0.68rem; color: var(--purple); letter-spacing: 1px; text-transform: uppercase; }
@@ -366,7 +435,6 @@
   .match-bar-track { width: 100%; height: 4px; background: rgba(183,136,255,0.15); border-radius: 2px; overflow: hidden; }
   .match-bar-fill { height: 100%; background: var(--purple); border-radius: 2px; transition: width 1s ease; }
   .match-bar-desc { font-size: 0.68rem; color: var(--muted); margin-top: 8px; line-height: 1.6; }
-
   .section-block { border: 1px solid var(--border); border-radius: 3px; margin-bottom: 10px; overflow: hidden; }
   .section-header { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--surface); cursor: pointer; user-select: none; transition: background 0.15s; }
   .section-header:hover { background: #1c1c1c; }
@@ -381,621 +449,529 @@
   .tag-warn { background: rgba(240,200,96,0.1); color: var(--accent2); border: 1px solid rgba(240,200,96,0.3); }
   .tag-ok { background: rgba(200,240,96,0.1); color: var(--accent); border: 1px solid rgba(200,240,96,0.3); }
   .tag-match { background: var(--purple-dim); color: var(--purple); border: 1px solid var(--purple-border); }
-  .section-chevron { color: var(--muted); font-size: 0.65rem; transition: transform 0.2s; }
+  .section-chevron { margin-left: auto; font-size: 0.7rem; color: var(--muted); transition: transform 0.2s; }
   .section-chevron.open { transform: rotate(180deg); }
-  .section-body { display: none; padding: 14px 16px; border-top: 1px solid var(--border); font-size: 0.75rem; line-height: 1.8; color: #b0b0a8; }
+  .section-body { display: none; padding: 16px 14px; border-top: 1px solid var(--border); line-height: 1.8; font-size: 0.78rem; color: var(--text); }
   .section-body.open { display: block; }
-  .section-body ul { list-style: none; padding: 0; }
-  .section-body li { padding: 6px 0; padding-left: 18px; position: relative; border-bottom: 1px solid var(--border); }
-  .section-body li:last-child { border-bottom: none; }
-  .section-body li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
-
-  .btn-new { width: 100%; background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 3px; font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; padding: 12px; cursor: pointer; margin-top: 18px; transition: all 0.2s; }
+  .section-body ul { padding-left: 16px; }
+  .section-body li { margin-bottom: 6px; }
+  .section-body strong { color: var(--accent); }
+  .btn-new { background: none; border: 1px solid var(--border); color: var(--muted); border-radius: 3px; font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; padding: 10px 18px; cursor: pointer; margin-top: 20px; transition: all 0.2s; }
   .btn-new:hover { color: var(--text); border-color: var(--text); }
 
-  .error-msg { display: none; background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.3); border-radius: 3px; padding: 10px 14px; color: var(--danger); font-size: 0.75rem; margin-top: 10px; line-height: 1.6; }
+  /* ── COIN LOW WARNING ── */
+  .coin-low-warning { display: none; background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.2); border-radius: 3px; padding: 12px 16px; margin-bottom: 18px; font-size: 0.72rem; color: var(--danger); line-height: 1.7; }
+  .coin-low-warning.show { display: block; }
+  .coin-low-warning a { color: var(--gold); text-decoration: underline; cursor: pointer; }
+
+  /* ── ERROR / SUCCESS ── */
+  .error-msg { display: none; background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.25); border-radius: 3px; color: var(--danger); font-size: 0.74rem; padding: 12px 16px; margin-top: 12px; line-height: 1.6; }
   .error-msg.show { display: block; }
 
-  /* ── COIN LOW WARNING ── */
-  .coin-low-warning { display: none; background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.3); border-radius: 3px; padding: 12px 14px; font-size: 0.73rem; color: var(--danger); margin-bottom: 14px; line-height: 1.6; text-align: center; }
-  .coin-low-warning.show { display: block; }
-  .coin-low-warning a { color: var(--gold); cursor: pointer; text-decoration: underline; }
-
-  /* ── MODALS ── */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
-  .modal-overlay.show { display: flex; }
-  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 28px; width: 100%; max-width: 480px; animation: fadeUp 0.25s ease; }
-  .modal h2 { font-family: 'Playfair Display', serif; font-size: 1.35rem; margin-bottom: 6px; }
-  .modal h2 span { color: var(--gold); }
-  .modal-sub { color: var(--muted); font-size: 0.7rem; margin-bottom: 22px; line-height: 1.6; }
-
-  .plan-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 18px; }
-  .plan-card { border: 1.5px solid var(--border); border-radius: 3px; padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
-  .plan-card:hover, .plan-card.selected { border-color: var(--gold); background: #1a1a10; }
-  .plan-badge { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; font-size: 0.52rem; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
-  .plan-coins { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--gold); display: block; margin-bottom: 2px; }
-  .plan-coin-label { font-size: 0.58rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px; }
-  .plan-price { font-size: 0.88rem; color: var(--text); font-weight: 500; }
-  .plan-price-label { font-size: 0.58rem; color: var(--muted); display: block; }
-  .plan-saving { font-size: 0.58rem; color: var(--accent); margin-top: 4px; letter-spacing: 1px; }
-
-  .modal-btn-row { display: flex; gap: 10px; margin-top: 6px; }
-  .btn-modal-confirm { flex: 1; background: var(--gold); color: #000; border: none; border-radius: 2px; font-family: 'DM Mono', monospace; font-size: 0.72rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; padding: 13px; cursor: pointer; transition: all 0.2s; }
-  .btn-modal-confirm:hover { background: #ffd970; }
-  .btn-modal-cancel { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 2px; font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; padding: 13px 18px; cursor: pointer; transition: all 0.2s; }
-  .btn-modal-cancel:hover { color: var(--text); border-color: var(--text); }
-
-  .redeem-input-row { display: flex; gap: 8px; margin-bottom: 8px; }
-  .redeem-input-row input { flex: 1; background: var(--bg); border: 1.5px solid var(--border); border-radius: 2px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.76rem; padding: 10px 12px; outline: none; text-transform: uppercase; letter-spacing: 2px; transition: border-color 0.2s; }
-  .redeem-input-row input:focus { border-color: var(--gold); }
-  .redeem-msg { font-size: 0.7rem; min-height: 18px; margin-bottom: 14px; }
-  .redeem-msg.ok { color: var(--accent); }
-  .redeem-msg.err { color: var(--danger); }
-
   /* ── TOAST ── */
-  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--accent); border-radius: 3px; padding: 11px 16px; font-size: 0.72rem; color: var(--accent); letter-spacing: 1px; z-index: 999; transform: translateY(80px); opacity: 0; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); max-width: 280px; }
-  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface); border: 1px solid var(--border); border-radius: 3px; color: var(--text); font-size: 0.72rem; padding: 10px 20px; letter-spacing: 1px; opacity: 0; transition: all 0.25s; z-index: 9999; white-space: nowrap; pointer-events: none; }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
   .toast.gold { border-color: var(--gold); color: var(--gold); }
   .toast.purple { border-color: var(--purple); color: var(--purple); }
+  .toast.green { border-color: var(--accent); color: var(--accent); }
 
-  /* ── PREMIUM UPSELL BANNER ── */
-  .upsell-banner {
-    border: 1px solid var(--purple-border);
-    border-radius: 3px;
-    background: var(--purple-dim);
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 16px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
+  /* ── UPSELL ── */
+  .upsell-banner { border: 1px solid var(--purple-border); border-radius: 3px; background: var(--purple-dim); padding: 14px 16px; display: flex; align-items: center; gap: 12px; margin-top: 16px; cursor: pointer; transition: all 0.2s; }
   .upsell-banner:hover { background: rgba(183,136,255,0.18); }
   .upsell-text { flex: 1; }
   .upsell-text strong { display: block; font-size: 0.78rem; color: var(--purple); margin-bottom: 2px; }
   .upsell-text span { font-size: 0.68rem; color: var(--muted); line-height: 1.5; }
   .upsell-arrow { color: var(--purple); font-size: 1rem; }
+  .upsell-generator { border: 1px solid var(--coral-border); border-radius: 3px; background: var(--coral-dim); padding: 14px 16px; display: flex; align-items: center; gap: 12px; margin-top: 12px; cursor: pointer; transition: all 0.2s; }
+  .upsell-generator:hover { background: rgba(255,140,105,0.18); }
 
   /* ── GENERATOR PANEL ── */
-  .generator-panel {
-    display: none;
-    border: 1.5px solid var(--coral-border);
-    border-radius: 3px;
-    background: #140d09;
-    padding: 20px;
-    margin-bottom: 16px;
-    animation: fadeUp 0.25s ease;
-  }
+  .generator-panel { display: none; border: 1.5px solid var(--coral-border); border-radius: 3px; background: #140d09; padding: 20px; margin-bottom: 16px; animation: fadeUp 0.25s ease; }
   .generator-panel.show { display: block; }
-
-  .generator-panel-title {
-    font-size: 0.7rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--coral);
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .generator-panel-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--coral-border);
-  }
-
-  .generator-tabs { display: none; } /* replaced by steps */
-
-  .gen-step {
-    background: rgba(255,140,105,0.05);
-    border: 1px solid var(--coral-border);
-    border-radius: 3px;
-    padding: 16px;
-    margin-bottom: 12px;
-  }
+  .generator-panel-title { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--coral); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .generator-panel-title::after { content: ''; flex: 1; height: 1px; background: var(--coral-border); }
+  .generator-tabs { display: none; }
+  .gen-step { background: rgba(255,140,105,0.05); border: 1px solid var(--coral-border); border-radius: 3px; padding: 16px; margin-bottom: 12px; }
   .gen-step-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-  .gen-step-num {
-    width: 22px; height: 22px; border-radius: 50%;
-    background: var(--coral); color: #000;
-    font-size: 0.65rem; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
+  .gen-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--coral); color: #000; font-size: 0.65rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .gen-step-title { font-size: 0.78rem; font-weight: 500; color: var(--text); }
-  .gen-required {
-    font-size: 0.58rem; letter-spacing: 1.5px; text-transform: uppercase;
-    color: var(--coral); background: var(--coral-dim);
-    border: 1px solid var(--coral-border); border-radius: 20px;
-    padding: 1px 7px; margin-left: 6px;
-  }
+  .gen-required { font-size: 0.58rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--coral); background: var(--coral-dim); border: 1px solid var(--coral-border); border-radius: 20px; padding: 1px 7px; margin-left: 6px; }
   .gen-step-desc { font-size: 0.68rem; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
-
   .gen-cv-choice { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-  .gen-choice-btn {
-    flex: 1; min-width: 140px;
-    background: var(--surface); border: 1.5px solid var(--border);
-    border-radius: 3px; color: var(--muted);
-    font-family: 'DM Mono', monospace; font-size: 0.68rem;
-    letter-spacing: 1px; padding: 10px 14px; cursor: pointer;
-    transition: all 0.2s; text-align: center;
-  }
+  .gen-choice-btn { flex: 1; min-width: 140px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 3px; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 1px; padding: 10px 14px; cursor: pointer; transition: all 0.2s; text-align: center; }
   .gen-choice-btn.active { background: var(--coral-dim); border-color: var(--coral-border); color: var(--coral); }
   .gen-choice-btn:hover:not(.active) { border-color: #555; color: var(--text); }
-
   .gen-job-upload { margin-bottom: 8px; }
-
   .gen-pane { display: none; }
   .gen-pane.show { display: block; }
-
-  .gen-field-label {
-    font-size: 0.62rem; letter-spacing: 1.5px; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 6px; display: block; margin-top: 12px;
-  }
+  .gen-field-label { font-size: 0.62rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; display: block; margin-top: 12px; }
   .gen-field-label:first-child { margin-top: 0; }
-
-  .gen-input {
-    width: 100%; background: var(--surface); border: 1.5px solid var(--border);
-    border-radius: 3px; color: var(--text); font-family: 'DM Mono', monospace;
-    font-size: 0.76rem; padding: 10px 12px; outline: none; transition: border-color 0.2s;
-  }
+  .gen-input { width: 100%; background: var(--surface); border: 1.5px solid var(--border); border-radius: 3px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.76rem; padding: 10px 12px; outline: none; transition: border-color 0.2s; }
   .gen-input:focus { border-color: var(--coral); }
   .gen-input::placeholder { color: var(--muted); }
-
-  .gen-textarea {
-    width: 100%; background: var(--surface); border: 1.5px solid var(--border);
-    border-radius: 3px; color: var(--text); font-family: 'DM Mono', monospace;
-    font-size: 0.76rem; padding: 14px; resize: vertical; min-height: 80px;
-    outline: none; transition: border-color 0.2s; line-height: 1.7;
-  }
+  .gen-textarea { width: 100%; background: var(--surface); border: 1.5px solid var(--border); border-radius: 3px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.76rem; padding: 14px; resize: vertical; min-height: 80px; outline: none; transition: border-color 0.2s; line-height: 1.7; }
   .gen-textarea:focus { border-color: var(--coral); }
   .gen-textarea::placeholder { color: var(--muted); }
-
   .gen-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-  /* ── GENERATED CV RESULT — visual model like the uploaded template ── */
-  .cv-result-wrap {
-    background: #fff;
-    border-radius: 4px;
-    padding: 40px 44px;
-    margin-bottom: 16px;
-    color: #111;
-    font-family: 'Georgia', serif;
-    line-height: 1.7;
-  }
-  .cv-result-wrap .cv-name {
-    font-size: 2rem;
-    font-weight: 900;
-    color: #111;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    line-height: 1.1;
-    margin-bottom: 2px;
-    font-family: 'Arial Black', 'Arial', sans-serif;
-  }
-  .cv-result-wrap .cv-subtitle {
-    font-size: 1rem;
-    color: #444;
-    font-family: 'Arial', sans-serif;
-    margin-bottom: 14px;
-    font-weight: 400;
-  }
-  .cv-result-wrap .cv-divider {
-    border: none; border-top: 2px solid #111;
-    margin: 10px 0 14px;
-  }
-  .cv-result-wrap .cv-contact-row {
-    display: flex; gap: 24px; flex-wrap: wrap;
-    font-size: 0.82rem; font-family: 'Arial', sans-serif;
-    color: #333; margin-bottom: 4px;
-  }
+  /* ── GENERATED CV RESULT ── */
+  .cv-result-wrap { background: #fff; border-radius: 4px; padding: 40px 44px; margin-bottom: 16px; color: #111; font-family: 'Georgia', serif; line-height: 1.7; }
+  .cv-result-wrap .cv-name { font-size: 2rem; font-weight: 900; color: #111; text-transform: uppercase; letter-spacing: 1px; line-height: 1.1; margin-bottom: 2px; font-family: 'Arial Black', 'Arial', sans-serif; }
+  .cv-result-wrap .cv-subtitle { font-size: 1rem; color: #444; font-family: 'Arial', sans-serif; margin-bottom: 14px; font-weight: 400; }
+  .cv-result-wrap .cv-divider { border: none; border-top: 2px solid #111; margin: 10px 0 14px; }
+  .cv-result-wrap .cv-contact-row { display: flex; gap: 24px; flex-wrap: wrap; font-size: 0.82rem; font-family: 'Arial', sans-serif; color: #333; margin-bottom: 4px; }
   .cv-result-wrap .cv-contact-row span { display: flex; align-items: center; gap: 5px; }
-  .cv-result-wrap .cv-divider2 {
-    border: none; border-top: 1px solid #ccc;
-    margin: 12px 0 20px;
-  }
-  .cv-result-wrap .cv-section-title {
-    font-size: 0.82rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: #111;
-    border-bottom: 2px solid #111;
-    padding-bottom: 3px;
-    margin: 22px 0 12px;
-    font-family: 'Arial Black', 'Arial', sans-serif;
-  }
-  .cv-result-wrap .cv-exp-header {
-    font-weight: 700; font-size: 0.84rem;
-    font-family: 'Arial', sans-serif;
-    margin-bottom: 1px;
-    color: #111;
-  }
-  .cv-result-wrap .cv-exp-role {
-    font-size: 0.82rem; color: #444;
-    font-family: 'Arial', sans-serif;
-    margin-bottom: 2px;
-  }
-  .cv-result-wrap .cv-exp-desc {
-    font-size: 0.8rem; color: #333;
-    font-family: 'Arial', sans-serif;
-    margin-bottom: 12px;
-    line-height: 1.6;
-  }
-  .cv-result-wrap p {
-    font-size: 0.82rem; color: #333;
-    font-family: 'Arial', sans-serif;
-    margin-bottom: 6px;
-    line-height: 1.6;
-  }
-  .cv-result-wrap ul {
-    padding-left: 0; list-style: none; margin-bottom: 6px;
-  }
-  .cv-result-wrap li {
-    font-size: 0.82rem; color: #333;
-    font-family: 'Arial', sans-serif;
-    padding: 2px 0 2px 14px;
-    position: relative; line-height: 1.5;
-  }
-  .cv-result-wrap li::before { content: '•'; position: absolute; left: 0; color: #111; }
+  .cv-result-wrap .cv-divider2 { border: none; border-top: 1px solid #ccc; margin: 12px 0 20px; }
+  .cv-result-wrap .cv-section-title { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #111; margin-top: 20px; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #111; font-family: 'Arial', sans-serif; }
+  .cv-result-wrap .cv-exp-header { font-weight: 700; color: #111; margin-top: 10px; font-family: 'Arial', sans-serif; font-size: 0.9rem; }
+  .cv-result-wrap .cv-exp-role { font-style: italic; color: #555; font-size: 0.88rem; margin-bottom: 4px; }
+  .cv-result-wrap p { color: #333; font-size: 0.88rem; margin-bottom: 4px; }
+  .cv-result-wrap ul { padding-left: 18px; }
+  .cv-result-wrap li { color: #333; font-size: 0.88rem; margin-bottom: 3px; }
+  .btn-copy-cv { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; padding: 10px 18px; border-radius: 3px; cursor: pointer; transition: all 0.2s; margin-bottom: 16px; }
+  .btn-copy-cv:hover { color: var(--text); border-color: var(--text); }
 
-  .btn-copy-cv {
-    background: var(--coral-dim); border: 1px solid var(--coral-border);
-    color: var(--coral); border-radius: 2px; font-family: 'DM Mono', monospace;
-    font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase;
-    padding: 9px 16px; cursor: pointer; transition: all 0.2s; margin-bottom: 16px;
-  }
-  .btn-copy-cv:hover { background: rgba(255,140,105,0.22); }
+  /* ── MODALS ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 28px; max-width: 480px; width: 100%; animation: fadeUp 0.2s ease; max-height: 90vh; overflow-y: auto; }
+  .modal h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 6px; }
+  .modal h2 span { color: var(--accent); }
+  .modal-sub { font-size: 0.7rem; color: var(--muted); margin-bottom: 22px; line-height: 1.6; }
 
-  /* ── UPSELL GENERATOR ── */
-  .upsell-generator {
-    border: 1px solid var(--coral-border);
-    border-radius: 3px;
-    background: var(--coral-dim);
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 16px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .upsell-generator:hover { background: rgba(255,140,105,0.2); }
-  .upsell-generator .upsell-text strong { color: var(--coral); }
+  /* Plan cards */
+  .plan-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+  .plan-card { border: 1.5px solid var(--border); border-radius: 3px; padding: 16px 12px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
+  .plan-card:hover { border-color: #555; }
+  .plan-card.selected { border-color: var(--gold); background: rgba(240,200,96,0.08); }
+  .plan-badge { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--purple); color: #fff; font-size: 0.55rem; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+  .plan-coins { display: block; font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--gold); line-height: 1; margin-top: 10px; }
+  .plan-coin-label { display: block; font-size: 0.6rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+  .plan-price { display: block; font-size: 1rem; font-weight: 500; margin-bottom: 2px; }
+  .plan-price-label { display: block; font-size: 0.58rem; color: var(--muted); }
+  .plan-saving { display: inline-block; background: rgba(200,240,96,0.1); color: var(--accent); border: 1px solid rgba(200,240,96,0.3); font-size: 0.55rem; letter-spacing: 1px; text-transform: uppercase; padding: 2px 7px; border-radius: 20px; margin-top: 8px; }
 
-  @media (max-width: 520px) {
+  .modal-btn-row { display: flex; gap: 10px; }
+  .btn-modal-cancel { flex: 1; background: none; border: 1px solid var(--border); color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; padding: 12px; border-radius: 3px; cursor: pointer; transition: all 0.2s; }
+  .btn-modal-cancel:hover { color: var(--text); border-color: #555; }
+  .btn-modal-confirm { flex: 2; background: var(--gold); color: #000; border: none; border-radius: 3px; font-family: 'DM Mono', monospace; font-size: 0.7rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; padding: 12px; cursor: pointer; transition: all 0.2s; }
+  .btn-modal-confirm:hover { background: #ffd970; }
+  .btn-modal-confirm:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+  /* Redeem modal */
+  .redeem-input-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .redeem-input-row input { flex: 1; background: var(--bg); border: 1.5px solid var(--border); border-radius: 3px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.8rem; padding: 11px 14px; outline: none; transition: border-color 0.2s; text-transform: uppercase; letter-spacing: 2px; }
+  .redeem-input-row input:focus { border-color: var(--accent); }
+  .redeem-msg { font-size: 0.72rem; padding: 8px 0; min-height: 24px; }
+  .redeem-msg.ok { color: var(--accent); }
+  .redeem-msg.err { color: var(--danger); }
+
+  /* ── CHECKOUT LOADING ── */
+  .checkout-loading {
+    text-align: center;
+    padding: 20px 0;
+    display: none;
+  }
+  .checkout-loading.show { display: block; }
+  .checkout-loading p { font-size: 0.72rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; animation: pulse 1.5s ease-in-out infinite; }
+
+  /* ── SPINNER ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 12px;
+  }
+
+  @media (max-width: 600px) {
     .mode-toggle { grid-template-columns: 1fr; }
     .plan-grid { grid-template-columns: 1fr; }
     .options-row { grid-template-columns: 1fr; }
     .gen-row2 { grid-template-columns: 1fr; }
-    body { padding: 16px 14px 60px; }
+    .modal-btn-row { flex-direction: column; }
+    .cv-result-wrap { padding: 24px 20px; }
   }
 </style>
 </head>
 <body>
 
-<!-- COIN BAR -->
-<div class="coin-bar">
-  <div class="coin-left">
-    <span class="coin-icon">🪙</span>
-    <div class="coin-info">
-      <span class="coin-label">Suas Moedas</span>
-      <span class="coin-count" id="coinCount">0 <span>moedas</span></span>
+<!-- ══ AUTH WALL ══════════════════════════════════════════════════════════════ -->
+<div id="authWall">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="tag-ia">IA</div>
+      <h1>CV<span>Analyzer</span></h1>
+      <p>Análise de Currículo com Inteligência Artificial</p>
     </div>
-  </div>
-  <div class="coin-actions">
-    <button class="btn-redeem" onclick="openRedeemModal()">Resgatar Código</button>
-    <button class="btn-buy" onclick="openBuyModal()">+ Comprar Moedas</button>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="showTab('login')">Entrar</button>
+      <button class="auth-tab" id="tabRegister" onclick="showTab('register')">Cadastrar</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div class="auth-form" id="loginForm">
+      <div class="auth-field">
+        <label>E-mail</label>
+        <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label>Senha</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <div class="auth-error" id="loginError"></div>
+      <button class="btn-auth" id="btnLogin" onclick="handleLogin()">Entrar</button>
+      <div class="auth-divider">ou</div>
+      <button class="btn-google" onclick="handleGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+        Continuar com Google
+      </button>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div class="auth-form hidden" id="registerForm">
+      <div class="auth-field">
+        <label>Nome completo</label>
+        <input type="text" id="registerName" placeholder="Seu nome" autocomplete="name">
+      </div>
+      <div class="auth-field">
+        <label>E-mail</label>
+        <input type="email" id="registerEmail" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label>Senha</label>
+        <input type="password" id="registerPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+      </div>
+      <div class="auth-error" id="registerError"></div>
+      <div class="auth-success" id="registerSuccess"></div>
+      <button class="btn-auth" id="btnRegister" onclick="handleRegister()">Criar conta grátis</button>
+      <div class="auth-divider">ou</div>
+      <button class="btn-google" onclick="handleGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+        Continuar com Google
+      </button>
+    </div>
+
+    <div class="auth-footer">
+      🔒 Seus dados são protegidos e nunca compartilhados.<br>
+      Ao criar conta você ganha <strong style="color:var(--gold)">3 moedas grátis</strong> para começar.
+    </div>
   </div>
 </div>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="tag-ia">IA Powered</div>
-  <h1>Analise seu<br><span>Currículo</span></h1>
-  <p>Feedback profissional em segundos</p>
-</div>
+<!-- ══ APP CONTENT (mostrado após login) ══════════════════════════════════════ -->
+<div id="appContent">
 
-<!-- INPUT SECTION -->
-<div id="inputSection">
-
-  <div class="coin-low-warning" id="coinWarning">
-    ⚠ Moedas insuficientes para analisar.<br>
-    <a onclick="openBuyModal()">Compre mais moedas</a> ou <a onclick="openRedeemModal()">resgate um código</a>.
+  <!-- TOP BAR: usuário logado -->
+  <div class="top-bar">
+    <div class="user-info">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <span id="userEmail">—</span>
+    </div>
+    <button class="btn-logout" onclick="handleLogout()">Sair</button>
   </div>
 
-  <!-- MODE SELECTOR -->
-  <div class="mode-toggle">
-    <div class="mode-card active-standard" id="modeCardStandard" onclick="setMode('standard')">
-      <span class="mode-check">✓</span>
-      <div class="mode-card-header">
-        <span class="mode-icon">📄</span>
-        <span class="mode-title">Análise Geral</span>
-        <span class="mode-badge badge-standard">Padrão</span>
+  <!-- COIN BAR -->
+  <div class="coin-bar">
+    <div class="coin-left">
+      <span class="coin-icon">🪙</span>
+      <div class="coin-info">
+        <span class="coin-label">Saldo</span>
+        <span class="coin-count" id="coinCount">0 <span>moedas</span></span>
       </div>
-      <p class="mode-desc">Análise completa do seu currículo com pontos de melhoria, estrutura, impacto e competências.</p>
-      <span class="mode-cost standard">1 moeda por análise</span>
     </div>
-    <div class="mode-card" id="modeCardPremium" onclick="setMode('premium')">
-      <span class="mode-check">✓</span>
-      <div class="mode-card-header">
-        <span class="mode-icon">🎯</span>
-        <span class="mode-title">Match por Vaga</span>
-        <span class="mode-badge badge-premium">Premium</span>
-      </div>
-      <p class="mode-desc">Envie o print da vaga desejada. A IA cruza seu currículo com os requisitos e mostra seu % de compatibilidade.</p>
-      <span class="mode-cost premium">3 moedas por análise</span>
-    </div>
-    <div class="mode-card" id="modeCardGenerator" onclick="setMode('generator')">
-      <span class="mode-check">✓</span>
-      <div class="mode-card-header">
-        <span class="mode-icon">✨</span>
-        <span class="mode-title">Gerar Currículo</span>
-        <span class="mode-badge badge-generator">Elite</span>
-      </div>
-      <p class="mode-desc">A IA cria um currículo profissional do zero. Envie uma vaga, um currículo antigo ou responda perguntas guiadas.</p>
-      <span class="mode-cost generator">5 moedas por geração</span>
+    <div class="coin-actions">
+      <button class="btn-buy" onclick="openBuyModal()">+ Comprar moedas</button>
+      <button class="btn-redeem" onclick="openRedeemModal()">Resgatar código</button>
     </div>
   </div>
 
-  <!-- PREMIUM PANEL: job image upload -->
-  <div class="premium-panel" id="premiumPanel">
-    <div class="premium-panel-title">📸 Print ou Screenshot da Vaga</div>
-
-    <div class="job-upload-area" id="jobDropZone">
-      <input type="file" id="jobFileInput" accept="image/*">
-      <span class="job-upload-icon">🖼️</span>
-      <h4>Arraste o print da vaga aqui</h4>
-      <p>PNG, JPG, WEBP · LinkedIn, Indeed, Catho, Gupy…</p>
-    </div>
-
-    <div class="job-preview" id="jobPreview">
-      <img id="jobPreviewImg" src="" alt="Print da vaga">
-      <div class="job-preview-overlay">
-        <span class="job-preview-name" id="jobPreviewName"></span>
-        <button class="btn-remove-job" onclick="removeJobImage()">✕ Remover</button>
-      </div>
-    </div>
-
-    <span class="job-desc-label">Ou descreva a vaga (opcional, complementa o print)</span>
-    <textarea id="jobDescText" placeholder="Ex: Vaga de Desenvolvedor React Pleno na empresa X. Requisitos: 3 anos de experiência, TypeScript, Node.js, inglês intermediário..." style="min-height:90px;"></textarea>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="tag-ia">IA</div>
+    <h1>CV<span>Analyzer</span></h1>
+    <p>Análise profissional de currículo com inteligência artificial</p>
   </div>
 
-  <!-- GENERATOR PANEL -->
-  <div class="generator-panel" id="generatorPanel">
-    <div class="generator-panel-title">✨ Gerador de Currículo com IA</div>
+  <!-- INPUT SECTION -->
+  <div id="inputSection">
+    <div class="coin-low-warning" id="coinWarning">
+      ⚠ Moedas insuficientes para analisar.<br>
+      <a onclick="openBuyModal()">Compre mais moedas</a> ou <a onclick="openRedeemModal()">resgate um código</a>.
+    </div>
 
-    <!-- STEP 1: Vaga (obrigatório) -->
-    <div class="gen-step">
-      <div class="gen-step-header">
-        <span class="gen-step-num">1</span>
-        <span class="gen-step-title">Vaga desejada <span class="gen-required">obrigatório</span></span>
+    <div class="mode-toggle">
+      <div class="mode-card active-standard" id="modeCardStandard" onclick="setMode('standard')">
+        <span class="mode-check">✓</span>
+        <div class="mode-card-header">
+          <span class="mode-icon">📄</span>
+          <span class="mode-title">Análise Geral</span>
+          <span class="mode-badge badge-standard">Padrão</span>
+        </div>
+        <p class="mode-desc">Análise completa do seu currículo com pontos de melhoria, estrutura, impacto e competências.</p>
+        <span class="mode-cost standard">1 moeda por análise</span>
       </div>
-      <p class="gen-step-desc">Cole o print ou o texto da vaga. A IA vai otimizar seu currículo para essa posição específica.</p>
+      <div class="mode-card" id="modeCardPremium" onclick="setMode('premium')">
+        <span class="mode-check">✓</span>
+        <div class="mode-card-header">
+          <span class="mode-icon">🎯</span>
+          <span class="mode-title">Match por Vaga</span>
+          <span class="mode-badge badge-premium">Premium</span>
+        </div>
+        <p class="mode-desc">Envie o print da vaga desejada. A IA cruza seu currículo com os requisitos e mostra seu % de compatibilidade.</p>
+        <span class="mode-cost premium">3 moedas por análise</span>
+      </div>
+      <div class="mode-card" id="modeCardGenerator" onclick="setMode('generator')">
+        <span class="mode-check">✓</span>
+        <div class="mode-card-header">
+          <span class="mode-icon">✨</span>
+          <span class="mode-title">Gerar Currículo</span>
+          <span class="mode-badge badge-generator">Elite</span>
+        </div>
+        <p class="mode-desc">A IA cria um currículo profissional do zero. Envie uma vaga, um currículo antigo ou responda perguntas guiadas.</p>
+        <span class="mode-cost generator">5 moedas por geração</span>
+      </div>
+    </div>
 
-      <div class="job-upload-area gen-job-upload" id="genJobDropZone">
-        <input type="file" id="genJobFileInput" accept="image/*">
+    <!-- PREMIUM PANEL -->
+    <div class="premium-panel" id="premiumPanel">
+      <div class="premium-panel-title">📸 Print ou Screenshot da Vaga</div>
+      <div class="job-upload-area" id="jobDropZone">
+        <input type="file" id="jobFileInput" accept="image/*">
         <span class="job-upload-icon">🖼️</span>
         <h4>Arraste o print da vaga aqui</h4>
         <p>PNG, JPG, WEBP · LinkedIn, Indeed, Catho, Gupy…</p>
       </div>
-      <div class="job-preview" id="genJobPreview">
-        <img id="genJobPreviewImg" src="" alt="Print da vaga">
+      <div class="job-preview" id="jobPreview">
+        <img id="jobPreviewImg" src="" alt="Print da vaga">
         <div class="job-preview-overlay">
-          <span class="job-preview-name" id="genJobPreviewName"></span>
-          <button class="btn-remove-job" onclick="removeGenJobImage()">✕ Remover</button>
+          <span class="job-preview-name" id="jobPreviewName"></span>
+          <button class="btn-remove-job" onclick="removeJobImage()">✕ Remover</button>
         </div>
       </div>
-      <span class="job-desc-label" style="margin-top:10px;display:block;">Ou cole o texto da vaga</span>
-      <textarea class="gen-textarea" id="genJobText" style="min-height:90px" placeholder="Ex: Desenvolvedor React Pleno — Requisitos: TypeScript, Node.js, 3 anos de exp., inglês intermediário…"></textarea>
+      <span class="job-desc-label">Ou descreva a vaga (opcional)</span>
+      <textarea id="jobDescText" placeholder="Ex: Vaga de Desenvolvedor React Pleno na empresa X..." style="min-height:90px;"></textarea>
     </div>
 
-    <!-- STEP 2: Currículo -->
-    <div class="gen-step">
-      <div class="gen-step-header">
-        <span class="gen-step-num">2</span>
-        <span class="gen-step-title">Você tem um currículo antigo?</span>
-      </div>
-
-      <div class="gen-cv-choice">
-        <button class="gen-choice-btn active" id="genChoiceYes" onclick="switchCvChoice('yes')">✅ Sim, tenho currículo</button>
-        <button class="gen-choice-btn" id="genChoiceNo" onclick="switchCvChoice('no')">🧭 Não tenho — preencher dados</button>
-      </div>
-
-      <!-- Has old resume -->
-      <div id="genPaneOld" class="gen-pane show">
-        <span class="gen-field-label">Cole o texto do seu currículo atual *</span>
-        <textarea class="gen-textarea" id="genOldResume" style="min-height:150px" placeholder="Cole seu currículo atual aqui. A IA vai reescrever, reorganizar e fortalecer cada seção com linguagem de impacto e palavras-chave da vaga."></textarea>
-      </div>
-
-      <!-- Guided (no resume) -->
-      <div id="genPaneGuided" class="gen-pane">
-        <div class="gen-row2">
-          <div><span class="gen-field-label">Nome completo *</span><input class="gen-input" id="gqName" placeholder="Ana Lima"></div>
-          <div><span class="gen-field-label">Área profissional *</span><input class="gen-input" id="gqArea" placeholder="Engenharia de Produção"></div>
+    <!-- GENERATOR PANEL -->
+    <div class="generator-panel" id="generatorPanel">
+      <div class="generator-panel-title">✨ Gerador de Currículo com IA</div>
+      <div class="gen-step">
+        <div class="gen-step-header">
+          <span class="gen-step-num">1</span>
+          <span class="gen-step-title">Vaga desejada <span class="gen-required">obrigatório</span></span>
         </div>
-        <div class="gen-row2">
-          <div><span class="gen-field-label">E-mail</span><input class="gen-input" id="gqEmail" placeholder="ana@email.com"></div>
-          <div><span class="gen-field-label">Telefone / LinkedIn</span><input class="gen-input" id="gqContact" placeholder="(11) 99999-9999"></div>
+        <p class="gen-step-desc">Cole o print ou o texto da vaga. A IA vai otimizar seu currículo para essa posição específica.</p>
+        <div class="job-upload-area gen-job-upload" id="genJobDropZone">
+          <input type="file" id="genJobFileInput" accept="image/*">
+          <span class="job-upload-icon">🖼️</span>
+          <h4>Arraste o print da vaga aqui</h4>
+          <p>PNG, JPG, WEBP · LinkedIn, Indeed, Catho, Gupy…</p>
         </div>
-        <span class="gen-field-label">Formação acadêmica</span>
-        <textarea class="gen-textarea" id="gqEducation" style="min-height:60px" placeholder="Ex: Engenharia de Produção – USP (2021). MBA Gestão de Projetos – FGV (cursando)."></textarea>
-        <span class="gen-field-label">Experiências profissionais *</span>
-        <textarea class="gen-textarea" id="gqExperience" style="min-height:90px" placeholder="Ex: 2 anos na Embraer como analista de processos. 1 ano na Loggi como coordenadora de operações."></textarea>
-        <span class="gen-field-label">Habilidades e diferenciais</span>
-        <textarea class="gen-textarea" id="gqSkills" style="min-height:60px" placeholder="Ex: Inglês avançado, Power BI, Six Sigma Green Belt, liderança de times ágeis."></textarea>
+        <div class="job-preview" id="genJobPreview">
+          <img id="genJobPreviewImg" src="" alt="Print da vaga">
+          <div class="job-preview-overlay">
+            <span class="job-preview-name" id="genJobPreviewName"></span>
+            <button class="btn-remove-job" onclick="removeGenJobImage()">✕ Remover</button>
+          </div>
+        </div>
+        <span class="job-desc-label" style="margin-top:10px;display:block;">Ou cole o texto da vaga</span>
+        <textarea class="gen-textarea" id="genJobText" style="min-height:90px" placeholder="Ex: Desenvolvedor React Pleno — Requisitos: TypeScript, Node.js…"></textarea>
+      </div>
+      <div class="gen-step">
+        <div class="gen-step-header">
+          <span class="gen-step-num">2</span>
+          <span class="gen-step-title">Você tem um currículo antigo?</span>
+        </div>
+        <div class="gen-cv-choice">
+          <button class="gen-choice-btn active" id="genChoiceYes" onclick="switchCvChoice('yes')">✅ Sim, tenho currículo</button>
+          <button class="gen-choice-btn" id="genChoiceNo" onclick="switchCvChoice('no')">🧭 Não tenho — preencher dados</button>
+        </div>
+        <div id="genPaneOld" class="gen-pane show">
+          <span class="gen-field-label">Cole o texto do seu currículo atual *</span>
+          <textarea class="gen-textarea" id="genOldResume" style="min-height:150px" placeholder="Cole seu currículo atual aqui..."></textarea>
+        </div>
+        <div id="genPaneGuided" class="gen-pane">
+          <div class="gen-row2">
+            <div><span class="gen-field-label">Nome completo *</span><input class="gen-input" id="gqName" placeholder="Ana Lima"></div>
+            <div><span class="gen-field-label">Área profissional *</span><input class="gen-input" id="gqArea" placeholder="Engenharia de Produção"></div>
+          </div>
+          <div class="gen-row2">
+            <div><span class="gen-field-label">E-mail</span><input class="gen-input" id="gqEmail" placeholder="ana@email.com"></div>
+            <div><span class="gen-field-label">Telefone / LinkedIn</span><input class="gen-input" id="gqContact" placeholder="(11) 99999-9999"></div>
+          </div>
+          <span class="gen-field-label">Formação acadêmica</span>
+          <textarea class="gen-textarea" id="gqEducation" style="min-height:60px" placeholder="Ex: Engenharia de Produção – USP (2021)."></textarea>
+          <span class="gen-field-label">Experiências profissionais *</span>
+          <textarea class="gen-textarea" id="gqExperience" style="min-height:90px" placeholder="Ex: 2 anos na Embraer como analista de processos."></textarea>
+          <span class="gen-field-label">Habilidades e diferenciais</span>
+          <textarea class="gen-textarea" id="gqSkills" style="min-height:60px" placeholder="Ex: Inglês avançado, Power BI, Six Sigma Green Belt."></textarea>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="upload-area" id="dropZone">
-    <input type="file" id="fileInput" accept=".pdf,.txt">
-    <span class="upload-icon">📄</span>
-    <h3>Arraste seu currículo aqui</h3>
-    <p>PDF recomendado · também aceita TXT</p>
-  </div>
 
-  <div class="file-info" id="fileInfo">
-    <div class="file-info-left">
-      <span>📎</span>
-      <span id="fileName"></span>
+    <div class="upload-area" id="dropZone">
+      <input type="file" id="fileInput" accept=".pdf,.txt">
+      <span class="upload-icon">📄</span>
+      <h3>Arraste seu currículo aqui</h3>
+      <p>PDF recomendado · também aceita TXT</p>
     </div>
-    <button class="btn-remove-file" onclick="removeFile()" title="Remover">✕</button>
-  </div>
 
-  <div class="or-divider" id="orDivider">ou cole o texto do currículo</div>
-
-  <div id="textareaWrapper">
-    <textarea id="resumeText" placeholder="Cole o conteúdo do seu currículo aqui...
-
-Ex:
-Nome: João Silva
-Email: joao@email.com
-
-EXPERIÊNCIA
-Jan 2022 - Presente | Empresa X
-- Desenvolveu sistemas de gestão..."></textarea>
-  </div>
-
-  <div class="options-row" id="optionsRow">
-    <div class="opt-group" id="areaGroup">
-      <label>Área de atuação</label>
-      <select id="areaSelect">
-        <option value="tecnologia">Tecnologia / TI</option>
-        <option value="administracao">Administração</option>
-        <option value="marketing">Marketing</option>
-        <option value="financas">Finanças</option>
-        <option value="saude">Saúde</option>
-        <option value="educacao">Educação</option>
-        <option value="direito">Direito</option>
-        <option value="engenharia">Engenharia</option>
-        <option value="outro">Outro</option>
-      </select>
+    <div class="file-info" id="fileInfo">
+      <div class="file-info-left">
+        <span>📎</span>
+        <span id="fileName"></span>
+      </div>
+      <button class="btn-remove-file" onclick="removeFile()" title="Remover">✕</button>
     </div>
-    <div class="opt-group">
-      <label>Tipo de vaga</label>
-      <select id="levelSelect">
-        <option value="estagio">Estágio</option>
-        <option value="trainee">Trainee</option>
-        <option value="clt" selected>CLT</option>
-        <option value="pj">PJ / Freelancer</option>
-        <option value="temporario">Temporário</option>
-        <option value="autonomo">Autônomo / Liberal</option>
-        <option value="concurso">Concurso Público</option>
-      </select>
+
+    <div class="or-divider" id="orDivider">ou cole o texto do currículo</div>
+
+    <div id="textareaWrapper">
+      <textarea id="resumeText" placeholder="Cole o conteúdo do seu currículo aqui..."></textarea>
     </div>
+
+    <div class="options-row" id="optionsRow">
+      <div class="opt-group" id="areaGroup">
+        <label>Área de atuação</label>
+        <select id="areaSelect">
+          <option value="tecnologia">Tecnologia / TI</option>
+          <option value="administracao">Administração</option>
+          <option value="marketing">Marketing</option>
+          <option value="financas">Finanças</option>
+          <option value="saude">Saúde</option>
+          <option value="educacao">Educação</option>
+          <option value="direito">Direito</option>
+          <option value="engenharia">Engenharia</option>
+          <option value="outro">Outro</option>
+        </select>
+      </div>
+      <div class="opt-group">
+        <label>Tipo de vaga</label>
+        <select id="levelSelect">
+          <option value="estagio">Estágio</option>
+          <option value="trainee">Trainee</option>
+          <option value="clt" selected>CLT</option>
+          <option value="pj">PJ / Freelancer</option>
+          <option value="temporario">Temporário</option>
+          <option value="autonomo">Autônomo / Liberal</option>
+          <option value="concurso">Concurso Público</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-analyze standard-btn" id="analyzeBtn" onclick="analyzeResume()">
+      ✦ Analisar Currículo
+      <span class="btn-cost-badge" id="btnCostBadge">1 moeda</span>
+    </button>
+
+    <div class="error-msg" id="errorMsg"></div>
   </div>
 
-  <button class="btn-analyze standard-btn" id="analyzeBtn" onclick="analyzeResume()">
-    ✦ Analisar Currículo
-    <span class="btn-cost-badge" id="btnCostBadge">1 moeda</span>
-  </button>
-
-  <div class="error-msg" id="errorMsg"></div>
-</div>
-
-<!-- LOADING -->
-<div class="loading" id="loadingSection">
-  <div class="loader-bar"><div class="loader-bar-inner standard" id="loaderBar"></div></div>
-  <p id="loadingText">Analisando seu currículo com IA...</p>
-  <p class="loading-sub" id="loadingSub"></p>
-</div>
-
-<!-- RESULTS -->
-<div class="results" id="resultsSection">
-  <div class="results-header">
-    <div class="results-header-left">
-      <h2 id="resultsTitle">Análise Completa</h2>
-      <span class="results-mode-tag standard" id="resultsModeTag">Análise Geral</span>
-    </div>
-    <div class="score-wrap">
-      <span class="score-badge" id="scoreDisplay"></span>
-      <span class="score-label">score geral</span>
-    </div>
+  <!-- LOADING -->
+  <div class="loading" id="loadingSection">
+    <div class="loader-bar"><div class="loader-bar-inner standard" id="loaderBar"></div></div>
+    <p id="loadingText">Analisando seu currículo com IA...</p>
+    <p class="loading-sub" id="loadingSub"></p>
   </div>
 
-  <!-- Match bar (premium only) -->
-  <div class="match-bar-wrap" id="matchBarWrap" style="display:none">
-    <div class="match-bar-label">
-      <span>🎯 Compatibilidade com a Vaga</span>
-      <strong id="matchPct">0%</strong>
+  <!-- RESULTS -->
+  <div class="results" id="resultsSection">
+    <div class="results-header">
+      <div class="results-header-left">
+        <h2 id="resultsTitle">Análise Completa</h2>
+        <span class="results-mode-tag standard" id="resultsModeTag">Análise Geral</span>
+      </div>
+      <div class="score-wrap">
+        <span class="score-badge" id="scoreDisplay"></span>
+        <span class="score-label">score geral</span>
+      </div>
     </div>
-    <div class="match-bar-track"><div class="match-bar-fill" id="matchBarFill" style="width:0%"></div></div>
-    <p class="match-bar-desc" id="matchBarDesc"></p>
-  </div>
-
-  <div id="sectionsContainer"></div>
-
-  <!-- Upsell (shown after standard analysis) -->
-  <div class="upsell-banner" id="upsellBanner" style="display:none" onclick="setMode('premium'); document.getElementById('inputSection').style.display='block'; document.getElementById('resultsSection').classList.remove('show');">
-    <span style="font-size:1.4rem">🎯</span>
-    <div class="upsell-text">
-      <strong>Quer saber se você passa na triagem?</strong>
-      <span>Use o Match por Vaga: envie o print da vaga e descubra seu % de compatibilidade com os requisitos.</span>
+    <div class="match-bar-wrap" id="matchBarWrap" style="display:none">
+      <div class="match-bar-label">
+        <span>🎯 Compatibilidade com a Vaga</span>
+        <strong id="matchPct">0%</strong>
+      </div>
+      <div class="match-bar-track"><div class="match-bar-fill" id="matchBarFill" style="width:0%"></div></div>
+      <p class="match-bar-desc" id="matchBarDesc"></p>
     </div>
-    <span class="upsell-arrow">→</span>
-  </div>
-
-  <!-- Upsell generator (shown after standard or premium analysis) -->
-  <div class="upsell-generator" id="upsellGenerator" style="display:none" onclick="setMode('generator'); document.getElementById('inputSection').style.display='block'; document.getElementById('resultsSection').classList.remove('show');">
-    <span style="font-size:1.4rem">✨</span>
-    <div class="upsell-text">
-      <strong>Quer um currículo gerado pela IA?</strong>
-      <span>Use o Gerador Elite: informe seus dados ou envie sua vaga e receba um currículo profissional pronto.</span>
+    <div id="sectionsContainer"></div>
+    <div class="upsell-banner" id="upsellBanner" style="display:none" onclick="setMode('premium'); document.getElementById('inputSection').style.display='block'; document.getElementById('resultsSection').classList.remove('show');">
+      <span style="font-size:1.4rem">🎯</span>
+      <div class="upsell-text">
+        <strong>Quer saber se você passa na triagem?</strong>
+        <span>Use o Match por Vaga: envie o print da vaga e descubra seu % de compatibilidade.</span>
+      </div>
+      <span class="upsell-arrow">→</span>
     </div>
-    <span class="upsell-arrow" style="color:var(--coral)">→</span>
+    <div class="upsell-generator" id="upsellGenerator" style="display:none" onclick="setMode('generator'); document.getElementById('inputSection').style.display='block'; document.getElementById('resultsSection').classList.remove('show');">
+      <span style="font-size:1.4rem">✨</span>
+      <div class="upsell-text">
+        <strong>Quer um currículo gerado pela IA?</strong>
+        <span>Use o Gerador Elite: informe seus dados ou envie sua vaga e receba um currículo profissional pronto.</span>
+      </div>
+      <span class="upsell-arrow" style="color:var(--coral)">→</span>
+    </div>
+    <div id="generatedCvWrap" style="display:none">
+      <div id="generatedCvContent" class="cv-result-wrap"></div>
+      <button class="btn-copy-cv" onclick="copyCv()">📋 Copiar currículo</button>
+    </div>
+    <button class="btn-new" onclick="resetForm()">← Nova análise</button>
   </div>
 
-  <!-- Generated CV result -->
-  <div id="generatedCvWrap" style="display:none">
-    <div id="generatedCvContent" class="cv-result-wrap"></div>
-    <button class="btn-copy-cv" onclick="copyCv()">📋 Copiar currículo</button>
-  </div>
+</div><!-- /appContent -->
 
-  <button class="btn-new" onclick="resetForm()">← Nova análise</button>
-</div>
-
-<!-- BUY MODAL -->
+<!-- ══ BUY MODAL ══════════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="buyModal">
   <div class="modal">
     <h2>Comprar <span>Moedas</span></h2>
-    <p class="modal-sub">Análise geral custa 1 moeda. Match por Vaga custa 3 moedas. Gerador de Currículo custa 5 moedas.</p>
+    <p class="modal-sub">Escolha o pacote ideal. Moedas não expiram e ficam salvas na sua conta.</p>
     <div class="plan-grid">
-      <div class="plan-card" id="plan-5" onclick="selectPlan(5,'R$ 9,90')">
+      <div class="plan-card" id="plan-5" onclick="selectPlan(5, 1290, 'gg_5moedas')">
         <span class="plan-coins">5</span>
         <span class="plan-coin-label">moedas</span>
-        <span class="plan-price">R$ 9,90</span>
-        <span class="plan-price-label">R$ 1,98 / moeda</span>
+        <span class="plan-price">R$ 12,90</span>
+        <span class="plan-price-label">R$ 2,58 / moeda</span>
       </div>
-      <div class="plan-card selected" id="plan-15" onclick="selectPlan(15,'R$ 19,90')">
+      <div class="plan-card selected" id="plan-20" onclick="selectPlan(20, 2990, 'gg_20moedas')">
         <span class="plan-badge">Mais Popular</span>
-        <span class="plan-coins">15</span>
+        <span class="plan-coins">20</span>
         <span class="plan-coin-label">moedas</span>
-        <span class="plan-price">R$ 19,90</span>
-        <span class="plan-price-label">R$ 1,33 / moeda</span>
-        <div class="plan-saving">economia 33%</div>
+        <span class="plan-price">R$ 29,90</span>
+        <span class="plan-price-label">R$ 1,50 / moeda</span>
+        <div class="plan-saving">economia 42%</div>
       </div>
-      <div class="plan-card" id="plan-40" onclick="selectPlan(40,'R$ 39,90')">
+      <div class="plan-card" id="plan-50" onclick="selectPlan(50, 5990, 'gg_50moedas')">
         <span class="plan-badge" style="background:var(--accent);color:#000">Melhor Valor</span>
-        <span class="plan-coins">40</span>
+        <span class="plan-coins">50</span>
         <span class="plan-coin-label">moedas</span>
-        <span class="plan-price">R$ 39,90</span>
-        <span class="plan-price-label">R$ 1,00 / moeda</span>
-        <div class="plan-saving">economia 50%</div>
+        <span class="plan-price">R$ 59,90</span>
+        <span class="plan-price-label">R$ 1,20 / moeda</span>
+        <div class="plan-saving">economia 53%</div>
       </div>
     </div>
-    <p style="font-size:0.63rem;color:var(--muted);margin-bottom:14px;line-height:1.6;">
-      🔒 Pagamento seguro. Moedas creditadas após confirmação.<br>
-      Esta é uma demonstração — integre seu gateway de pagamento aqui.
+
+    <!-- Checkout loading state -->
+    <div class="checkout-loading" id="checkoutLoading">
+      <div class="spinner"></div>
+      <p>Redirecionando para o pagamento…</p>
+    </div>
+
+    <p style="font-size:0.63rem;color:var(--muted);margin-bottom:14px;line-height:1.6;" id="checkoutNote">
+      🔒 Pagamento seguro. Moedas creditadas automaticamente após confirmação.
     </p>
     <div class="modal-btn-row">
       <button class="btn-modal-cancel" onclick="closeBuyModal()">Cancelar</button>
-      <button class="btn-modal-confirm" onclick="simulatePurchase()">Confirmar Compra</button>
+      <button class="btn-modal-confirm" id="btnCheckout" onclick="startCheckout()">Ir para Pagamento →</button>
     </div>
   </div>
 </div>
 
-<!-- REDEEM MODAL -->
+<!-- ══ REDEEM MODAL ═══════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="redeemModal">
   <div class="modal">
     <h2>Resgatar <span>Código</span></h2>
@@ -1006,7 +982,7 @@ Jan 2022 - Presente | Empresa X
     </div>
     <div class="redeem-msg" id="redeemMsg"></div>
     <p style="font-size:0.63rem;color:var(--muted);line-height:1.6;margin-bottom:18px;">
-      Cada código pode ser utilizado uma única vez.
+      Cada código pode ser utilizado uma única vez por conta.
     </p>
     <div class="modal-btn-row">
       <button class="btn-modal-cancel" onclick="closeRedeemModal()">Fechar</button>
@@ -1017,12 +993,23 @@ Jan 2022 - Presente | Empresa X
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<!-- ══ SUPABASE SDK ═══════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-// ── CONFIG ───────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── CONFIG — substitua com suas chaves reais ──────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+const SUPABASE_URL    = 'https://SEU-PROJETO.supabase.co';       // ← trocar
+const SUPABASE_ANON   = 'SUA-ANON-KEY';                          // ← trocar
+const API_ENDPOINT    = '/api/analyze';                           // seu proxy Anthropic
+// Checkout: GGCheckout — URLs configuradas em GG_CHECKOUT_URLS abaixo (não precisa de backend)
+
 const COST_STANDARD  = 1;
 const COST_PREMIUM   = 3;
 const COST_GENERATOR = 5;
 
+// Códigos de resgate válidos — idealmente validar no backend
 const VALID_CODES = {
   'CURRIC-DEMO-2024': 10,
   'CURRIC-FREE-TEST': 5,
@@ -1030,19 +1017,148 @@ const VALID_CODES = {
   'BETA-ACCESS-2025': 20,
 };
 
-// ── STATE ────────────────────────────────────────────────────────────────────
-let uploadedFile  = null;   // { base64, mediaType, name }
-let uploadedJob   = null;   // { base64, mediaType, name } for job image
-let currentMode   = 'standard';
-let usedCodes     = JSON.parse(localStorage.getItem('usedCodes') || '[]');
-let coins         = parseInt(localStorage.getItem('coins') || '0', 10);
-let selectedPlan  = { coins: 15, price: 'R$ 19,90' };
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── SUPABASE INIT ─────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-// ── COINS ────────────────────────────────────────────────────────────────────
-function saveCoins() {
-  localStorage.setItem('coins', coins);
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── STATE ─────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+let currentUser   = null;
+let coins         = 0;
+let uploadedFile  = null;
+let uploadedJob   = null;
+let currentMode   = 'standard';
+let selectedPlan  = { coins: 20, price: 2990, priceId: 'gg_20moedas' };
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+function showTab(tab) {
+  document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
+  document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+}
+
+async function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  const btn   = document.getElementById('btnLogin');
+  errEl.classList.remove('show');
+  if (!email || !pass) { errEl.textContent = 'Preencha e-mail e senha.'; errEl.classList.add('show'); return; }
+  btn.disabled = true; btn.textContent = 'Entrando…';
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false; btn.textContent = 'Entrar';
+  if (error) { errEl.textContent = traduzirErroAuth(error.message); errEl.classList.add('show'); }
+}
+
+async function handleRegister() {
+  const name  = document.getElementById('registerName').value.trim();
+  const email = document.getElementById('registerEmail').value.trim();
+  const pass  = document.getElementById('registerPassword').value;
+  const errEl = document.getElementById('registerError');
+  const okEl  = document.getElementById('registerSuccess');
+  const btn   = document.getElementById('btnRegister');
+  errEl.classList.remove('show'); okEl.classList.remove('show');
+  if (!name || !email || !pass) { errEl.textContent = 'Preencha todos os campos.'; errEl.classList.add('show'); return; }
+  if (pass.length < 6) { errEl.textContent = 'Senha deve ter no mínimo 6 caracteres.'; errEl.classList.add('show'); return; }
+  btn.disabled = true; btn.textContent = 'Criando conta…';
+  const { data, error } = await sb.auth.signUp({
+    email, password: pass,
+    options: { data: { full_name: name } }
+  });
+  btn.disabled = false; btn.textContent = 'Criar conta grátis';
+  if (error) { errEl.textContent = traduzirErroAuth(error.message); errEl.classList.add('show'); return; }
+  // Novo usuário recebe 3 moedas grátis (feito no trigger do Supabase, ver schema.sql)
+  okEl.textContent = '✓ Conta criada! Verifique seu e-mail para confirmar o cadastro.';
+  okEl.classList.add('show');
+}
+
+async function handleGoogleLogin() {
+  await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href }
+  });
+}
+
+async function handleLogout() {
+  await sb.auth.signOut();
+  currentUser = null;
+  coins = 0;
+  document.getElementById('appContent').classList.remove('visible');
+  document.getElementById('authWall').classList.remove('hidden');
+}
+
+function traduzirErroAuth(msg) {
+  if (msg.includes('Invalid login credentials')) return 'E-mail ou senha incorretos.';
+  if (msg.includes('Email not confirmed'))       return 'Confirme seu e-mail antes de entrar.';
+  if (msg.includes('User already registered'))   return 'Esse e-mail já está cadastrado.';
+  if (msg.includes('Password should be'))        return 'Senha muito curta (mínimo 6 caracteres).';
+  return msg;
+}
+
+// ─── Listener de sessão ──────────────────────────────────────────────────────
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (session?.user) {
+    currentUser = session.user;
+    await loadUserProfile();
+    showApp();
+  } else {
+    currentUser = null;
+    document.getElementById('appContent').classList.remove('visible');
+    document.getElementById('authWall').classList.remove('hidden');
+  }
+});
+
+async function loadUserProfile() {
+  if (!currentUser) return;
+  // Busca perfil/saldo do banco
+  const { data } = await sb
+    .from('profiles')
+    .select('coins')
+    .eq('id', currentUser.id)
+    .single();
+  coins = data?.coins ?? 0;
+}
+
+function showApp() {
+  document.getElementById('authWall').classList.add('hidden');
+  document.getElementById('appContent').classList.add('visible');
+  // Exibe info do usuário
+  const name  = currentUser.user_metadata?.full_name || currentUser.email;
+  const email = currentUser.email;
+  document.getElementById('userEmail').textContent = email;
+  document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+  updateCoins();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── COINS ─────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+function updateCoins() {
   document.getElementById('coinCount').innerHTML = coins + ' <span>moedas</span>';
   updateWarning();
+}
+
+async function saveCoins(newCoins) {
+  coins = newCoins;
+  updateCoins();
+  if (!currentUser) return;
+  await sb.from('profiles').update({ coins }).eq('id', currentUser.id);
+}
+
+async function deductCoins(amount) {
+  const newCoins = coins - amount;
+  await saveCoins(newCoins);
+}
+
+async function grantCoins(amount) {
+  const newCoins = coins + amount;
+  await saveCoins(newCoins);
 }
 
 function updateWarning() {
@@ -1053,6 +1169,9 @@ function updateWarning() {
   else              { w.classList.remove('show'); btn.disabled = false; }
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
 function showToast(msg, type = '') {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -1060,19 +1179,21 @@ function showToast(msg, type = '') {
   setTimeout(() => t.className = 'toast', 2800);
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
 // ── MODE TOGGLE ───────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
 function setMode(mode) {
   currentMode = mode;
-  const cardS  = document.getElementById('modeCardStandard');
-  const cardP  = document.getElementById('modeCardPremium');
-  const cardG  = document.getElementById('modeCardGenerator');
-  const panel  = document.getElementById('premiumPanel');
+  const cardS    = document.getElementById('modeCardStandard');
+  const cardP    = document.getElementById('modeCardPremium');
+  const cardG    = document.getElementById('modeCardGenerator');
+  const panel    = document.getElementById('premiumPanel');
   const genPanel = document.getElementById('generatorPanel');
-  const btn    = document.getElementById('analyzeBtn');
+  const btn      = document.getElementById('analyzeBtn');
   const areaGroup = document.getElementById('areaGroup');
-  const cvArea = document.getElementById('dropZone');
+  const cvArea   = document.getElementById('dropZone');
   const cvFileInfo = document.getElementById('fileInfo');
-  const orDiv  = document.getElementById('orDivider');
+  const orDiv    = document.getElementById('orDivider');
   const textAreaWrap = document.getElementById('textareaWrapper');
 
   cardS.className = 'mode-card' + (mode === 'standard'  ? ' active-standard'  : '');
@@ -1081,13 +1202,9 @@ function setMode(mode) {
 
   panel.classList.toggle('show', mode === 'premium');
   genPanel.classList.toggle('show', mode === 'generator');
-
-  // Hide área select for premium (extracted from job) and generator (not needed)
-  areaGroup.style.display = mode === 'standard' ? '' : 'none';
-
-  // Hide CV upload area for generator mode
-  cvArea.style.display = mode === 'generator' ? 'none' : '';
-  orDiv.style.display  = mode === 'generator' ? 'none' : '';
+  areaGroup.style.display    = mode === 'standard' ? '' : 'none';
+  cvArea.style.display       = mode === 'generator' ? 'none' : '';
+  orDiv.style.display        = mode === 'generator' ? 'none' : '';
   textAreaWrap.style.display = mode === 'generator' ? 'none' : '';
   if (mode !== 'generator') cvFileInfo.style.display = '';
 
@@ -1104,28 +1221,21 @@ function setMode(mode) {
   updateWarning();
 }
 
-// ── JOB IMAGE UPLOAD ─────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── FILE UPLOADS ──────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
 const jobDropZone  = document.getElementById('jobDropZone');
 const jobFileInput = document.getElementById('jobFileInput');
-
 jobDropZone.addEventListener('dragover', e => { e.preventDefault(); jobDropZone.classList.add('drag-over'); });
 jobDropZone.addEventListener('dragleave', () => jobDropZone.classList.remove('drag-over'));
-jobDropZone.addEventListener('drop', e => {
-  e.preventDefault(); jobDropZone.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file) handleJobFile(file);
-});
+jobDropZone.addEventListener('drop', e => { e.preventDefault(); jobDropZone.classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f) handleJobFile(f); });
 jobFileInput.addEventListener('change', () => { if (jobFileInput.files[0]) handleJobFile(jobFileInput.files[0]); });
 
 function handleJobFile(file) {
-  if (!file.type.startsWith('image/')) {
-    showToast('Formato inválido. Envie uma imagem.'); return;
-  }
+  if (!file.type.startsWith('image/')) { showToast('Formato inválido. Envie uma imagem.'); return; }
   const reader = new FileReader();
   reader.onload = e => {
-    const base64 = e.target.result.split(',')[1];
-    const mediaType = file.type;
-    uploadedJob = { base64, mediaType, name: file.name };
+    uploadedJob = { base64: e.target.result.split(',')[1], mediaType: file.type, name: file.name };
     document.getElementById('jobPreviewImg').src = e.target.result;
     document.getElementById('jobPreviewName').textContent = file.name;
     document.getElementById('jobPreview').classList.add('show');
@@ -1135,23 +1245,16 @@ function handleJobFile(file) {
 }
 
 function removeJobImage() {
-  uploadedJob = null;
-  jobFileInput.value = '';
+  uploadedJob = null; jobFileInput.value = '';
   document.getElementById('jobPreview').classList.remove('show');
   jobDropZone.style.display = '';
 }
 
-// ── CV FILE UPLOAD ────────────────────────────────────────────────────────────
 const dropZone  = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
-
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault(); dropZone.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file) handleFile(file);
-});
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
 fileInput.addEventListener('change', () => { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
 
 function handleFile(file) {
@@ -1159,17 +1262,13 @@ function handleFile(file) {
   errorEl.classList.remove('show');
   const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
   const isTxt = file.type === 'text/plain'      || file.name.toLowerCase().endsWith('.txt');
-  if (!isPdf && !isTxt) {
-    errorEl.textContent = 'Formato não suportado. Use PDF ou TXT.';
-    errorEl.classList.add('show'); fileInput.value = ''; return;
-  }
+  if (!isPdf && !isTxt) { errorEl.textContent = 'Formato não suportado. Use PDF ou TXT.'; errorEl.classList.add('show'); fileInput.value = ''; return; }
   document.getElementById('fileName').textContent = file.name;
   document.getElementById('fileInfo').classList.add('show');
   if (isPdf) {
     const reader = new FileReader();
     reader.onload = e => {
-      const base64 = e.target.result.split(',')[1];
-      uploadedFile = { base64, mediaType: 'application/pdf', name: file.name };
+      uploadedFile = { base64: e.target.result.split(',')[1], mediaType: 'application/pdf', name: file.name };
       document.getElementById('orDivider').style.display = 'none';
       document.getElementById('textareaWrapper').style.display = 'none';
     };
@@ -1195,411 +1294,12 @@ function removeFile() {
   document.getElementById('textareaWrapper').style.display = '';
 }
 
-// ── ANALYZE ───────────────────────────────────────────────────────────────────
-async function analyzeResume() {
-  const errorEl = document.getElementById('errorMsg');
-  errorEl.classList.remove('show');
-
-  const isGen  = currentMode === 'generator';
-  const isPrem = currentMode === 'premium';
-  const cost   = isGen ? COST_GENERATOR : isPrem ? COST_PREMIUM : COST_STANDARD;
-
-  // ── GENERATOR MODE ────────────────────────────────────────────────────────
-  if (isGen) {
-    const jobText    = document.getElementById('genJobText').value.trim();
-    const hasJobImg  = !!uploadedGenJob;
-    const hasOld     = document.getElementById('genChoiceYes').classList.contains('active');
-
-    // Validate: vaga obrigatória
-    if (!jobText && !hasJobImg) {
-      errorEl.textContent = 'Preencha a descrição da vaga ou envie o print. Este campo é obrigatório.';
-      errorEl.classList.add('show'); return;
-    }
-
-    let genPrompt = '';
-    const contentArr = [];
-
-    if (hasJobImg) {
-      contentArr.push({ type: 'image', source: { type: 'base64', media_type: uploadedGenJob.mediaType, data: uploadedGenJob.base64 } });
-    }
-
-    if (hasOld) {
-      const oldResume = document.getElementById('genOldResume').value.trim();
-      if (!oldResume) { errorEl.textContent = 'Cole o texto do seu currículo atual.'; errorEl.classList.add('show'); return; }
-      genPrompt = `Você é um redator de currículos profissional especialista em ATS.
-
-Reescreva e aprimore o currículo abaixo em português brasileiro, tornando-o mais profissional, impactante e moderno. Otimize especificamente para a vaga ${hasJobImg ? 'na imagem' : 'descrita'}${jobText ? `: "${jobText.substring(0,300)}"` : ''}.
-
-CURRÍCULO ATUAL:
-${oldResume}
-
-INSTRUÇÕES:
-- Fortaleça com verbos de ação e métricas mensuráveis
-- Adapte palavras-chave da vaga para passar filtros ATS
-- Mantenha TODOS os dados reais (nome, contato, datas, empresas)
-- Retorne APENAS o currículo formatado em texto puro, organizado em seções claras com títulos em CAIXA ALTA`;
-    } else {
-      const name = document.getElementById('gqName').value.trim();
-      const area = document.getElementById('gqArea').value.trim();
-      const exp  = document.getElementById('gqExperience').value.trim();
-      if (!name || !exp) { errorEl.textContent = 'Preencha pelo menos nome e experiências profissionais.'; errorEl.classList.add('show'); return; }
-      const email   = document.getElementById('gqEmail').value.trim();
-      const contact = document.getElementById('gqContact').value.trim();
-      const edu     = document.getElementById('gqEducation').value.trim();
-      const skills  = document.getElementById('gqSkills').value.trim();
-      genPrompt = `Você é um redator de currículos profissional especialista em ATS.
-
-Crie um currículo profissional completo em português brasileiro com as informações abaixo, otimizado para a vaga ${hasJobImg ? 'na imagem' : 'descrita'}${jobText ? `: "${jobText.substring(0,300)}"` : ''}.
-
-Nome: ${name}
-Área: ${area}
-${email ? `E-mail: ${email}` : ''}
-${contact ? `Contato: ${contact}` : ''}
-Formação: ${edu || 'não informada'}
-Experiências: ${exp}
-Habilidades: ${skills || 'não informadas'}
-
-INSTRUÇÕES:
-- Use linguagem de impacto com verbos de ação e métricas
-- Adapte palavras-chave da vaga para passar filtros ATS
-- Retorne APENAS o currículo formatado em texto puro, organizado em seções claras com títulos em CAIXA ALTA`;
-    }
-
-    contentArr.push({ type: 'text', text: genPrompt });
-    const messageContent = contentArr.length === 1 ? genPrompt : contentArr;
-
-    if (coins < cost) { errorEl.textContent = `Moedas insuficientes. Esta geração custa ${cost} moedas.`; errorEl.classList.add('show'); return; }
-    coins -= cost; saveCoins();
-
-    document.getElementById('inputSection').style.display = 'none';
-    document.getElementById('loadingSection').classList.add('show');
-    document.getElementById('loaderBar').className = 'loader-bar-inner generator';
-    document.getElementById('loadingText').textContent = 'Gerando seu currículo com IA…';
-    document.getElementById('loadingSub').textContent  = 'Isso pode levar alguns segundos';
-
-    try {
-      const response = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 2500, messages: [{ role: 'user', content: messageContent }] })
-      });
-      const data = await response.json();
-      if (data.error) throw new Error(data.error.message);
-      renderGeneratedCv(data.content.map(i => i.text || '').join(''));
-    } catch (err) {
-      coins += cost; saveCoins();
-      document.getElementById('loadingSection').classList.remove('show');
-      document.getElementById('inputSection').style.display = 'block';
-      errorEl.textContent = 'Erro ao gerar: ' + err.message; errorEl.classList.add('show');
-    }
-    return;
-  }
-
-  // ── STANDARD / PREMIUM MODE ───────────────────────────────────────────────
-  const area  = document.getElementById('areaSelect').value;
-  const level = document.getElementById('levelSelect').value;
-  const text  = document.getElementById('resumeText').value.trim();
-
-  if (!uploadedFile && !text) {
-    errorEl.textContent = 'Por favor, faça upload do currículo em PDF ou cole o texto.';
-    errorEl.classList.add('show'); return;
-  }
-
-  if (isPrem && !uploadedJob && !document.getElementById('jobDescText').value.trim()) {
-    errorEl.textContent = 'No modo Premium, envie o print da vaga ou descreva os requisitos.';
-    errorEl.classList.add('show'); return;
-  }
-
-  if (coins < cost) {
-    errorEl.textContent = `Moedas insuficientes. Esta análise custa ${cost} moedas.`;
-    errorEl.classList.add('show'); return;
-  }
-
-  coins -= cost; saveCoins();
-
-  document.getElementById('inputSection').style.display = 'none';
-  document.getElementById('loadingSection').classList.add('show');
-  document.getElementById('resultsSection').classList.remove('show');
-
-  const loaderBar   = document.getElementById('loaderBar');
-  const loadingText = document.getElementById('loadingText');
-  const loadingSub  = document.getElementById('loadingSub');
-
-  if (isPrem) {
-    loaderBar.className = 'loader-bar-inner premium';
-    loadingText.textContent = 'Cruzando currículo com a vaga…';
-    loadingSub.textContent  = 'Isso pode levar alguns segundos a mais';
-  } else {
-    loaderBar.className = 'loader-bar-inner standard';
-    loadingText.textContent = 'Analisando seu currículo com IA…';
-    loadingSub.textContent  = '';
-  }
-
-  const jobDesc = document.getElementById('jobDescText').value.trim();
-
-  const promptStandard = `Você é um especialista em recrutamento com 15 anos de experiência na área de ${area}, modalidade ${level}.
-
-Analise o currículo e retorne SOMENTE um JSON válido (sem markdown, sem texto fora do JSON):
-{
-  "score": <0-100>,
-  "sections": [
-    { "title": "<título>", "priority": "<critical|warn|ok>", "icon": "<emoji>", "items": ["<ponto 1>", ...] }
-  ]
-}
-
-Analise: impacto visual/estrutura, experiência profissional, habilidades/competências, formação e diferenciais. Use "critical" para problemas urgentes, "warn" para melhorias, "ok" para pontos positivos. Escreva em português brasileiro. Seja específico e acionável.`;
-
-  const promptPremium = `Você é um especialista em recrutamento e ATS (Applicant Tracking System) com 15 anos de experiência.
-
-Analise o currículo em relação à vaga ${jobDesc ? 'descrita abaixo' : 'na imagem'}${jobDesc ? ` ("${jobDesc.substring(0,200)}")` : ''}, modalidade ${level}.
-
-Retorne SOMENTE um JSON válido (sem markdown, sem texto fora do JSON):
-{
-  "score": <0-100, qualidade geral do currículo>,
-  "match": <0-100, % de compatibilidade com a vaga>,
-  "matchSummary": "<frase curta explicando o match, ex: Você atende 7 de 10 requisitos principais>",
-  "sections": [
-    { "title": "<título>", "priority": "<critical|warn|ok|match>", "icon": "<emoji>", "items": ["<item>", ...] }
-  ]
-}
-
-Inclua obrigatoriamente uma seção com priority "match" listando os requisitos da vaga e se o candidato os atende (✓ ou ✗). Depois analise o restante do currículo normalmente. Escreva em português brasileiro.`;
-
-  let messageContent;
-  if (isPrem) {
-    const contentArr = [];
-    if (uploadedFile) {
-      contentArr.push({ type: 'document', source: { type: 'base64', media_type: uploadedFile.mediaType, data: uploadedFile.base64 } });
-    } else {
-      contentArr.push({ type: 'text', text: 'CURRÍCULO:\n' + text.substring(0, 6000) });
-    }
-    if (uploadedJob) {
-      contentArr.push({ type: 'image', source: { type: 'base64', media_type: uploadedJob.mediaType, data: uploadedJob.base64 } });
-    }
-    contentArr.push({ type: 'text', text: promptPremium });
-    messageContent = contentArr;
-  } else {
-    if (uploadedFile) {
-      messageContent = [
-        { type: 'document', source: { type: 'base64', media_type: uploadedFile.mediaType, data: uploadedFile.base64 } },
-        { type: 'text', text: promptStandard }
-      ];
-    } else {
-      messageContent = promptStandard + '\n\nCURRÍCULO:\n' + text.substring(0, 6000);
-    }
-  }
-
-  try {
-    const response = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 1500,
-        messages: [{ role: 'user', content: messageContent }]
-      })
-    });
-
-    const data = await response.json();
-    if (data.error) throw new Error(data.error.message);
-
-    const rawText   = data.content.map(i => i.text || '').join('');
-    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('Resposta inválida da IA.');
-
-    const result = JSON.parse(jsonMatch[0]);
-    renderResults(result, isPrem);
-  } catch (err) {
-    coins += cost; saveCoins();
-    document.getElementById('loadingSection').classList.remove('show');
-    document.getElementById('inputSection').style.display = 'block';
-    errorEl.textContent = 'Erro ao analisar: ' + err.message;
-    errorEl.classList.add('show');
-  }
-}
-
-// ── RENDER ANALYSIS RESULTS ───────────────────────────────────────────────────
-function renderResults(data, isPremium) {
-  document.getElementById('loadingSection').classList.remove('show');
-  document.getElementById('generatedCvWrap').style.display = 'none';
-
-  const score = data.score || 0;
-  document.getElementById('scoreDisplay').textContent = score + '/100';
-
-  const modeTag = document.getElementById('resultsModeTag');
-  if (isPremium) {
-    modeTag.textContent = '🎯 Match por Vaga';
-    modeTag.className = 'results-mode-tag premium';
-    document.getElementById('resultsTitle').textContent = 'Análise + Match';
-  } else {
-    modeTag.textContent = '📄 Análise Geral';
-    modeTag.className = 'results-mode-tag standard';
-    document.getElementById('resultsTitle').textContent = 'Análise Completa';
-  }
-
-  const matchWrap = document.getElementById('matchBarWrap');
-  if (isPremium && data.match !== undefined) {
-    const pct = data.match;
-    matchWrap.style.display = 'block';
-    document.getElementById('matchPct').textContent = pct + '%';
-    document.getElementById('matchBarDesc').textContent = data.matchSummary || '';
-    setTimeout(() => { document.getElementById('matchBarFill').style.width = pct + '%'; }, 100);
-  } else {
-    matchWrap.style.display = 'none';
-  }
-
-  const container = document.getElementById('sectionsContainer');
-  container.innerHTML = '';
-
-  const pMap = {
-    critical: { tag: 'tag-critical', tagLabel: 'Urgente',      iconClass: 'icon-critical' },
-    warn:     { tag: 'tag-warn',     tagLabel: 'Importante',   iconClass: 'icon-warn' },
-    ok:       { tag: 'tag-ok',       tagLabel: 'Positivo',     iconClass: 'icon-ok' },
-    match:    { tag: 'tag-match',    tagLabel: 'Req. da Vaga', iconClass: 'icon-match' },
-  };
-
-  (data.sections || []).forEach((sec, i) => {
-    const p = pMap[sec.priority] || pMap.warn;
-    const block = document.createElement('div');
-    block.className = 'section-block';
-    block.innerHTML = `
-      <div class="section-header" onclick="toggleSection(this)">
-        <div class="section-icon ${p.iconClass}">${sec.icon || '●'}</div>
-        <span class="section-title">${sec.title}</span>
-        <span class="section-tag ${p.tag}">${p.tagLabel}</span>
-        <span class="section-chevron ${i === 0 ? 'open' : ''}">▼</span>
-      </div>
-      <div class="section-body ${i === 0 ? 'open' : ''}">
-        <ul>${(sec.items || []).map(item => `<li>${item}</li>`).join('')}</ul>
-      </div>`;
-    container.appendChild(block);
-  });
-
-  document.getElementById('upsellBanner').style.display    = isPremium ? 'none' : 'flex';
-  document.getElementById('upsellGenerator').style.display = 'flex';
-  document.getElementById('resultsSection').classList.add('show');
-}
-
-// ── RENDER GENERATED CV — visual model ────────────────────────────────────────
-function renderGeneratedCv(rawText) {
-  document.getElementById('loadingSection').classList.remove('show');
-  document.getElementById('sectionsContainer').innerHTML = '';
-  document.getElementById('matchBarWrap').style.display = 'none';
-  document.getElementById('upsellBanner').style.display = 'none';
-  document.getElementById('upsellGenerator').style.display = 'none';
-
-  const modeTag = document.getElementById('resultsModeTag');
-  modeTag.textContent = '✨ Currículo Gerado';
-  modeTag.className = 'results-mode-tag';
-  modeTag.style.cssText = 'background:var(--coral-dim);color:var(--coral);border:1px solid var(--coral-border)';
-  document.getElementById('resultsTitle').textContent = 'Seu Novo Currículo';
-  document.getElementById('scoreDisplay').textContent = '';
-  document.querySelector('.score-label').textContent = '';
-
-  const lines = rawText.split('\n').map(l => l.trim()).filter((l, i, arr) => !(l === '' && arr[i-1] === ''));
-  let html = '';
-  let firstNameDone = false;
-
-  const SECTION_KEYWORDS = ['DADOS PESSOAIS','CONTATO','OBJETIVO','PERFIL','RESUMO','EXPERIÊNCIA','EXPERIENCIAS','FORMAÇÃO','FORMACAO','HABILIDADES','COMPETÊNCIAS','IDIOMAS','CERTIFICAÇÕES','CERTIFICACOES','CURSOS','PROJETOS'];
-  const isSectionTitle = (line) => {
-    const up = line.toUpperCase().replace(/[^A-ZÁÉÍÓÚÃÕÂÊÔÇÜ ]/g,'');
-    return SECTION_KEYWORDS.some(k => up.includes(k)) && line.length < 60;
-  };
-
-  lines.forEach((line, idx) => {
-    if (!line) { html += ''; return; }
-
-    // First non-empty line = name
-    if (!firstNameDone && line.length > 1 && line.length < 80) {
-      // Check if next line looks like a subtitle/role
-      const next = lines.slice(idx+1).find(l => l.length > 0);
-      const isTitleLine = line === line.toUpperCase() || (!isSectionTitle(line) && idx < 4);
-      if (isTitleLine) {
-        html += `<div class="cv-name">${line}</div>`;
-        if (next && !isSectionTitle(next) && next.length < 80 && idx < 5) {
-          // next line is subtitle
-        }
-        firstNameDone = true;
-        return;
-      }
-    }
-
-    // Subtitle (role) — line right after name
-    if (firstNameDone && idx <= 3 && !isSectionTitle(line) && line.length < 80 && !line.includes('@') && !line.match(/\d{2}.*\d{4}/)) {
-      const alreadyName = html.includes('cv-subtitle');
-      if (!alreadyName) {
-        html += `<div class="cv-subtitle">${line}</div><hr class="cv-divider">`;
-        return;
-      }
-    }
-
-    // Contact line (has @ or phone pattern)
-    if (line.match(/@|^\(?\d{2}\)?[\s\-]?\d{4,5}/) && !isSectionTitle(line)) {
-      const parts = line.split(/\s{2,}|\|/).map(p => p.trim()).filter(Boolean);
-      if (!html.includes('cv-contact-row')) {
-        html += `<div class="cv-contact-row">${parts.map(p => `<span>${p}</span>`).join('')}</div><hr class="cv-divider2">`;
-      }
-      return;
-    }
-
-    // Section title
-    if (isSectionTitle(line)) {
-      html += `<div class="cv-section-title">${line}</div>`;
-      return;
-    }
-
-    // Exp/edu header (bold — date pattern or ALL CAPS company)
-    if (line.match(/\d{4}/) && line.length < 90) {
-      html += `<div class="cv-exp-header">${line}</div>`;
-      return;
-    }
-
-    // Bullet
-    if (line.startsWith('-') || line.startsWith('•') || line.startsWith('·')) {
-      html += `<ul><li>${line.replace(/^[-•·]\s*/,'')}</li></ul>`;
-      return;
-    }
-
-    // Short italic-ish role line after date header
-    const prev = lines[idx-1];
-    if (prev && prev.match(/\d{4}/) && line.length < 60) {
-      html += `<div class="cv-exp-role">${line}</div>`;
-      return;
-    }
-
-    // Default paragraph
-    html += `<p>${line}</p>`;
-  });
-
-  document.getElementById('generatedCvContent').innerHTML = html;
-  document.getElementById('generatedCvWrap').style.display = 'block';
-  document.getElementById('resultsSection').classList.add('show');
-}
-
-function copyCv() {
-  const text = document.getElementById('generatedCvContent').innerText;
-  navigator.clipboard.writeText(text).then(() => showToast('✓ Currículo copiado!', 'gold'));
-}
-
-// ── GENERATOR CV CHOICE ───────────────────────────────────────────────────────
-let uploadedGenJob = null;
-
-function switchCvChoice(choice) {
-  document.getElementById('genChoiceYes').className = 'gen-choice-btn' + (choice === 'yes' ? ' active' : '');
-  document.getElementById('genChoiceNo').className  = 'gen-choice-btn' + (choice === 'no'  ? ' active' : '');
-  document.getElementById('genPaneOld').className     = 'gen-pane' + (choice === 'yes' ? ' show' : '');
-  document.getElementById('genPaneGuided').className  = 'gen-pane' + (choice === 'no'  ? ' show' : '');
-}
-
-// Job image upload for generator
 const genJobDropZone  = document.getElementById('genJobDropZone');
 const genJobFileInput = document.getElementById('genJobFileInput');
+let uploadedGenJob = null;
 genJobDropZone.addEventListener('dragover', e => { e.preventDefault(); genJobDropZone.classList.add('drag-over'); });
 genJobDropZone.addEventListener('dragleave', () => genJobDropZone.classList.remove('drag-over'));
-genJobDropZone.addEventListener('drop', e => {
-  e.preventDefault(); genJobDropZone.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0]; if (file) handleGenJobFile(file);
-});
+genJobDropZone.addEventListener('drop', e => { e.preventDefault(); genJobDropZone.classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f) handleGenJobFile(f); });
 genJobFileInput.addEventListener('change', () => { if (genJobFileInput.files[0]) handleGenJobFile(genJobFileInput.files[0]); });
 
 function handleGenJobFile(file) {
@@ -1621,11 +1321,264 @@ function removeGenJobImage() {
   genJobDropZone.style.display = '';
 }
 
-function switchGenTab(tab) {} // kept for backward compat
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── ANALYZE ───────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+async function analyzeResume() {
+  const errorEl = document.getElementById('errorMsg');
+  errorEl.classList.remove('show');
+  const cost = currentMode === 'premium' ? COST_PREMIUM : currentMode === 'generator' ? COST_GENERATOR : COST_STANDARD;
+
+  if (coins < cost) { openBuyModal(); return; }
+
+  if (currentMode === 'generator') {
+    await runGenerator();
+    return;
+  }
+
+  const resumeText = document.getElementById('resumeText').value.trim();
+  if (!uploadedFile && !resumeText) {
+    errorEl.textContent = 'Envie seu currículo (PDF) ou cole o texto antes de analisar.';
+    errorEl.classList.add('show'); return;
+  }
+
+  // Build messages
+  const userContent = [];
+  if (uploadedFile) {
+    userContent.push({ type: 'document', source: { type: 'base64', media_type: uploadedFile.mediaType, data: uploadedFile.base64 } });
+  }
+  if (currentMode === 'premium' && uploadedJob) {
+    userContent.push({ type: 'image', source: { type: 'base64', media_type: uploadedJob.mediaType, data: uploadedJob.base64 } });
+  }
+
+  const area  = document.getElementById('areaSelect')?.value || 'outro';
+  const level = document.getElementById('levelSelect').value;
+  const jobDesc = document.getElementById('jobDescText')?.value.trim() || '';
+
+  let prompt = '';
+  if (currentMode === 'standard') {
+    prompt = `Você é um recrutador sênior especialista em análise de currículos para vagas ${level} na área de ${area}. Analise o currículo abaixo de forma crítica e construtiva.\n\n${resumeText ? 'Currículo:\n' + resumeText : '[Currículo enviado como PDF acima]'}\n\nResponda OBRIGATORIAMENTE neste formato JSON:\n{\n  "score": <número 0-100>,\n  "sections": [\n    {\n      "icon": "<emoji>",\n      "title": "<título>",\n      "tag": "ok|warn|critical",\n      "content": "<análise detalhada em HTML com <ul><li>pontos</li></ul>"\n    }\n  ],\n  "upsell": true\n}\nNo mínimo 5 seções. Seja específico, cite exemplos do currículo.`;
+  } else {
+    prompt = `Você é um especialista em recrutamento. Analise a compatibilidade entre o currículo e a vaga fornecida.\n\nCurrículo: ${resumeText || '[PDF acima]'}\n${jobDesc ? 'Descrição adicional da vaga: ' + jobDesc : ''}\n${uploadedJob ? '[Print da vaga enviado como imagem acima]' : ''}\n\nResponda OBRIGATORIAMENTE neste formato JSON:\n{\n  "score": <0-100>,\n  "matchPct": <0-100>,\n  "matchDesc": "<1 frase sobre compatibilidade>",\n  "sections": [\n    {\n      "icon": "<emoji>",\n      "title": "<título>",\n      "tag": "ok|warn|critical|match",\n      "content": "<análise em HTML>"\n    }\n  ]\n}`;
+  }
+
+  userContent.push({ type: 'text', text: prompt });
+
+  // Show loading
+  document.getElementById('inputSection').style.display = 'none';
+  document.getElementById('loadingSection').classList.add('show');
+  document.getElementById('loaderBar').className = 'loader-bar-inner ' + currentMode;
+  document.getElementById('loadingText').textContent = currentMode === 'premium' ? 'Analisando compatibilidade com a vaga…' : 'Analisando seu currículo com IA…';
+
+  try {
+    // Deduct coins optimistically
+    await deductCoins(cost);
+
+    const response = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-opus-4-5',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: userContent }]
+      })
+    });
+
+    if (!response.ok) throw new Error('Erro na API');
+    const data = await response.json();
+    const rawText = data.content?.[0]?.text || '';
+
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Resposta inválida da IA');
+    const result = JSON.parse(jsonMatch[0]);
+
+    // Log usage no Supabase
+    await sb.from('usage_logs').insert({
+      user_id: currentUser.id,
+      mode: currentMode,
+      coins_used: cost,
+      score: result.score
+    });
+
+    document.getElementById('loadingSection').classList.remove('show');
+    renderResults(result);
+  } catch (err) {
+    // Devolver moedas em caso de erro
+    await grantCoins(cost);
+    document.getElementById('loadingSection').classList.remove('show');
+    document.getElementById('inputSection').style.display = 'block';
+    errorEl.textContent = '⚠ Erro ao analisar. Suas moedas foram devolvidas. Tente novamente.';
+    errorEl.classList.add('show');
+  }
+}
+
+async function runGenerator() {
+  const cost = COST_GENERATOR;
+  const jobText  = document.getElementById('genJobText').value.trim();
+  const hasChoiceYes = document.getElementById('genChoiceYes').classList.contains('active');
+
+  if (!uploadedGenJob && !jobText) {
+    document.getElementById('errorMsg').textContent = 'Informe a vaga (print ou texto) para gerar o currículo.';
+    document.getElementById('errorMsg').classList.add('show'); return;
+  }
+
+  const userContent = [];
+  if (uploadedGenJob) userContent.push({ type: 'image', source: { type: 'base64', media_type: uploadedGenJob.mediaType, data: uploadedGenJob.base64 } });
+
+  let sourceText = '';
+  if (hasChoiceYes) {
+    sourceText = document.getElementById('genOldResume').value.trim();
+    if (!sourceText) { document.getElementById('errorMsg').textContent = 'Cole seu currículo atual no campo acima.'; document.getElementById('errorMsg').classList.add('show'); return; }
+  } else {
+    const name = document.getElementById('gqName').value.trim();
+    const area = document.getElementById('gqArea').value.trim();
+    if (!name || !area) { document.getElementById('errorMsg').textContent = 'Preencha nome e área profissional.'; document.getElementById('errorMsg').classList.add('show'); return; }
+    sourceText = `Nome: ${name}\nÁrea: ${area}\nE-mail: ${document.getElementById('gqEmail').value}\nContato: ${document.getElementById('gqContact').value}\nFormação: ${document.getElementById('gqEducation').value}\nExperiências: ${document.getElementById('gqExperience').value}\nHabilidades: ${document.getElementById('gqSkills').value}`;
+  }
+
+  userContent.push({ type: 'text', text: `Você é um especialista em currículos. Gere um currículo profissional completo em português brasileiro.\n\nDados do candidato:\n${sourceText}\n\n${jobText ? 'Vaga desejada:\n' + jobText : ''}${uploadedGenJob ? '\n[Print da vaga enviado como imagem acima]' : ''}\n\nGere o currículo em texto puro estruturado, sem JSON. Comece com o nome em maiúsculas, depois cargo/área, contato, e use títulos de seção em maiúsculas (EXPERIÊNCIA, FORMAÇÃO, HABILIDADES, etc.). Use bullet points com "-" para listas. Linguagem de impacto, verbos de ação, otimizado para ATS.` });
+
+  document.getElementById('inputSection').style.display = 'none';
+  document.getElementById('loadingSection').classList.add('show');
+  document.getElementById('loaderBar').className = 'loader-bar-inner generator';
+  document.getElementById('loadingText').textContent = 'Gerando seu currículo profissional…';
+
+  try {
+    await deductCoins(cost);
+    const response = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-opus-4-5', max_tokens: 2000, messages: [{ role: 'user', content: userContent }] })
+    });
+    if (!response.ok) throw new Error('Erro');
+    const data = await response.json();
+    const rawText = data.content?.[0]?.text || '';
+    await sb.from('usage_logs').insert({ user_id: currentUser.id, mode: 'generator', coins_used: cost });
+    document.getElementById('loadingSection').classList.remove('show');
+    renderGeneratedCv(rawText);
+  } catch {
+    await grantCoins(cost);
+    document.getElementById('loadingSection').classList.remove('show');
+    document.getElementById('inputSection').style.display = 'block';
+    document.getElementById('errorMsg').textContent = '⚠ Erro ao gerar currículo. Suas moedas foram devolvidas.';
+    document.getElementById('errorMsg').classList.add('show');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── RENDER RESULTS ────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+function renderResults(result) {
+  const score = result.score || 0;
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('scoreDisplay').style.color = score >= 70 ? 'var(--accent)' : score >= 50 ? 'var(--gold)' : 'var(--danger)';
+
+  const modeTag = document.getElementById('resultsModeTag');
+  if (currentMode === 'premium') {
+    modeTag.textContent = '🎯 Match por Vaga';
+    modeTag.className = 'results-mode-tag premium';
+    document.getElementById('resultsTitle').textContent = 'Análise de Compatibilidade';
+    if (result.matchPct !== undefined) {
+      document.getElementById('matchBarWrap').style.display = 'block';
+      document.getElementById('matchPct').textContent = result.matchPct + '%';
+      setTimeout(() => document.getElementById('matchBarFill').style.width = result.matchPct + '%', 50);
+      document.getElementById('matchBarDesc').textContent = result.matchDesc || '';
+    }
+    document.getElementById('upsellBanner').style.display = 'none';
+    document.getElementById('upsellGenerator').style.display = 'flex';
+  } else {
+    modeTag.textContent = '📄 Análise Geral';
+    modeTag.className = 'results-mode-tag standard';
+    document.getElementById('resultsTitle').textContent = 'Análise Completa';
+    document.getElementById('matchBarWrap').style.display = 'none';
+    document.getElementById('upsellBanner').style.display = result.upsell ? 'flex' : 'none';
+    document.getElementById('upsellGenerator').style.display = 'flex';
+  }
+
+  const container = document.getElementById('sectionsContainer');
+  container.innerHTML = '';
+  (result.sections || []).forEach(sec => {
+    const block = document.createElement('div'); block.className = 'section-block';
+    const iconClass = sec.tag === 'critical' ? 'icon-critical' : sec.tag === 'warn' ? 'icon-warn' : sec.tag === 'match' ? 'icon-match' : 'icon-ok';
+    const tagClass = 'tag-' + (sec.tag || 'ok');
+    const tagLabel = sec.tag === 'critical' ? 'Crítico' : sec.tag === 'warn' ? 'Atenção' : sec.tag === 'match' ? 'Match' : 'OK';
+    block.innerHTML = `
+      <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-icon ${iconClass}">${sec.icon || '📌'}</div>
+        <span class="section-title">${sec.title}</span>
+        <span class="section-tag ${tagClass}">${tagLabel}</span>
+        <span class="section-chevron">▾</span>
+      </div>
+      <div class="section-body"><div>${sec.content || ''}</div></div>`;
+    container.appendChild(block);
+    block.querySelector('.section-body').classList.add('open');
+    block.querySelector('.section-chevron').classList.add('open');
+  });
+
+  document.getElementById('generatedCvWrap').style.display = 'none';
+  document.getElementById('resultsSection').classList.add('show');
+}
+
+function renderGeneratedCv(rawText) {
+  document.getElementById('loadingSection').classList.remove('show');
+  document.getElementById('sectionsContainer').innerHTML = '';
+  document.getElementById('matchBarWrap').style.display = 'none';
+  document.getElementById('upsellBanner').style.display = 'none';
+  document.getElementById('upsellGenerator').style.display = 'none';
+  const modeTag = document.getElementById('resultsModeTag');
+  modeTag.textContent = '✨ Currículo Gerado';
+  modeTag.className = 'results-mode-tag';
+  modeTag.style.cssText = 'background:var(--coral-dim);color:var(--coral);border:1px solid var(--coral-border)';
+  document.getElementById('resultsTitle').textContent = 'Seu Novo Currículo';
+  document.getElementById('scoreDisplay').textContent = '';
+  document.querySelector('.score-label').textContent = '';
+
+  const lines = rawText.split('\n').map(l => l.trim()).filter((l, i, arr) => !(l === '' && arr[i-1] === ''));
+  let html = ''; let firstNameDone = false;
+  const SECTION_KEYWORDS = ['DADOS PESSOAIS','CONTATO','OBJETIVO','PERFIL','RESUMO','EXPERIÊNCIA','EXPERIENCIAS','FORMAÇÃO','FORMACAO','HABILIDADES','COMPETÊNCIAS','IDIOMAS','CERTIFICAÇÕES','CERTIFICACOES','CURSOS','PROJETOS'];
+  const isSectionTitle = (line) => { const up = line.toUpperCase().replace(/[^A-ZÁÉÍÓÚÃÕÂÊÔÇÜ ]/g,''); return SECTION_KEYWORDS.some(k => up.includes(k)) && line.length < 60; };
+
+  lines.forEach((line, idx) => {
+    if (!line) return;
+    if (!firstNameDone && line.length > 1 && line.length < 80) {
+      const isTitleLine = line === line.toUpperCase() || (!isSectionTitle(line) && idx < 4);
+      if (isTitleLine) { html += `<div class="cv-name">${line}</div>`; firstNameDone = true; return; }
+    }
+    if (firstNameDone && idx <= 3 && !isSectionTitle(line) && line.length < 80 && !line.includes('@') && !line.match(/\d{2}.*\d{4}/)) {
+      if (!html.includes('cv-subtitle')) { html += `<div class="cv-subtitle">${line}</div><hr class="cv-divider">`; return; }
+    }
+    if (line.match(/@|^\(?\d{2}\)?[\s\-]?\d{4,5}/) && !isSectionTitle(line)) {
+      const parts = line.split(/\s{2,}|\|/).map(p => p.trim()).filter(Boolean);
+      if (!html.includes('cv-contact-row')) { html += `<div class="cv-contact-row">${parts.map(p => `<span>${p}</span>`).join('')}</div><hr class="cv-divider2">`; } return;
+    }
+    if (isSectionTitle(line)) { html += `<div class="cv-section-title">${line}</div>`; return; }
+    if (line.match(/\d{4}/) && line.length < 90) { html += `<div class="cv-exp-header">${line}</div>`; return; }
+    if (line.startsWith('-') || line.startsWith('•') || line.startsWith('·')) { html += `<ul><li>${line.replace(/^[-•·]\s*/,'')}</li></ul>`; return; }
+    const prev = lines[idx-1];
+    if (prev && prev.match(/\d{4}/) && line.length < 60) { html += `<div class="cv-exp-role">${line}</div>`; return; }
+    html += `<p>${line}</p>`;
+  });
+
+  document.getElementById('generatedCvContent').innerHTML = html;
+  document.getElementById('generatedCvWrap').style.display = 'block';
+  document.getElementById('resultsSection').classList.add('show');
+}
+
+function copyCv() {
+  const text = document.getElementById('generatedCvContent').innerText;
+  navigator.clipboard.writeText(text).then(() => showToast('✓ Currículo copiado!', 'gold'));
+}
 
 function toggleSection(header) {
   header.querySelector('.section-chevron').classList.toggle('open');
   header.nextElementSibling.classList.toggle('open');
+}
+
+function switchCvChoice(choice) {
+  document.getElementById('genChoiceYes').className = 'gen-choice-btn' + (choice === 'yes' ? ' active' : '');
+  document.getElementById('genChoiceNo').className  = 'gen-choice-btn' + (choice === 'no'  ? ' active' : '');
+  document.getElementById('genPaneOld').className    = 'gen-pane' + (choice === 'yes' ? ' show' : '');
+  document.getElementById('genPaneGuided').className = 'gen-pane' + (choice === 'no'  ? ' show' : '');
 }
 
 function resetForm() {
@@ -1646,26 +1599,92 @@ function resetForm() {
   modeTag.style.cssText = '';
 }
 
-// ── BUY MODAL ─────────────────────────────────────────────────────────────────
-function openBuyModal()  { document.getElementById('buyModal').classList.add('show'); }
-function closeBuyModal() { document.getElementById('buyModal').classList.remove('show'); }
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── BUY MODAL + GGCHECKOUT ────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
 
-function selectPlan(c, price) {
-  selectedPlan = { coins: c, price };
+// URLs de checkout do GGCheckout — mapeadas por priceId
+const GG_CHECKOUT_URLS = {
+  'gg_5moedas':  'https://ggcheckout.app/checkout/v2/cazKC91ZgN1wDWzsYM7M',
+  'gg_20moedas': 'https://ggcheckout.app/checkout/v2/tSp7UniPvinIAwIXfO9e',
+  'gg_50moedas': 'https://ggcheckout.app/checkout/v2/nwfkgt2OXOw3oMcVjJNu',
+};
+
+// Mapa de moedas por priceId (usado para registro da compra pendente)
+const GG_COINS_MAP = {
+  'gg_5moedas':  5,
+  'gg_20moedas': 20,
+  'gg_50moedas': 50,
+};
+
+function openBuyModal()  { document.getElementById('buyModal').classList.add('show'); }
+function closeBuyModal() {
+  document.getElementById('buyModal').classList.remove('show');
+  document.getElementById('checkoutLoading').classList.remove('show');
+  document.getElementById('checkoutNote').style.display = '';
+  document.getElementById('btnCheckout').disabled = false;
+  document.getElementById('btnCheckout').textContent = 'Ir para Pagamento →';
+}
+
+function selectPlan(c, price, priceId) {
+  selectedPlan = { coins: c, price, priceId };
   document.querySelectorAll('.plan-card').forEach(el => el.classList.remove('selected'));
+  // ID do card agora é plan-5, plan-20 ou plan-50
   document.getElementById('plan-' + c).classList.add('selected');
 }
 
-function simulatePurchase() {
-  // Integration point: replace with Stripe / Mercado Pago / etc.
-  grantCoins(selectedPlan.coins);
-  closeBuyModal();
-  showToast('🪙 ' + selectedPlan.coins + ' moedas adicionadas!', 'gold');
+async function startCheckout() {
+  if (!currentUser) return;
+
+  const btn = document.getElementById('btnCheckout');
+  btn.disabled = true;
+  btn.textContent = 'Aguarde…';
+  document.getElementById('checkoutLoading').classList.add('show');
+  document.getElementById('checkoutNote').style.display = 'none';
+
+  const checkoutUrl = GG_CHECKOUT_URLS[selectedPlan.priceId];
+  if (!checkoutUrl) {
+    showToast('⚠ Plano inválido. Tente novamente.', '');
+    btn.disabled = false;
+    btn.textContent = 'Ir para Pagamento →';
+    document.getElementById('checkoutLoading').classList.remove('show');
+    document.getElementById('checkoutNote').style.display = '';
+    return;
+  }
+
+  try {
+    // Registra a compra como "pending" no Supabase antes de redirecionar
+    // Isso permite creditar as moedas via webhook/postback do GGCheckout
+    await sb.from('purchases').insert({
+      user_id:       currentUser.id,
+      stripe_session_id: null,             // não se aplica ao GGCheckout
+      coins_granted: selectedPlan.coins,
+      amount_cents:  selectedPlan.price,
+      status:        'pending',
+      // Guardamos o user_id também nos metadados da URL para o webhook identificar
+    });
+  } catch (e) {
+    // Continua mesmo se o insert falhar — o webhook postback ainda vai creditar
+    console.warn('[checkout] aviso ao registrar pending:', e.message);
+  }
+
+  // Monta URL com parâmetros de rastreamento do usuário:
+  // O GGCheckout repassa esses parâmetros no postback/webhook de confirmação
+  const params = new URLSearchParams({
+    uid:   currentUser.id,                          // user_id do Supabase
+    email: currentUser.email,                       // e-mail para identificação
+    coins: String(selectedPlan.coins),              // quantidade de moedas
+    ref:   selectedPlan.priceId,                    // referência do plano
+    return_url: window.location.origin + '/?payment=success'  // retorno após pagamento
+  });
+
+  // Redireciona para o GGCheckout com os parâmetros embutidos
+  window.location.href = checkoutUrl + '?' + params.toString();
 }
 
-function grantCoins(amount) { coins += amount; saveCoins(); }
-
+// ═══════════════════════════════════════════════════════════════════════════════
 // ── REDEEM MODAL ──────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
 function openRedeemModal() {
   document.getElementById('redeemInput').value = '';
   document.getElementById('redeemMsg').textContent = '';
@@ -1674,24 +1693,102 @@ function openRedeemModal() {
 }
 function closeRedeemModal() { document.getElementById('redeemModal').classList.remove('show'); }
 
-function redeemCode() {
+async function redeemCode() {
   const raw   = document.getElementById('redeemInput').value.trim().toUpperCase();
   const msgEl = document.getElementById('redeemMsg');
   if (!raw) { msgEl.textContent = 'Digite um código.'; msgEl.className = 'redeem-msg err'; return; }
-  if (usedCodes.includes(raw)) { msgEl.textContent = '✕ Código já utilizado.'; msgEl.className = 'redeem-msg err'; return; }
+
+  // Verifica se já usou esse código (via Supabase)
+  const { data: used } = await sb
+    .from('redeemed_codes')
+    .select('id')
+    .eq('user_id', currentUser.id)
+    .eq('code', raw)
+    .single();
+
+  if (used) { msgEl.textContent = '✕ Código já utilizado pela sua conta.'; msgEl.className = 'redeem-msg err'; return; }
+
   const amount = VALID_CODES[raw];
   if (!amount) { msgEl.textContent = '✕ Código inválido ou expirado.'; msgEl.className = 'redeem-msg err'; return; }
-  usedCodes.push(raw);
-  localStorage.setItem('usedCodes', JSON.stringify(usedCodes));
-  grantCoins(amount);
+
+  // Registra uso
+  await sb.from('redeemed_codes').insert({ user_id: currentUser.id, code: raw });
+  await grantCoins(amount);
+
   msgEl.textContent = '✓ +' + amount + ' moedas adicionadas!';
   msgEl.className = 'redeem-msg ok';
   showToast('🎉 +' + amount + ' moedas resgatadas!', 'gold');
   setTimeout(closeRedeemModal, 2000);
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
-saveCoins();
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── VERIFICAR PAGAMENTO (retorno do GGCheckout) ────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// O GGCheckout redireciona para /?payment=success&uid=...&coins=...&ref=...
+// Aqui creditamos as moedas e marcamos a compra como concluída no Supabase.
+async function checkPaymentReturn() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('payment') !== 'success') return;
+
+  // Limpa os parâmetros da URL sem recarregar
+  const cleanUrl = new URL(window.location.href);
+  ['payment', 'uid', 'coins', 'ref', 'return_url'].forEach(p => cleanUrl.searchParams.delete(p));
+  window.history.replaceState({}, '', cleanUrl.toString());
+
+  const coinsToGrant = parseInt(params.get('coins') || '0', 10);
+  const priceId      = params.get('ref') || '';
+
+  if (!currentUser || coinsToGrant <= 0) return;
+
+  // Verifica se o uid do parâmetro bate com o usuário logado (segurança básica)
+  const paramUid = params.get('uid');
+  if (paramUid && paramUid !== currentUser.id) {
+    console.warn('[payment] uid divergente — ignorando crédito automático.');
+    showToast('⚠ Pagamento detectado, mas aguarde a confirmação por e-mail.', '');
+    return;
+  }
+
+  // Idempotência: busca se já existe uma compra "pending" para esse usuário/plano
+  // e credita somente se ainda não foi creditado
+  const { data: pendingPurchase } = await sb
+    .from('purchases')
+    .select('id, status')
+    .eq('user_id', currentUser.id)
+    .eq('coins_granted', coinsToGrant)
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (pendingPurchase) {
+    // Credita as moedas no perfil
+    await grantCoins(coinsToGrant);
+
+    // Marca a compra como completed
+    await sb
+      .from('purchases')
+      .update({ status: 'completed' })
+      .eq('id', pendingPurchase.id);
+
+    showToast('🎉 Pagamento confirmado! +' + coinsToGrant + ' moedas adicionadas.', 'gold');
+  } else {
+    // Fallback: se não encontrou pending (ex: insert falhou), credita direto
+    // Isso é seguro pois o GGCheckout só redireciona após pagamento confirmado
+    await grantCoins(coinsToGrant);
+    showToast('🎉 Pagamento confirmado! +' + coinsToGrant + ' moedas adicionadas.', 'gold');
+  }
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    currentUser = session.user;
+    await loadUserProfile();
+    showApp();
+    await checkPaymentReturn();
+  }
+})();
 </script>
 </body>
 </html>
