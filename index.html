@@ -931,13 +931,13 @@
     <h2>Comprar <span>Moedas</span></h2>
     <p class="modal-sub">Escolha o pacote ideal. Moedas não expiram e ficam salvas na sua conta.</p>
     <div class="plan-grid">
-      <div class="plan-card" id="plan-5" onclick="selectPlan(5, 1290, 'gg_5moedas')">
+      <div class="plan-card" id="plan-5" onclick="selectPlan(5, 1290, 'cs_5moedas')">
         <span class="plan-coins">5</span>
         <span class="plan-coin-label">moedas</span>
         <span class="plan-price">R$ 12,90</span>
         <span class="plan-price-label">R$ 2,58 / moeda</span>
       </div>
-      <div class="plan-card selected" id="plan-20" onclick="selectPlan(20, 2990, 'gg_20moedas')">
+      <div class="plan-card selected" id="plan-20" onclick="selectPlan(20, 2990, 'cs_20moedas')">
         <span class="plan-badge">Mais Popular</span>
         <span class="plan-coins">20</span>
         <span class="plan-coin-label">moedas</span>
@@ -945,7 +945,7 @@
         <span class="plan-price-label">R$ 1,50 / moeda</span>
         <div class="plan-saving">economia 42%</div>
       </div>
-      <div class="plan-card" id="plan-50" onclick="selectPlan(50, 5990, 'gg_50moedas')">
+      <div class="plan-card" id="plan-50" onclick="selectPlan(50, 5990, 'cs_50moedas')">
         <span class="plan-badge" style="background:var(--accent);color:#000">Melhor Valor</span>
         <span class="plan-coins">50</span>
         <span class="plan-coin-label">moedas</span>
@@ -1006,7 +1006,7 @@ const API_ENDPOINT    = '/api/analyze';                           // seu proxy A
 // URL base do site — usada nos redirects de auth (e-mail de confirmação e Google OAuth)
 // Troque pelo seu domínio real quando fizer deploy (ex: 'https://cvanalyzer.com.br')
 const SITE_URL = window.location.origin;
-// Checkout: GGCheckout — URLs configuradas em GG_CHECKOUT_URLS abaixo (não precisa de backend)
+// Checkout: CheckoutSeguro — URLs configuradas em CHECKOUT_URLS abaixo (não precisa de backend)
 
 const COST_STANDARD  = 1;
 const COST_PREMIUM   = 3;
@@ -1034,7 +1034,7 @@ let coins         = 0;
 let uploadedFile  = null;
 let uploadedJob   = null;
 let currentMode   = 'standard';
-let selectedPlan  = { coins: 20, price: 2990, priceId: 'gg_20moedas' };
+let selectedPlan  = { coins: 20, price: 2990, priceId: 'cs_20moedas' };
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ── AUTH ──────────────────────────────────────────────────────────────────────
@@ -1434,364 +1434,4 @@ async function runGenerator() {
     if (!sourceText) { document.getElementById('errorMsg').textContent = 'Cole seu currículo atual no campo acima.'; document.getElementById('errorMsg').classList.add('show'); return; }
   } else {
     const name = document.getElementById('gqName').value.trim();
-    const area = document.getElementById('gqArea').value.trim();
-    if (!name || !area) { document.getElementById('errorMsg').textContent = 'Preencha nome e área profissional.'; document.getElementById('errorMsg').classList.add('show'); return; }
-    sourceText = `Nome: ${name}\nÁrea: ${area}\nE-mail: ${document.getElementById('gqEmail').value}\nContato: ${document.getElementById('gqContact').value}\nFormação: ${document.getElementById('gqEducation').value}\nExperiências: ${document.getElementById('gqExperience').value}\nHabilidades: ${document.getElementById('gqSkills').value}`;
-  }
-
-  userContent.push({ type: 'text', text: `Você é um especialista em currículos. Gere um currículo profissional completo em português brasileiro.\n\nDados do candidato:\n${sourceText}\n\n${jobText ? 'Vaga desejada:\n' + jobText : ''}${uploadedGenJob ? '\n[Print da vaga enviado como imagem acima]' : ''}\n\nGere o currículo em texto puro estruturado, sem JSON. Comece com o nome em maiúsculas, depois cargo/área, contato, e use títulos de seção em maiúsculas (EXPERIÊNCIA, FORMAÇÃO, HABILIDADES, etc.). Use bullet points com "-" para listas. Linguagem de impacto, verbos de ação, otimizado para ATS.` });
-
-  document.getElementById('inputSection').style.display = 'none';
-  document.getElementById('loadingSection').classList.add('show');
-  document.getElementById('loaderBar').className = 'loader-bar-inner generator';
-  document.getElementById('loadingText').textContent = 'Gerando seu currículo profissional…';
-
-  try {
-    await deductCoins(cost);
-    const response = await fetch(API_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'claude-opus-4-5', max_tokens: 2000, messages: [{ role: 'user', content: userContent }] })
-    });
-    if (!response.ok) throw new Error('Erro');
-    const data = await response.json();
-    const rawText = data.content?.[0]?.text || '';
-    await sb.from('usage_logs').insert({ user_id: currentUser.id, mode: 'generator', coins_used: cost });
-    document.getElementById('loadingSection').classList.remove('show');
-    renderGeneratedCv(rawText);
-  } catch {
-    await grantCoins(cost);
-    document.getElementById('loadingSection').classList.remove('show');
-    document.getElementById('inputSection').style.display = 'block';
-    document.getElementById('errorMsg').textContent = '⚠ Erro ao gerar currículo. Suas moedas foram devolvidas.';
-    document.getElementById('errorMsg').classList.add('show');
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// ── RENDER RESULTS ────────────────────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════════════════
-function renderResults(result) {
-  const score = result.score || 0;
-  document.getElementById('scoreDisplay').textContent = score;
-  document.getElementById('scoreDisplay').style.color = score >= 70 ? 'var(--accent)' : score >= 50 ? 'var(--gold)' : 'var(--danger)';
-
-  const modeTag = document.getElementById('resultsModeTag');
-  if (currentMode === 'premium') {
-    modeTag.textContent = '🎯 Match por Vaga';
-    modeTag.className = 'results-mode-tag premium';
-    document.getElementById('resultsTitle').textContent = 'Análise de Compatibilidade';
-    if (result.matchPct !== undefined) {
-      document.getElementById('matchBarWrap').style.display = 'block';
-      document.getElementById('matchPct').textContent = result.matchPct + '%';
-      setTimeout(() => document.getElementById('matchBarFill').style.width = result.matchPct + '%', 50);
-      document.getElementById('matchBarDesc').textContent = result.matchDesc || '';
-    }
-    document.getElementById('upsellBanner').style.display = 'none';
-    document.getElementById('upsellGenerator').style.display = 'flex';
-  } else {
-    modeTag.textContent = '📄 Análise Geral';
-    modeTag.className = 'results-mode-tag standard';
-    document.getElementById('resultsTitle').textContent = 'Análise Completa';
-    document.getElementById('matchBarWrap').style.display = 'none';
-    document.getElementById('upsellBanner').style.display = result.upsell ? 'flex' : 'none';
-    document.getElementById('upsellGenerator').style.display = 'flex';
-  }
-
-  const container = document.getElementById('sectionsContainer');
-  container.innerHTML = '';
-  (result.sections || []).forEach(sec => {
-    const block = document.createElement('div'); block.className = 'section-block';
-    const iconClass = sec.tag === 'critical' ? 'icon-critical' : sec.tag === 'warn' ? 'icon-warn' : sec.tag === 'match' ? 'icon-match' : 'icon-ok';
-    const tagClass = 'tag-' + (sec.tag || 'ok');
-    const tagLabel = sec.tag === 'critical' ? 'Crítico' : sec.tag === 'warn' ? 'Atenção' : sec.tag === 'match' ? 'Match' : 'OK';
-    block.innerHTML = `
-      <div class="section-header" onclick="toggleSection(this)">
-        <div class="section-icon ${iconClass}">${sec.icon || '📌'}</div>
-        <span class="section-title">${sec.title}</span>
-        <span class="section-tag ${tagClass}">${tagLabel}</span>
-        <span class="section-chevron">▾</span>
-      </div>
-      <div class="section-body"><div>${sec.content || ''}</div></div>`;
-    container.appendChild(block);
-    block.querySelector('.section-body').classList.add('open');
-    block.querySelector('.section-chevron').classList.add('open');
-  });
-
-  document.getElementById('generatedCvWrap').style.display = 'none';
-  document.getElementById('resultsSection').classList.add('show');
-}
-
-function renderGeneratedCv(rawText) {
-  document.getElementById('loadingSection').classList.remove('show');
-  document.getElementById('sectionsContainer').innerHTML = '';
-  document.getElementById('matchBarWrap').style.display = 'none';
-  document.getElementById('upsellBanner').style.display = 'none';
-  document.getElementById('upsellGenerator').style.display = 'none';
-  const modeTag = document.getElementById('resultsModeTag');
-  modeTag.textContent = '✨ Currículo Gerado';
-  modeTag.className = 'results-mode-tag';
-  modeTag.style.cssText = 'background:var(--coral-dim);color:var(--coral);border:1px solid var(--coral-border)';
-  document.getElementById('resultsTitle').textContent = 'Seu Novo Currículo';
-  document.getElementById('scoreDisplay').textContent = '';
-  document.querySelector('.score-label').textContent = '';
-
-  const lines = rawText.split('\n').map(l => l.trim()).filter((l, i, arr) => !(l === '' && arr[i-1] === ''));
-  let html = ''; let firstNameDone = false;
-  const SECTION_KEYWORDS = ['DADOS PESSOAIS','CONTATO','OBJETIVO','PERFIL','RESUMO','EXPERIÊNCIA','EXPERIENCIAS','FORMAÇÃO','FORMACAO','HABILIDADES','COMPETÊNCIAS','IDIOMAS','CERTIFICAÇÕES','CERTIFICACOES','CURSOS','PROJETOS'];
-  const isSectionTitle = (line) => { const up = line.toUpperCase().replace(/[^A-ZÁÉÍÓÚÃÕÂÊÔÇÜ ]/g,''); return SECTION_KEYWORDS.some(k => up.includes(k)) && line.length < 60; };
-
-  lines.forEach((line, idx) => {
-    if (!line) return;
-    if (!firstNameDone && line.length > 1 && line.length < 80) {
-      const isTitleLine = line === line.toUpperCase() || (!isSectionTitle(line) && idx < 4);
-      if (isTitleLine) { html += `<div class="cv-name">${line}</div>`; firstNameDone = true; return; }
-    }
-    if (firstNameDone && idx <= 3 && !isSectionTitle(line) && line.length < 80 && !line.includes('@') && !line.match(/\d{2}.*\d{4}/)) {
-      if (!html.includes('cv-subtitle')) { html += `<div class="cv-subtitle">${line}</div><hr class="cv-divider">`; return; }
-    }
-    if (line.match(/@|^\(?\d{2}\)?[\s\-]?\d{4,5}/) && !isSectionTitle(line)) {
-      const parts = line.split(/\s{2,}|\|/).map(p => p.trim()).filter(Boolean);
-      if (!html.includes('cv-contact-row')) { html += `<div class="cv-contact-row">${parts.map(p => `<span>${p}</span>`).join('')}</div><hr class="cv-divider2">`; } return;
-    }
-    if (isSectionTitle(line)) { html += `<div class="cv-section-title">${line}</div>`; return; }
-    if (line.match(/\d{4}/) && line.length < 90) { html += `<div class="cv-exp-header">${line}</div>`; return; }
-    if (line.startsWith('-') || line.startsWith('•') || line.startsWith('·')) { html += `<ul><li>${line.replace(/^[-•·]\s*/,'')}</li></ul>`; return; }
-    const prev = lines[idx-1];
-    if (prev && prev.match(/\d{4}/) && line.length < 60) { html += `<div class="cv-exp-role">${line}</div>`; return; }
-    html += `<p>${line}</p>`;
-  });
-
-  document.getElementById('generatedCvContent').innerHTML = html;
-  document.getElementById('generatedCvWrap').style.display = 'block';
-  document.getElementById('resultsSection').classList.add('show');
-}
-
-function copyCv() {
-  const text = document.getElementById('generatedCvContent').innerText;
-  navigator.clipboard.writeText(text).then(() => showToast('✓ Currículo copiado!', 'gold'));
-}
-
-function toggleSection(header) {
-  header.querySelector('.section-chevron').classList.toggle('open');
-  header.nextElementSibling.classList.toggle('open');
-}
-
-function switchCvChoice(choice) {
-  document.getElementById('genChoiceYes').className = 'gen-choice-btn' + (choice === 'yes' ? ' active' : '');
-  document.getElementById('genChoiceNo').className  = 'gen-choice-btn' + (choice === 'no'  ? ' active' : '');
-  document.getElementById('genPaneOld').className    = 'gen-pane' + (choice === 'yes' ? ' show' : '');
-  document.getElementById('genPaneGuided').className = 'gen-pane' + (choice === 'no'  ? ' show' : '');
-}
-
-function resetForm() {
-  removeFile(); removeJobImage(); removeGenJobImage();
-  document.getElementById('resumeText').value = '';
-  document.getElementById('jobDescText').value = '';
-  document.getElementById('genJobText').value = '';
-  document.getElementById('errorMsg').classList.remove('show');
-  document.getElementById('resultsSection').classList.remove('show');
-  document.getElementById('inputSection').style.display = 'block';
-  document.getElementById('matchBarFill').style.width = '0%';
-  document.getElementById('generatedCvWrap').style.display = 'none';
-  document.getElementById('upsellGenerator').style.display = 'none';
-  ['genOldResume','gqName','gqArea','gqEmail','gqContact','gqEducation','gqExperience','gqSkills']
-    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  document.querySelector('.score-label').textContent = 'score geral';
-  const modeTag = document.getElementById('resultsModeTag');
-  modeTag.style.cssText = '';
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// ── BUY MODAL + GGCHECKOUT ────────────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════════════════
-
-// URLs de checkout do GGCheckout — mapeadas por priceId
-const GG_CHECKOUT_URLS = {
-  'gg_5moedas':  'https://ggcheckout.app/checkout/v2/cazKC91ZgN1wDWzsYM7M',
-  'gg_20moedas': 'https://ggcheckout.app/checkout/v2/tSp7UniPvinIAwIXfO9e',
-  'gg_50moedas': 'https://ggcheckout.app/checkout/v2/nwfkgt2OXOw3oMcVjJNu',
-};
-
-// Mapa de moedas por priceId (usado para registro da compra pendente)
-const GG_COINS_MAP = {
-  'gg_5moedas':  5,
-  'gg_20moedas': 20,
-  'gg_50moedas': 50,
-};
-
-function openBuyModal()  { document.getElementById('buyModal').classList.add('show'); }
-function closeBuyModal() {
-  document.getElementById('buyModal').classList.remove('show');
-  document.getElementById('checkoutLoading').classList.remove('show');
-  document.getElementById('checkoutNote').style.display = '';
-  document.getElementById('btnCheckout').disabled = false;
-  document.getElementById('btnCheckout').textContent = 'Ir para Pagamento →';
-}
-
-function selectPlan(c, price, priceId) {
-  selectedPlan = { coins: c, price, priceId };
-  document.querySelectorAll('.plan-card').forEach(el => el.classList.remove('selected'));
-  // ID do card agora é plan-5, plan-20 ou plan-50
-  document.getElementById('plan-' + c).classList.add('selected');
-}
-
-async function startCheckout() {
-  if (!currentUser) return;
-
-  const btn = document.getElementById('btnCheckout');
-  btn.disabled = true;
-  btn.textContent = 'Aguarde…';
-  document.getElementById('checkoutLoading').classList.add('show');
-  document.getElementById('checkoutNote').style.display = 'none';
-
-  const checkoutUrl = GG_CHECKOUT_URLS[selectedPlan.priceId];
-  if (!checkoutUrl) {
-    showToast('⚠ Plano inválido. Tente novamente.', '');
-    btn.disabled = false;
-    btn.textContent = 'Ir para Pagamento →';
-    document.getElementById('checkoutLoading').classList.remove('show');
-    document.getElementById('checkoutNote').style.display = '';
-    return;
-  }
-
-  try {
-    // Registra a compra como "pending" no Supabase antes de redirecionar
-    // Isso permite creditar as moedas via webhook/postback do GGCheckout
-    await sb.from('purchases').insert({
-      user_id:       currentUser.id,
-      stripe_session_id: null,             // não se aplica ao GGCheckout
-      coins_granted: selectedPlan.coins,
-      amount_cents:  selectedPlan.price,
-      status:        'pending',
-      // Guardamos o user_id também nos metadados da URL para o webhook identificar
-    });
-  } catch (e) {
-    // Continua mesmo se o insert falhar — o webhook postback ainda vai creditar
-    console.warn('[checkout] aviso ao registrar pending:', e.message);
-  }
-
-  // Monta URL com parâmetros de rastreamento do usuário:
-  // O GGCheckout repassa esses parâmetros no postback/webhook de confirmação
-  const params = new URLSearchParams({
-    uid:   currentUser.id,                          // user_id do Supabase
-    email: currentUser.email,                       // e-mail para identificação
-    coins: String(selectedPlan.coins),              // quantidade de moedas
-    ref:   selectedPlan.priceId,                    // referência do plano
-    return_url: window.location.origin + '/?payment=success'  // retorno após pagamento
-  });
-
-  // Redireciona para o GGCheckout com os parâmetros embutidos
-  window.location.href = checkoutUrl + '?' + params.toString();
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// ── REDEEM MODAL ──────────────────────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════════════════
-function openRedeemModal() {
-  document.getElementById('redeemInput').value = '';
-  document.getElementById('redeemMsg').textContent = '';
-  document.getElementById('redeemMsg').className = 'redeem-msg';
-  document.getElementById('redeemModal').classList.add('show');
-}
-function closeRedeemModal() { document.getElementById('redeemModal').classList.remove('show'); }
-
-async function redeemCode() {
-  const raw   = document.getElementById('redeemInput').value.trim().toUpperCase();
-  const msgEl = document.getElementById('redeemMsg');
-  if (!raw) { msgEl.textContent = 'Digite um código.'; msgEl.className = 'redeem-msg err'; return; }
-
-  // Verifica se já usou esse código (via Supabase)
-  const { data: used } = await sb
-    .from('redeemed_codes')
-    .select('id')
-    .eq('user_id', currentUser.id)
-    .eq('code', raw)
-    .single();
-
-  if (used) { msgEl.textContent = '✕ Código já utilizado pela sua conta.'; msgEl.className = 'redeem-msg err'; return; }
-
-  const amount = VALID_CODES[raw];
-  if (!amount) { msgEl.textContent = '✕ Código inválido ou expirado.'; msgEl.className = 'redeem-msg err'; return; }
-
-  // Registra uso
-  await sb.from('redeemed_codes').insert({ user_id: currentUser.id, code: raw });
-  await grantCoins(amount);
-
-  msgEl.textContent = '✓ +' + amount + ' moedas adicionadas!';
-  msgEl.className = 'redeem-msg ok';
-  showToast('🎉 +' + amount + ' moedas resgatadas!', 'gold');
-  setTimeout(closeRedeemModal, 2000);
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// ── VERIFICAR PAGAMENTO (retorno do GGCheckout) ────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════════════════
-// O GGCheckout redireciona para /?payment=success&uid=...&coins=...&ref=...
-// Aqui creditamos as moedas e marcamos a compra como concluída no Supabase.
-async function checkPaymentReturn() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('payment') !== 'success') return;
-
-  // Limpa os parâmetros da URL sem recarregar
-  const cleanUrl = new URL(window.location.href);
-  ['payment', 'uid', 'coins', 'ref', 'return_url'].forEach(p => cleanUrl.searchParams.delete(p));
-  window.history.replaceState({}, '', cleanUrl.toString());
-
-  const coinsToGrant = parseInt(params.get('coins') || '0', 10);
-  const priceId      = params.get('ref') || '';
-
-  if (!currentUser || coinsToGrant <= 0) return;
-
-  // Verifica se o uid do parâmetro bate com o usuário logado (segurança básica)
-  const paramUid = params.get('uid');
-  if (paramUid && paramUid !== currentUser.id) {
-    console.warn('[payment] uid divergente — ignorando crédito automático.');
-    showToast('⚠ Pagamento detectado, mas aguarde a confirmação por e-mail.', '');
-    return;
-  }
-
-  // Idempotência: busca se já existe uma compra "pending" para esse usuário/plano
-  // e credita somente se ainda não foi creditado
-  const { data: pendingPurchase } = await sb
-    .from('purchases')
-    .select('id, status')
-    .eq('user_id', currentUser.id)
-    .eq('coins_granted', coinsToGrant)
-    .eq('status', 'pending')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single();
-
-  if (pendingPurchase) {
-    // Credita as moedas no perfil
-    await grantCoins(coinsToGrant);
-
-    // Marca a compra como completed
-    await sb
-      .from('purchases')
-      .update({ status: 'completed' })
-      .eq('id', pendingPurchase.id);
-
-    showToast('🎉 Pagamento confirmado! +' + coinsToGrant + ' moedas adicionadas.', 'gold');
-  } else {
-    // Fallback: se não encontrou pending (ex: insert falhou), credita direto
-    // Isso é seguro pois o GGCheckout só redireciona após pagamento confirmado
-    await grantCoins(coinsToGrant);
-    showToast('🎉 Pagamento confirmado! +' + coinsToGrant + ' moedas adicionadas.', 'gold');
-  }
-}
-
-// ─── Init ─────────────────────────────────────────────────────────────────────
-(async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session?.user) {
-    currentUser = session.user;
-    await loadUserProfile();
-    showApp();
-    await checkPaymentReturn();
-  }
-})();
-</script>
-</body>
-</html>
+    const area = document.ge
