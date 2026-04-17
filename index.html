@@ -978,7 +978,7 @@
     <p class="modal-sub">Digite o código recebido para adicionar moedas à sua conta.</p>
     <div class="redeem-input-row">
       <input type="text" id="redeemInput" placeholder="Ex: CURRIC-XXXX-XXXX" maxlength="20">
-      <button class="btn-modal-confirm" style="flex:0 0 auto;padding:10px 16px;" onclick="redeemCode()">Resgatar</button>
+      <button class="btn-modal-confirm" id="btnRedeem" style="flex:0 0 auto;padding:10px 16px;" onclick="redeemCode()">Resgatar</button>
     </div>
     <div class="redeem-msg" id="redeemMsg"></div>
     <p style="font-size:0.63rem;color:var(--muted);line-height:1.6;margin-bottom:18px;">
@@ -1064,18 +1064,31 @@ async function handleRegister() {
   if (!name || !email || !pass) { errEl.textContent = 'Preencha todos os campos.'; errEl.classList.add('show'); return; }
   if (pass.length < 6) { errEl.textContent = 'Senha deve ter no mínimo 6 caracteres.'; errEl.classList.add('show'); return; }
   btn.disabled = true; btn.textContent = 'Criando conta…';
+
   const { data, error } = await sb.auth.signUp({
     email, password: pass,
     options: { data: { full_name: name } }
-    // Sem emailRedirectTo — confirmação desativada no painel Supabase
   });
-  btn.disabled = false; btn.textContent = 'Criar conta grátis';
-  if (error) { errEl.textContent = traduzirErroAuth(error.message); errEl.classList.add('show'); return; }
-  // Conta criada — pede para o usuário fazer login normalmente
-  okEl.textContent = '✓ Conta criada com sucesso! Faça login com seu e-mail e senha.';
-  okEl.classList.add('show');
-  // Muda para aba de login automaticamente após 1.5s
-  setTimeout(() => showTab('login'), 1500);
+
+  if (error) {
+    btn.disabled = false; btn.textContent = 'Criar conta grátis';
+    errEl.textContent = traduzirErroAuth(error.message); errEl.classList.add('show'); return;
+  }
+
+  // FIX: Se "Email Confirmations" estiver desabilitado no Supabase, o signUp
+  // já retorna uma sessão ativa — o onAuthStateChange cuida do resto.
+  // Se estiver habilitado, data.session será null e pedimos para confirmar o e-mail.
+  if (data.session) {
+    // Já logado automaticamente — onAuthStateChange vai exibir o app
+    okEl.textContent = '✓ Conta criada! Entrando…';
+    okEl.classList.add('show');
+  } else {
+    // Confirmação de e-mail necessária
+    btn.disabled = false; btn.textContent = 'Criar conta grátis';
+    okEl.textContent = '✓ Conta criada! Verifique seu e-mail e clique no link de confirmação para ativar sua conta.';
+    okEl.classList.add('show');
+    setTimeout(() => showTab('login'), 3000);
+  }
 }
 
 async function handleGoogleLogin() {
@@ -1094,46 +1107,26 @@ async function handleLogout() {
 }
 
 function traduzirErroAuth(msg) {
-  if (msg.includes('Invalid login credentials')) return 'E-mail ou senha incorretos.';
-  if (msg.includes('Email not confirmed'))       return 'E-mail ou senha incorretos.';
-  if (msg.includes('User already registered'))   return 'Esse e-mail já está cadastrado.';
+  if (msg.includes('Invalid login credentials')) return 'E-mail ou senha incorretos. Verifique os dados e tente novamente.';
+  if (msg.includes('Email not confirmed'))       return 'E-mail não confirmado. Verifique sua caixa de entrada e clique no link de ativação.';
+  if (msg.includes('User already registered'))   return 'Esse e-mail já está cadastrado. Faça login.';
   if (msg.includes('Password should be'))        return 'Senha muito curta (mínimo 6 caracteres).';
+  if (msg.includes('Unable to validate'))        return 'E-mail ou senha incorretos.';
+  if (msg.includes('signup_disabled'))           return 'Cadastro temporariamente desabilitado.';
   return msg;
 }
 
 // ─── Listener de sessão ──────────────────────────────────────────────────────
-// Bloqueia acesso via link mágico de e-mail (EMAIL_CHANGE, SIGNED_IN via token).
-// Só permite SIGNED_IN vindo de login normal (password) ou OAuth (Google).
+// FIX: removida a lógica isFromEmailLink que bloqueava logins legítimos.
+// O Supabase v2 emite SIGNED_IN tanto para signInWithPassword quanto para
+// confirmação de e-mail — não é possível distinguir de forma confiável pelo hash.
+// A solução correta é desabilitar "Email Confirmations" no painel Supabase:
+// Authentication → Providers → Email → desmarcar "Enable email confirmations".
 sb.auth.onAuthStateChange(async (event, session) => {
 
-  // Se o usuário chegou via link do e-mail (magic link / confirmação),
-  // desloga imediatamente e mostra a tela de login normal.
-  if (event === 'SIGNED_IN' && session?.user) {
-    const provider = session.user.app_metadata?.provider;
-    // 'email' sem senha = magic link. 'google', 'github' etc = OAuth normal.
-    // Login com senha usa provider 'email' mas vem do signInWithPassword — não tem
-    // access_token na URL. Identificamos magic link pela presença do hash na URL.
-    const isFromEmailLink = window.location.hash.includes('access_token') ||
-                            window.location.hash.includes('type=signup') ||
-                            window.location.hash.includes('type=recovery') ||
-                            new URLSearchParams(window.location.search).get('type') === 'signup';
-
-    if (isFromEmailLink) {
-      // Veio pelo link do e-mail — desloga e redireciona para login
-      await sb.auth.signOut();
-      // Limpa o hash/parâmetros da URL
-      window.history.replaceState({}, '', window.location.pathname);
-      document.getElementById('appContent').classList.remove('visible');
-      document.getElementById('authWall').classList.remove('hidden');
-      // Mostra mensagem orientando o usuário
-      const errEl = document.getElementById('loginError');
-      errEl.textContent = '✓ Conta confirmada! Faça login com seu e-mail e senha.';
-      errEl.style.background = 'rgba(200,240,96,0.1)';
-      errEl.style.borderColor = 'rgba(200,240,96,0.3)';
-      errEl.style.color = 'var(--accent)';
-      errEl.classList.add('show');
-      return;
-    }
+  // Limpa parâmetros de auth da URL (ex: #access_token=...) sem recarregar a página
+  if (window.location.hash.includes('access_token')) {
+    window.history.replaceState({}, '', window.location.pathname);
   }
 
   if (session?.user) {
@@ -1671,11 +1664,11 @@ function resetForm() {
 // ── BUY MODAL — exibe planos e redireciona para o checkout ───────────────────
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// URLs de checkout — mapeadas por priceId
+// URLs de checkout — links reais do CheckoutSeguro
 const CHECKOUT_URLS = {
-  'cs_5moedas':  'https://checkoutseguro.com.br/cvanalyzer/5moedas',   // ← troque pela URL real
-  'cs_20moedas': 'https://checkoutseguro.com.br/cvanalyzer/20moedas',  // ← troque pela URL real
-  'cs_50moedas': 'https://checkoutseguro.com.br/cvanalyzer/50moedas',  // ← troque pela URL real
+  'cs_5moedas':  'https://checkoutseguro.ru/checkout/cmo1nz9kd000j1qo6ycmchd3v?offer=R9JX4Q5',
+  'cs_20moedas': 'https://checkoutseguro.ru/checkout/cmo1nz9kd000j1qo6ycmchd3v?offer=1ITEGTR',
+  'cs_50moedas': 'https://checkoutseguro.ru/checkout/cmo1nz9kd000j1qo6ycmchd3v?offer=2W00KCF',
 };
 
 function openBuyModal()  { document.getElementById('buyModal').classList.add('show'); }
@@ -1716,101 +1709,169 @@ function closeRedeemModal() { document.getElementById('redeemModal').classList.r
 async function redeemCode() {
   const raw   = document.getElementById('redeemInput').value.trim().toUpperCase();
   const msgEl = document.getElementById('redeemMsg');
-  const btn   = document.querySelector('#redeemModal .btn-modal-confirm');
+
+  // FIX: busca o botão pelo ID para evitar querySelector falhar se o DOM mudar
+  const btn = document.getElementById('btnRedeem');
 
   if (!raw) { msgEl.textContent = 'Digite um código.'; msgEl.className = 'redeem-msg err'; return; }
+  if (!currentUser) { msgEl.textContent = 'Você precisa estar logado.'; msgEl.className = 'redeem-msg err'; return; }
 
-  btn.disabled = true;
-  btn.textContent = 'Verificando…';
-  msgEl.textContent = '';
+  // Garante que o botão é desabilitado e sempre reabilitado no finally
+  if (btn) { btn.disabled = true; btn.textContent = 'Verificando…'; }
+  msgEl.textContent = 'Verificando código…';
   msgEl.className = 'redeem-msg';
 
   try {
-    // ── 1. Verifica se o usuário já usou esse código ──────────────────────────
-    const { data: alreadyUsed } = await sb
+    // ── ETAPA 1: Verifica se o usuário já usou esse código ────────────────────
+    const { data: alreadyUsed, error: usedErr } = await sb
       .from('redeemed_codes')
       .select('id')
       .eq('user_id', currentUser.id)
       .eq('code', raw)
       .maybeSingle();
 
+    if (usedErr) {
+      console.error('[redeem] Etapa 1 (verificar uso):', usedErr.message);
+      throw new Error('Erro ao verificar histórico de uso. Tente novamente.');
+    }
+
     if (alreadyUsed) {
       msgEl.textContent = '✕ Você já utilizou este código.';
       msgEl.className = 'redeem-msg err';
-      return;
+      return; // finally vai reabilitar o botão
     }
 
-    // ── 2. Busca o código na tabela redeem_codes do Supabase ──────────────────
+    // ── ETAPA 2: Busca o código na tabela redeem_codes ────────────────────────
     const { data: codeRow, error: codeErr } = await sb
       .from('redeem_codes')
       .select('id, coins, uses, max_uses')
       .eq('code', raw)
       .maybeSingle();
 
-    if (codeErr || !codeRow) {
+    if (codeErr) {
+      console.error('[redeem] Etapa 2 (buscar código):', codeErr.message);
+      throw new Error('Erro ao validar o código. Tente novamente.');
+    }
+
+    if (!codeRow) {
       msgEl.textContent = '✕ Código inválido ou expirado.';
       msgEl.className = 'redeem-msg err';
       return;
     }
 
-    if (codeRow.max_uses !== null && codeRow.uses >= codeRow.max_uses) {
+    // ── ETAPA 3: Verifica limite de usos ──────────────────────────────────────
+    if (codeRow.max_uses !== null && (codeRow.uses || 0) >= codeRow.max_uses) {
       msgEl.textContent = '✕ Código esgotado (limite de usos atingido).';
       msgEl.className = 'redeem-msg err';
       return;
     }
 
     const coinsToGrant = codeRow.coins;
-
-    // ── 3. Registra o uso (unique constraint evita duplo resgate em race condition) ──
-    const { error: insertErr } = await sb
-      .from('redeemed_codes')
-      .insert({ user_id: currentUser.id, code: raw });
-
-    if (insertErr) {
-      msgEl.textContent = '✕ Você já utilizou este código.';
-      msgEl.className = 'redeem-msg err';
-      return;
+    if (!coinsToGrant || coinsToGrant <= 0) {
+      throw new Error('Código sem moedas associadas. Contate o suporte.');
     }
 
-    // ── 4. Incrementa o contador de usos do código ────────────────────────────
-    await sb
+    // ── ETAPA 4: Registra o uso em redeemed_codes (unique evita race condition) ──
+    const { error: insertErr } = await sb
+      .from('redeemed_codes')
+      .insert({
+        user_id:     currentUser.id,
+        code:        raw,
+        coins:       coinsToGrant,
+        redeemed_at: new Date().toISOString()
+      });
+
+    if (insertErr) {
+      // Unique constraint violado = código já usado por esta conta
+      if (insertErr.code === '23505') {
+        msgEl.textContent = '✕ Você já utilizou este código.';
+        msgEl.className = 'redeem-msg err';
+        return;
+      }
+      console.error('[redeem] Etapa 4 (registrar uso):', insertErr.message);
+      throw new Error('Erro ao registrar uso do código. Tente novamente.');
+    }
+
+    // ── ETAPA 5: Incrementa contador de usos do código ───────────────────────
+    const { error: updateErr } = await sb
       .from('redeem_codes')
       .update({ uses: (codeRow.uses || 0) + 1 })
       .eq('id', codeRow.id);
 
-    // ── 5. Credita moedas via RPC increment_coins (atômico no banco) ──────────
+    if (updateErr) {
+      // Não crítico — loga mas não bloqueia
+      console.warn('[redeem] Etapa 5 (incrementar uses):', updateErr.message);
+    }
+
+    // ── ETAPA 6: Credita moedas ───────────────────────────────────────────────
+    // Tenta via RPC increment_coins primeiro (atômico). Se falhar, usa update direto.
+    let coinsOk = false;
+
     const { error: rpcErr } = await sb.rpc('increment_coins', {
       user_id_input: currentUser.id,
       amount:        coinsToGrant,
     });
 
-    if (rpcErr) {
-      // Fallback: se o RPC falhar, usa update direto
-      console.warn('[redeem] RPC falhou, usando fallback direto:', rpcErr.message);
-      await grantCoins(coinsToGrant);
-    } else {
-      // Recarrega saldo atualizado pelo banco
-      const { data: updated } = await sb
+    if (!rpcErr) {
+      coinsOk = true;
+      // Recarrega saldo real do banco após RPC
+      const { data: updated, error: fetchErr } = await sb
         .from('users')
         .select('coins')
         .eq('id', currentUser.id)
         .single();
-      coins = updated?.coins ?? coins + coinsToGrant;
+      if (!fetchErr && updated) {
+        coins = updated.coins;
+      } else {
+        coins += coinsToGrant; // fallback otimista
+      }
       updateCoins();
+    } else {
+      console.warn('[redeem] RPC increment_coins falhou:', rpcErr.message, '— usando update direto');
+
+      // Fallback: update direto na tabela users
+      const { data: currentProfile, error: profileErr } = await sb
+        .from('users')
+        .select('coins')
+        .eq('id', currentUser.id)
+        .single();
+
+      if (profileErr || !currentProfile) {
+        console.error('[redeem] Etapa 6 fallback (buscar perfil):', profileErr?.message);
+        throw new Error('Moedas não puderam ser creditadas. Contate o suporte com o código: ' + raw);
+      }
+
+      const newCoins = (currentProfile.coins || 0) + coinsToGrant;
+      const { error: updateCoinsErr } = await sb
+        .from('users')
+        .update({ coins: newCoins })
+        .eq('id', currentUser.id);
+
+      if (updateCoinsErr) {
+        console.error('[redeem] Etapa 6 fallback (update coins):', updateCoinsErr.message);
+        throw new Error('Moedas não puderam ser creditadas. Contate o suporte com o código: ' + raw);
+      }
+
+      coins = newCoins;
+      updateCoins();
+      coinsOk = true;
     }
 
-    msgEl.textContent = '✓ +' + coinsToGrant + ' moedas adicionadas à sua conta!';
-    msgEl.className = 'redeem-msg ok';
-    showToast('🎉 +' + coinsToGrant + ' moedas resgatadas!', 'gold');
-    setTimeout(closeRedeemModal, 2200);
+    // ── Sucesso ───────────────────────────────────────────────────────────────
+    if (coinsOk) {
+      msgEl.textContent = '✓ +' + coinsToGrant + ' moedas adicionadas à sua conta!';
+      msgEl.className = 'redeem-msg ok';
+      showToast('🎉 +' + coinsToGrant + ' moedas resgatadas!', 'gold');
+      setTimeout(closeRedeemModal, 2200);
+    }
 
   } catch (err) {
-    console.error('[redeem] erro:', err.message);
-    msgEl.textContent = '⚠ Erro ao validar código. Tente novamente.';
+    console.error('[redeem] Erro geral:', err.message);
+    msgEl.textContent = '⚠ ' + (err.message || 'Erro ao validar código. Tente novamente.');
     msgEl.className = 'redeem-msg err';
   } finally {
-    btn.disabled = false;
-    btn.textContent = 'Resgatar';
+    // FIX: sempre reabilita o botão, mesmo que a função tenha retornado cedo
+    if (btn) { btn.disabled = false; btn.textContent = 'Resgatar'; }
   }
 }
 
