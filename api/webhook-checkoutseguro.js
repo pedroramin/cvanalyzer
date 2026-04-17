@@ -6,7 +6,6 @@
 // Variáveis de ambiente necessárias:
 //   SUPABASE_URL=https://yirgryvtafquahmkwiit.supabase.co
 //   CS_WEBHOOK_SECRET=SUA_CHAVE_SECRETA   ← configure no painel CheckoutSeguro
-//
 // No painel CheckoutSeguro → Webhooks/Postback, adicione o endpoint:
 //   URL: https://seudominio.com/api/webhook-checkoutseguro
 //   Método: POST
