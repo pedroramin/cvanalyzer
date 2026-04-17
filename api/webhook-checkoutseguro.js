@@ -5,7 +5,6 @@
 //
 // Variáveis de ambiente necessárias:
 //   SUPABASE_URL=https://yirgryvtafquahmkwiit.supabase.co
-//   SUPABASE_SERVICE_ROLE_KEY=sb_secret_AaZATwUJx0nDk4ktztvdyw_dGJulTTi
 //   CS_WEBHOOK_SECRET=SUA_CHAVE_SECRETA   ← configure no painel CheckoutSeguro
 //
 // No painel CheckoutSeguro → Webhooks/Postback, adicione o endpoint:
@@ -22,7 +21,7 @@ import crypto from 'crypto';
 
 const sb = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY   // sb_secret_AaZATwUJx0nDk4ktztvdyw_dGJulTTi
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 // Mapa de coins por código de plano — deve bater com CHECKOUT_URLS no front
