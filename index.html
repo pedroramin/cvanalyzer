@@ -1048,9 +1048,22 @@ async function handleLogin() {
   errEl.classList.remove('show');
   if (!email || !pass) { errEl.textContent = 'Preencha e-mail e senha.'; errEl.classList.add('show'); return; }
   btn.disabled = true; btn.textContent = 'Entrando…';
-  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
   btn.disabled = false; btn.textContent = 'Entrar';
-  if (error) { errEl.textContent = traduzirErroAuth(error.message); errEl.classList.add('show'); }
+
+  if (error) {
+    errEl.textContent = traduzirErroAuth(error.message);
+    errEl.classList.add('show');
+    return;
+  }
+  // Login OK: onAuthStateChange dispara e chama showApp().
+  // Fallback manual caso o evento demore (ex: rede lenta):
+  if (data?.session?.user) {
+    currentUser = data.session.user;
+    try { await loadUserProfile(); } catch(e) { coins = 0; }
+    showApp();
+  }
 }
 
 async function handleRegister() {
@@ -1079,15 +1092,17 @@ async function handleRegister() {
   // já retorna uma sessão ativa — o onAuthStateChange cuida do resto.
   // Se estiver habilitado, data.session será null e pedimos para confirmar o e-mail.
   if (data.session) {
-    // Já logado automaticamente — onAuthStateChange vai exibir o app
+    // Conta criada e já logada (confirmação desabilitada no Supabase)
+    // onAuthStateChange vai disparar e exibir o app automaticamente
     okEl.textContent = '✓ Conta criada! Entrando…';
     okEl.classList.add('show');
   } else {
-    // Confirmação de e-mail necessária
+    // Confirmação de e-mail necessária (habilitada no painel Supabase)
     btn.disabled = false; btn.textContent = 'Criar conta grátis';
-    okEl.textContent = '✓ Conta criada! Verifique seu e-mail e clique no link de confirmação para ativar sua conta.';
+    okEl.innerHTML = '✓ Conta criada! <strong>Verifique sua caixa de entrada</strong> (e o spam) e clique no link enviado pelo CVAnalyzer para ativar sua conta. Depois volte aqui e faça login normalmente.';
     okEl.classList.add('show');
-    setTimeout(() => showTab('login'), 3000);
+    // Muda para aba login após 4s
+    setTimeout(() => showTab('login'), 4000);
   }
 }
 
@@ -1102,17 +1117,25 @@ async function handleLogout() {
   await sb.auth.signOut();
   currentUser = null;
   coins = 0;
+  uploadedFile = null;
+  uploadedJob  = null;
   document.getElementById('appContent').classList.remove('visible');
   document.getElementById('authWall').classList.remove('hidden');
+  // Limpa campos para evitar dados do usuário anterior ficarem visíveis
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginError').classList.remove('show');
+  showTab('login');
 }
 
 function traduzirErroAuth(msg) {
   if (msg.includes('Invalid login credentials')) return 'E-mail ou senha incorretos. Verifique os dados e tente novamente.';
-  if (msg.includes('Email not confirmed'))       return 'E-mail não confirmado. Verifique sua caixa de entrada e clique no link de ativação.';
+  if (msg.includes('Email not confirmed'))       return '⚠️ E-mail ainda não confirmado. Abra sua caixa de entrada, encontre o e-mail do CVAnalyzer e clique em "Confirmar e-mail". Depois volte aqui para fazer login.';
   if (msg.includes('User already registered'))   return 'Esse e-mail já está cadastrado. Faça login.';
   if (msg.includes('Password should be'))        return 'Senha muito curta (mínimo 6 caracteres).';
   if (msg.includes('Unable to validate'))        return 'E-mail ou senha incorretos.';
   if (msg.includes('signup_disabled'))           return 'Cadastro temporariamente desabilitado.';
+  if (msg.includes('over_email_send_rate_limit')) return 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
   return msg;
 }
 
@@ -1129,14 +1152,27 @@ sb.auth.onAuthStateChange(async (event, session) => {
     window.history.replaceState({}, '', window.location.pathname);
   }
 
+  console.log('[auth] evento:', event, '| user:', session?.user?.email ?? 'null');
+
   if (session?.user) {
     currentUser = session.user;
+
+    // Timeout de segurança: se loadUserProfile demorar mais de 8s, mostra o app mesmo assim
+    const profileTimeout = setTimeout(() => {
+      console.warn('[auth] loadUserProfile timeout — abrindo app com coins=0');
+      coins = 0;
+      showApp();
+    }, 8000);
+
     try {
       await loadUserProfile();
     } catch (e) {
-      console.warn('[auth] loadUserProfile falhou, usando coins=0:', e.message);
+      console.warn('[auth] loadUserProfile erro:', e.message);
       coins = 0;
+    } finally {
+      clearTimeout(profileTimeout);
     }
+
     showApp();
   } else {
     currentUser = null;
@@ -1149,41 +1185,45 @@ sb.auth.onAuthStateChange(async (event, session) => {
 async function loadUserProfile() {
   if (!currentUser) return;
 
-  // Tenta buscar o perfil existente
-  const { data: existing } = await sb
+  // ── Etapa 1: tenta buscar o perfil existente ─────────────────────────────
+  const { data: existing, error: fetchErr } = await sb
     .from('users')
     .select('coins')
     .eq('id', currentUser.id)
     .maybeSingle();
+
+  if (fetchErr) {
+    // RLS pode bloquear o SELECT em edge cases — não trava, usa 0
+    console.warn('[profile] SELECT falhou (RLS?):', fetchErr.message);
+    coins = 0;
+    return;
+  }
 
   if (existing) {
     coins = existing.coins ?? 0;
     return;
   }
 
-  // Perfil não existe — cria com 0 moedas (não há moedas grátis)
+  // ── Etapa 2: perfil não existe, cria agora ────────────────────────────────
   const { data: inserted, error: insertErr } = await sb
     .from('users')
-    .insert({
-      id:    currentUser.id,
-      email: currentUser.email,
-      coins: 0   // ← zero moedas ao cadastrar
-    })
+    .insert({ id: currentUser.id, email: currentUser.email, coins: 0 })
     .select('coins')
     .single();
 
-  if (insertErr) {
-    // Race condition: outro request criou ao mesmo tempo — busca de novo
-    const { data: retry } = await sb
-      .from('users')
-      .select('coins')
-      .eq('id', currentUser.id)
-      .maybeSingle();
-    coins = retry?.coins ?? 0;
+  if (!insertErr) {
+    coins = inserted?.coins ?? 0;
     return;
   }
 
-  coins = inserted?.coins ?? 0;
+  // ── Etapa 3: insert falhou (race condition ou RLS) — busca de novo ─────────
+  console.warn('[profile] INSERT falhou:', insertErr.message, '| code:', insertErr.code);
+  const { data: retry } = await sb
+    .from('users')
+    .select('coins')
+    .eq('id', currentUser.id)
+    .maybeSingle();
+  coins = retry?.coins ?? 0;
 }
 
 function showApp() {
