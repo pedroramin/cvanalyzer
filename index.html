@@ -1018,8 +1018,10 @@ const COST_GENERATOR = 5;
 // ── SUPABASE INIT ─────────────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════════════
 const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
-
+const sb = supabase.createClient(
+  'https://yirgryvtafquahmkwiit.supabase.co',
+  'sb_publishable_--W-diQq8D2yp0977GeEoQ_F1yamI6x'
+);
 // ═══════════════════════════════════════════════════════════════════════════════
 // ── STATE ─────────────────────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════════════
