@@ -1004,6 +1004,8 @@ const SUPABASE_URL  = 'https://zmvkaqhiodkxugpvuezd.supabase.co';
 const SUPABASE_ANON = 'SUA_PUBLISHABLE_KEY_COMPLETA';
 const API_ENDPOINT  = '/api/analyze';
 const SITE_URL      = window.location.origin;
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 // Moedas são creditadas via código de resgate enviado por e-mail após o pagamento
 
 const COST_STANDARD  = 1;
