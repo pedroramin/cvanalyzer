@@ -1031,14 +1031,14 @@ let selectedPlan  = { coins: 20, price: 2990, priceId: 'cs_20moedas' };
 // ═══════════════════════════════════════════════════════════════════════════════
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════════════
-function showTab(tab) {
+window.showTab = function(tab) {
   document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
   document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
   document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
   document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
-}
+};
 
-async function handleLogin() {
+window.handleLogin = async function() {
   const email = document.getElementById('loginEmail').value.trim();
   const pass  = document.getElementById('loginPassword').value;
   const errEl = document.getElementById('loginError');
@@ -1064,7 +1064,7 @@ async function handleLogin() {
   }
 }
 
-async function handleRegister() {
+window.handleRegister = async function() {
   const name  = document.getElementById('registerName').value.trim();
   const email = document.getElementById('registerEmail').value.trim();
   const pass  = document.getElementById('registerPassword').value;
@@ -1104,14 +1104,14 @@ async function handleRegister() {
   }
 }
 
-async function handleGoogleLogin() {
+window.handleGoogleLogin = async function() {
   await sb.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: SITE_URL }
   });
 }
 
-async function handleLogout() {
+window.handleLogout = async function() {
   await sb.auth.signOut();
   currentUser = null;
   coins = 0;
