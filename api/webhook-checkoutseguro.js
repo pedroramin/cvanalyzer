@@ -1,21 +1,31 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// /api/webhook-checkoutseguro.js — Recebe postback do CheckoutSeguro e credita moedas
+// /api/webhook-checkoutseguro.js — Recebe postback do CheckoutSeguro e envia código por email
 // Deploy em Vercel / Next.js API Route
 // ═══════════════════════════════════════════════════════════════════════════
 //
 // Variáveis de ambiente necessárias:
-//   SUPABASE_URL=https://yirgryvtafquahmkwiit.supabase.co
-//   CS_WEBHOOK_SECRET=SUA_CHAVE_SECRETA   ← configure no painel CheckoutSeguro
-// No painel CheckoutSeguro → Webhooks/Postback, adicione o endpoint:
-//   URL: https://seudominio.com/api/webhook-checkoutseguro
-//   Método: POST
-//   Evento: payment_confirmed (ou equivalente da plataforma)
+//   SUPABASE_URL=https://SEU-PROJETO.supabase.co
+//   SUPABASE_SERVICE_ROLE_KEY=SUA_SERVICE_ROLE_KEY
+//   CS_WEBHOOK_SECRET=SUA_CHAVE_SECRETA
+//   RESEND_API_KEY=SUA_RESEND_API_KEY
+//   RESEND_FROM_EMAIL=Seu Nome <noreply@seudominio.com>
+//
+// Pré-requisitos no banco:
+//   1) Função SQL assign_redeem_code(p_user_id uuid, p_payment_id text)
+//   2) Tabela redeem_codes
+//   3) Tabela redeemed_codes
+//   4) Colunas em redeemed_codes:
+//      - payment_id text
+//      - email_sent boolean default false
+//      - email_sent_at timestamptz null
 //
 // O CheckoutSeguro envia os parâmetros que você configurou na URL de retorno:
-//   uid, email, coins, ref  — conforme passados no checkout do front-end
+//   uid, email, ref, status, order_id...
+// Ajuste os nomes abaixo conforme o payload real da plataforma.
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { createClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
 import crypto from 'crypto';
 
 const sb = createClient(
@@ -23,136 +33,194 @@ const sb = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// Mapa de coins por código de plano — deve bater com CHECKOUT_URLS no front
-const PLAN_COINS = {
-  'cs_5moedas':  5,
-  'cs_20moedas': 20,
-  'cs_50moedas': 50,
-};
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // ── Validação de assinatura (se o GGCheckout suportar) ───────────────────
-  // Consulte a documentação do GGCheckout para o header/campo de assinatura.
-  // Exemplo genérico — adapte conforme a plataforma:
-  const secret = process.env.CS_WEBHOOK_SECRET;
-  if (secret) {
-    const signature = req.headers['x-checkoutseguro-signature'] || req.headers['x-webhook-signature'];
-    if (signature) {
-      const body    = JSON.stringify(req.body);
-      const hmac    = crypto.createHmac('sha256', secret).update(body).digest('hex');
-      const trusted = `sha256=${hmac}`;
-      if (signature !== trusted) {
-        console.error('[webhook-cs] Assinatura inválida:', signature);
-        return res.status(401).json({ error: 'Assinatura inválida' });
-      }
-    }
-  }
-
-  // ── Extrai dados do postback ──────────────────────────────────────────────
-  // O GGCheckout pode enviar os parâmetros como JSON body ou form-encoded.
-  // Ajuste os nomes de campos conforme a documentação da plataforma.
-  const body = req.body || {};
-
-  // Campos enviados pelo front-end como parâmetros de retorno (repassados pelo GGCheckout no postback)
-  const userId   = body.uid   || body.user_id || body.metadata?.uid;
-  const coinsRaw = body.coins || body.metadata?.coins;
-  const priceId  = body.ref   || body.metadata?.ref;
-  const status   = body.status || body.payment_status || 'paid'; // campo de status do GGCheckout
-  const orderId  = body.order_id || body.transaction_id || body.id || null;
-
-  // ── Verifica se o pagamento foi confirmado ────────────────────────────────
-  // Adapte o valor conforme o GGCheckout retornar (ex: 'paid', 'approved', 'completed')
-  const isPaid = ['paid', 'approved', 'completed', 'confirmed'].includes(
-    String(status).toLowerCase()
-  );
-
-  if (!isPaid) {
-    console.log('[webhook-cs] Pagamento não confirmado, status:', status);
-    return res.status(200).json({ received: true, skipped: true });
-  }
-
-  if (!userId) {
-    console.error('[webhook-cs] userId ausente no postback');
-    return res.status(400).json({ error: 'userId ausente' });
-  }
-
-  // Determina quantas moedas creditiar
-  const coinsNum = parseInt(coinsRaw, 10) || PLAN_COINS[priceId] || 0;
-  if (coinsNum <= 0) {
-    console.error('[webhook-cs] coins inválido:', coinsRaw, priceId);
-    return res.status(400).json({ error: 'coins inválido' });
-  }
-
   try {
-    // ── Idempotência: evita creditar duas vezes o mesmo pedido ───────────────
-    if (orderId) {
-      const { data: existing } = await sb
-        .from('purchases')
-        .select('status')
-        .eq('stripe_session_id', orderId) // reusando a coluna para armazenar o order_id do GGCheckout
-        .single();
+    // ── Validação de assinatura ─────────────────────────────────────────────
+    const secret = process.env.CS_WEBHOOK_SECRET;
 
-      if (existing?.status === 'completed') {
-        console.log('[webhook-cs] Pedido já processado:', orderId);
-        return res.status(200).json({ received: true, duplicate: true });
+    if (secret) {
+      const signature =
+        req.headers['x-checkoutseguro-signature'] ||
+        req.headers['x-webhook-signature'];
+
+      if (signature) {
+        const body = JSON.stringify(req.body);
+        const hmac = crypto.createHmac('sha256', secret).update(body).digest('hex');
+        const trusted = `sha256=${hmac}`;
+
+        if (signature !== trusted) {
+          console.error('[webhook-cs] Assinatura inválida:', signature);
+          return res.status(401).json({ error: 'Assinatura inválida' });
+        }
       }
     }
 
-    // ── Busca perfil do usuário ───────────────────────────────────────────────
-    const { data: profile, error: profileErr } = await sb
-      .from('profiles')
-      .select('coins')
+    // ── Extrai dados do postback ────────────────────────────────────────────
+    const body = req.body || {};
+
+    const userId =
+      body.uid ||
+      body.user_id ||
+      body.metadata?.uid ||
+      null;
+
+    const buyerEmail =
+      body.email ||
+      body.customer?.email ||
+      body.metadata?.email ||
+      null;
+
+    const status =
+      body.status ||
+      body.payment_status ||
+      'paid';
+
+    const orderId =
+      body.order_id ||
+      body.transaction_id ||
+      body.id ||
+      null;
+
+    // ── Verifica se o pagamento foi confirmado ──────────────────────────────
+    const isPaid = ['paid', 'approved', 'completed', 'confirmed'].includes(
+      String(status).toLowerCase()
+    );
+
+    if (!isPaid) {
+      console.log('[webhook-cs] Pagamento não confirmado, status:', status);
+      return res.status(200).json({ received: true, skipped: true });
+    }
+
+    if (!userId) {
+      console.error('[webhook-cs] userId ausente no postback');
+      return res.status(400).json({ error: 'userId ausente' });
+    }
+
+    if (!orderId) {
+      console.error('[webhook-cs] orderId ausente no postback');
+      return res.status(400).json({ error: 'orderId ausente' });
+    }
+
+    // ── Idempotência: evita processar o mesmo pedido duas vezes ─────────────
+    const { data: existingRedemption, error: existingRedemptionError } = await sb
+      .from('redeemed_codes')
+      .select('id, code, email_sent')
+      .eq('payment_id', orderId)
+      .maybeSingle();
+
+    if (existingRedemptionError) {
+      throw existingRedemptionError;
+    }
+
+    if (existingRedemption) {
+      console.log('[webhook-cs] Pedido já processado:', orderId);
+      return res.status(200).json({
+        received: true,
+        duplicate: true,
+        email_sent: existingRedemption.email_sent || false,
+      });
+    }
+
+    // ── Busca usuário ───────────────────────────────────────────────────────
+    // Ajuste a tabela/campos se necessário.
+    const { data: userRow, error: userError } = await sb
+      .from('users')
+      .select('id, email, full_name')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
 
-    if (profileErr || !profile) {
-      console.error('[webhook-cs] Perfil não encontrado para userId:', userId);
-      return res.status(404).json({ error: 'Perfil não encontrado' });
+    if (userError) {
+      throw userError;
     }
 
-    const newCoins = (profile.coins || 0) + coinsNum;
+    if (!userRow) {
+      console.error('[webhook-cs] Usuário não encontrado:', userId);
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
 
-    // ── Atualiza saldo do usuário ─────────────────────────────────────────────
-    await sb
-      .from('profiles')
-      .update({ coins: newCoins, updated_at: new Date().toISOString() })
-      .eq('id', userId);
+    const finalEmail = userRow.email || buyerEmail;
 
-    // ── Upsert na tabela de compras (cria ou atualiza) ────────────────────────
-    const purchaseData = {
-      user_id:          userId,
-      stripe_session_id: orderId,   // reutilizando coluna para order_id do GGCheckout
-      coins_granted:    coinsNum,
-      amount_cents:     body.amount_cents || body.amount || 0,
-      status:           'completed',
-    };
+    if (!finalEmail) {
+      console.error('[webhook-cs] Email do comprador não encontrado');
+      return res.status(400).json({ error: 'Email do comprador ausente' });
+    }
 
-    if (orderId) {
-      // Tenta atualizar a compra pending existente
-      const { error: updErr } = await sb
-        .from('purchases')
-        .update({ status: 'completed', stripe_payment_id: orderId })
-        .eq('user_id', userId)
-        .eq('coins_granted', coinsNum)
-        .eq('status', 'pending');
-
-      // Se não havia pending (postback chegou antes do insert), cria novo registro
-      if (updErr) {
-        await sb.from('purchases').insert(purchaseData);
+    // ── Reserva/atribui código de forma atômica no banco ────────────────────
+    const { data: assigned, error: assignError } = await sb.rpc(
+      'assign_redeem_code',
+      {
+        p_user_id: userId,
+        p_payment_id: orderId,
       }
-    } else {
-      await sb.from('purchases').insert(purchaseData);
+    );
+
+    if (assignError) {
+      console.error('[webhook-cs] Erro ao atribuir código:', assignError);
+      throw assignError;
     }
 
-    console.log(`[webhook-cs] ✓ ${coinsNum} moedas creditadas → userId=${userId} | novoSaldo=${newCoins}`);
-    return res.status(200).json({ received: true, coins_granted: coinsNum, new_balance: newCoins });
+    const assignedCode = assigned?.[0]?.redeem_code;
+    const redeemCodeId = assigned?.[0]?.redeem_code_id;
 
+    if (!assignedCode || !redeemCodeId) {
+      throw new Error('Nenhum código foi retornado por assign_redeem_code');
+    }
+
+    // ── Envia email com Resend ───────────────────────────────────────────────
+    const emailResponse = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL,
+      to: finalEmail,
+      subject: 'Seu código de acesso',
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #111;">
+          <h2>Pagamento confirmado</h2>
+          <p>Olá${userRow.full_name ? `, ${userRow.full_name}` : ''}!</p>
+          <p>Seu código de acesso é:</p>
+          <div style="font-size: 28px; font-weight: bold; margin: 16px 0; letter-spacing: 1px;">
+            ${assignedCode}
+          </div>
+          <p>Guarde este código com segurança.</p>
+          <p><strong>Pedido:</strong> ${orderId}</p>
+        </div>
+      `,
+    });
+
+    console.log('[webhook-cs] Email enviado:', emailResponse?.data || emailResponse);
+
+    // ── Marca histórico como email enviado ──────────────────────────────────
+    const { error: updateError } = await sb
+      .from('redeemed_codes')
+      .update({
+        email_sent: true,
+        email_sent_at: new Date().toISOString(),
+      })
+      .eq('payment_id', orderId)
+      .eq('redeem_code_id', redeemCodeId);
+
+    if (updateError) {
+      console.error('[webhook-cs] Erro ao marcar email_sent:', updateError);
+    }
+
+    console.log(
+      `[webhook-cs] ✓ Código enviado → userId=${userId} | payment=${orderId} | codeId=${redeemCodeId}`
+    );
+
+    return res.status(200).json({
+      received: true,
+      delivered: true,
+      payment_id: orderId,
+      email: finalEmail,
+    });
   } catch (err) {
-    console.error('[webhook-cs] Erro interno:', err.message);
-    return res.status(500).json({ error: 'Erro interno ao creditar moedas.' });
+    console.error('[webhook-cs] Erro interno:', err?.message || err);
+    return res.status(500).json({
+      error: err?.message || 'Erro interno ao enviar código.',
+    });
   }
 }
