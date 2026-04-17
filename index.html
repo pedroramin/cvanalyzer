@@ -1000,12 +1000,10 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // ── CONFIG — substitua com suas chaves reais ──────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════════════
-const SUPABASE_URL    = 'https://yirgryvtafquahmkwiit.supabase.co';
-const SUPABASE_ANON   = 'sb_publishable_--W-diQq8D2yp0977GeEoQ_F1yamI6x';
-const API_ENDPOINT    = '/api/analyze';                           // seu proxy Anthropic
-// URL base do site — usada nos redirects de auth (e-mail de confirmação e Google OAuth)
-// Troque pelo seu domínio real quando fizer deploy (ex: 'https://cvanalyzer.com.br')
-const SITE_URL = window.location.origin;
+const SUPABASE_URL  = 'https://zmvkaqhiodkxugpvuezd.supabase.co';
+const SUPABASE_ANON = 'SUA_PUBLISHABLE_KEY_COMPLETA';
+const API_ENDPOINT  = '/api/analyze';
+const SITE_URL      = window.location.origin;
 // Moedas são creditadas via código de resgate enviado por e-mail após o pagamento
 
 const COST_STANDARD  = 1;
@@ -1017,10 +1015,7 @@ const COST_GENERATOR = 5;
 // ═══════════════════════════════════════════════════════════════════════════════
 // ── SUPABASE INIT ─────────────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════════════════════
-const { createClient } = supabase;
-const sb = supabase.createClient(
-  'https://zmvkaqhiodkxugpvuezd.supabase.co',
-  'sb_publishable_lO-GPDnNoCdFz__ElDWArQ_iC2jrfYx'
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 );
 // ═══════════════════════════════════════════════════════════════════════════════
 // ── STATE ─────────────────────────────────────────────────────────────────────
@@ -1727,7 +1722,7 @@ function startCheckout() {
   if (!url) { showToast('⚠ Plano inválido.', ''); return; }
   // Passa o e-mail do usuário para o checkout pré-preencher o campo
   const params = new URLSearchParams({ email: currentUser?.email || '' });
-  window.open(url + '?' + params.toString(), '_blank');
+  window.open(url + '&' + params.toString(), '_blank');
   closeBuyModal();
   // Após o pagamento, o usuário receberá o código por e-mail e resgatará abaixo
   setTimeout(() => {
