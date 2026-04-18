@@ -129,8 +129,6 @@ export default async function handler(req, res) {
 
     // ── Busca usuário ───────────────────────────────────────────────────────
     // Ajuste a tabela/campos se necessário.
-HEAD
-   const { data: userRow, error: userError } = await sb
   .from('users')
   .select('id, email')
   .eq('id', userId)
