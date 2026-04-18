@@ -87,12 +87,12 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'Pedido nao encontrado' });
     }
 
-    if (pedido.codigo) {
-      console.log('[webhook-cs] pedido ja entregue:', referencia);
+    if (pedido.credited) {
+      console.log('[webhook-cs] pedido ja creditado:', referencia);
       return res.status(200).json({
         ok: true,
         duplicate: true,
-        codigo: pedido.codigo,
+        credited: true,
       });
     }
 
@@ -105,8 +105,6 @@ export default async function handler(req, res) {
         })
         .eq('id', pedido.id);
 
-      console.log('[webhook-cs] pagamento ainda nao aprovado:', status);
-
       return res.status(200).json({
         ok: true,
         pending: true,
@@ -114,55 +112,49 @@ export default async function handler(req, res) {
       });
     }
 
-    const { data: codigoDisponivel, error: codigoError } = await sb
-      .from('codigos')
+    const { data: wallet, error: walletError } = await sb
+      .from('wallets')
       .select('*')
-      .eq('usado', false)
-      .order('created_at', { ascending: true, nullsFirst: true })
-      .limit(1)
+      .eq('user_id', pedido.user_id)
       .maybeSingle();
 
-    if (codigoError) {
-      console.error('[webhook-cs] erro ao buscar codigo:', codigoError);
-      return res.status(500).json({ error: 'Erro ao buscar codigo' });
+    if (walletError) {
+      console.error('[webhook-cs] erro ao buscar wallet:', walletError);
+      return res.status(500).json({ error: 'Erro ao buscar wallet' });
     }
 
-    if (!codigoDisponivel) {
-      console.error('[webhook-cs] sem codigos disponiveis');
-      return res.status(200).json({
-        ok: false,
-        message: 'Sem codigos disponiveis',
+    if (!wallet) {
+      const { error: createWalletError } = await sb.from('wallets').insert({
+        user_id: pedido.user_id,
+        coins: pedido.moedas,
+        updated_at: new Date().toISOString(),
       });
-    }
 
-    const { data: codigoAtualizado, error: reservarError } = await sb
-      .from('codigos')
-      .update({
-        usado: true,
-        pedido_id: pedido.id,
-        usado_em: new Date().toISOString(),
-      })
-      .eq('id', codigoDisponivel.id)
-      .eq('usado', false)
-      .select()
-      .maybeSingle();
+      if (createWalletError) {
+        console.error('[webhook-cs] erro ao criar wallet:', createWalletError);
+        return res.status(500).json({ error: 'Erro ao criar wallet' });
+      }
+    } else {
+      const { error: updateWalletError } = await sb
+        .from('wallets')
+        .update({
+          coins: wallet.coins + pedido.moedas,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', pedido.user_id);
 
-    if (reservarError) {
-      console.error('[webhook-cs] erro ao reservar codigo:', reservarError);
-      return res.status(500).json({ error: 'Erro ao reservar codigo' });
-    }
-
-    if (!codigoAtualizado) {
-      console.error('[webhook-cs] codigo ja foi reservado em paralelo');
-      return res.status(409).json({ error: 'Codigo indisponivel, tente novamente' });
+      if (updateWalletError) {
+        console.error('[webhook-cs] erro ao atualizar wallet:', updateWalletError);
+        return res.status(500).json({ error: 'Erro ao atualizar wallet' });
+      }
     }
 
     const { error: updatePedidoError } = await sb
       .from('pedidos')
       .update({
         status: 'aprovado',
-        codigo: codigoDisponivel.codigo,
         transaction_id: transactionId || pedido.transaction_id,
+        credited: true,
       })
       .eq('id', pedido.id);
 
@@ -171,15 +163,12 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Erro ao atualizar pedido' });
     }
 
-    console.log(
-      `[webhook-cs] codigo entregue | ref=${referencia} | pagamento=${transactionId} | codigo=${codigoDisponivel.codigo}`
-    );
-
     return res.status(200).json({
       ok: true,
-      delivered: true,
+      credited: true,
       referencia,
-      codigo: codigoDisponivel.codigo,
+      moedas: pedido.moedas,
+      user_id: pedido.user_id,
     });
   } catch (err) {
     console.error('[webhook-cs] erro interno:', err?.message || err);
