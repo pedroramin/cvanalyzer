@@ -127,13 +127,14 @@ export default async function handler(req, res) {
       });
     }
 
-    // ── Busca usuário ───────────────────────────────────────────────────────
+       // ── Busca usuário ───────────────────────────────────────────────────────
     // Ajuste a tabela/campos se necessário.
-  .from('users')
-  .select('id, email')
-  .eq('id', userId)
-  .maybeSingle();
-   
+    const { data: userRow, error: userError } = await sb
+      .from('users')
+      .select('id, email')
+      .eq('id', userId)
+      .maybeSingle();
+
     if (userError) {
       throw userError;
     }
