@@ -1,31 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// /api/webhook-checkoutseguro.js — Recebe postback do CheckoutSeguro e envia código por email
-// Deploy em Vercel / Next.js API Route
-// ═══════════════════════════════════════════════════════════════════════════
-//
-// Variáveis de ambiente necessárias:
-//   SUPABASE_URL=https://SEU-PROJETO.supabase.co
-//   SUPABASE_SERVICE_ROLE_KEY=SUA_SERVICE_ROLE_KEY
-//   CS_WEBHOOK_SECRET=SUA_CHAVE_SECRETA
-//   RESEND_API_KEY=SUA_RESEND_API_KEY
-//   RESEND_FROM_EMAIL=Seu Nome <noreply@seudominio.com>
-//
-// Pré-requisitos no banco:
-//   1) Função SQL assign_redeem_code(p_user_id uuid, p_payment_id text)
-//   2) Tabela redeem_codes
-//   3) Tabela redeemed_codes
-//   4) Colunas em redeemed_codes:
-//      - payment_id text
-//      - email_sent boolean default false
-//      - email_sent_at timestamptz null
-//
-// O CheckoutSeguro envia os parâmetros que você configurou na URL de retorno:
-//   uid, email, ref, status, order_id...
-// Ajuste os nomes abaixo conforme o payload real da plataforma.
-// ═══════════════════════════════════════════════════════════════════════════
-
 import { createClient } from '@supabase/supabase-js';
-import { Resend } from 'resend';
 import crypto from 'crypto';
 
 const sb = createClient(
@@ -33,7 +6,10 @@ const sb = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function normalizePaidStatus(value) {
+  const v = String(value || '').toLowerCase();
+  return ['paid', 'approved', 'completed', 'confirmed', 'aprovado'].includes(v);
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -41,186 +17,174 @@ export default async function handler(req, res) {
   }
 
   try {
-    // ── Validação de assinatura ─────────────────────────────────────────────
     const secret = process.env.CS_WEBHOOK_SECRET;
 
     if (secret) {
       const signature =
         req.headers['x-checkoutseguro-signature'] ||
-        req.headers['x-webhook-signature'];
+        req.headers['x-webhook-signature'] ||
+        req.headers['x-signature'];
 
       if (signature) {
-        const body = JSON.stringify(req.body);
-        const hmac = crypto.createHmac('sha256', secret).update(body).digest('hex');
+        const bodyString = JSON.stringify(req.body);
+        const hmac = crypto
+          .createHmac('sha256', secret)
+          .update(bodyString)
+          .digest('hex');
+
         const trusted = `sha256=${hmac}`;
 
         if (signature !== trusted) {
-          console.error('[webhook-cs] Assinatura inválida:', signature);
-          return res.status(401).json({ error: 'Assinatura inválida' });
+          console.error('[webhook-cs] assinatura invalida');
+          return res.status(401).json({ error: 'Assinatura invalida' });
         }
       }
     }
 
-    // ── Extrai dados do postback ────────────────────────────────────────────
     const body = req.body || {};
+    console.log('[webhook-cs] body:', body);
 
-    const userId =
-      body.uid ||
-      body.user_id ||
-      body.metadata?.uid ||
-      null;
-
-    const buyerEmail =
-      body.email ||
-      body.customer?.email ||
-      body.metadata?.email ||
+    const referencia =
+      body.ref ||
+      body.reference ||
+      body.external_reference ||
+      body.metadata?.ref ||
+      body.metadata?.reference ||
       null;
 
     const status =
       body.status ||
       body.payment_status ||
-      'paid';
+      body.situation ||
+      body.event_status ||
+      null;
 
-    const orderId =
+    const transactionId =
       body.order_id ||
       body.transaction_id ||
+      body.payment_id ||
       body.id ||
       null;
 
-    // ── Verifica se o pagamento foi confirmado ──────────────────────────────
-    const isPaid = ['paid', 'approved', 'completed', 'confirmed'].includes(
-      String(status).toLowerCase()
-    );
-
-    if (!isPaid) {
-      console.log('[webhook-cs] Pagamento não confirmado, status:', status);
-      return res.status(200).json({ received: true, skipped: true });
+    if (!referencia) {
+      console.error('[webhook-cs] referencia ausente');
+      return res.status(400).json({ error: 'Referencia ausente' });
     }
 
-    if (!userId) {
-      console.error('[webhook-cs] userId ausente no postback');
-      return res.status(400).json({ error: 'userId ausente' });
-    }
-
-    if (!orderId) {
-      console.error('[webhook-cs] orderId ausente no postback');
-      return res.status(400).json({ error: 'orderId ausente' });
-    }
-
-    // ── Idempotência: evita processar o mesmo pedido duas vezes ─────────────
-    const { data: existingRedemption, error: existingRedemptionError } = await sb
-      .from('redeemed_codes')
-      .select('id, code, email_sent')
-      .eq('payment_id', orderId)
+    const { data: pedido, error: pedidoError } = await sb
+      .from('pedidos')
+      .select('*')
+      .eq('referencia', referencia)
       .maybeSingle();
 
-    if (existingRedemptionError) {
-      throw existingRedemptionError;
+    if (pedidoError) {
+      console.error('[webhook-cs] erro ao buscar pedido:', pedidoError);
+      return res.status(500).json({ error: 'Erro ao buscar pedido' });
     }
 
-    if (existingRedemption) {
-      console.log('[webhook-cs] Pedido já processado:', orderId);
+    if (!pedido) {
+      console.error('[webhook-cs] pedido nao encontrado:', referencia);
+      return res.status(404).json({ error: 'Pedido nao encontrado' });
+    }
+
+    if (pedido.codigo) {
+      console.log('[webhook-cs] pedido ja entregue:', referencia);
       return res.status(200).json({
-        received: true,
+        ok: true,
         duplicate: true,
-        email_sent: existingRedemption.email_sent || false,
+        codigo: pedido.codigo,
       });
     }
 
-       // ── Busca usuário ───────────────────────────────────────────────────────
-    // Ajuste a tabela/campos se necessário.
-    const { data: userRow, error: userError } = await sb
-      .from('users')
-      .select('id, email')
-      .eq('id', userId)
+    if (!normalizePaidStatus(status)) {
+      await sb
+        .from('pedidos')
+        .update({
+          status: status || 'pendente',
+          transaction_id: transactionId || pedido.transaction_id,
+        })
+        .eq('id', pedido.id);
+
+      console.log('[webhook-cs] pagamento ainda nao aprovado:', status);
+
+      return res.status(200).json({
+        ok: true,
+        pending: true,
+        status: status || 'pendente',
+      });
+    }
+
+    const { data: codigoDisponivel, error: codigoError } = await sb
+      .from('codigos')
+      .select('*')
+      .eq('usado', false)
+      .order('created_at', { ascending: true, nullsFirst: true })
+      .limit(1)
       .maybeSingle();
 
-    if (userError) {
-      throw userError;
+    if (codigoError) {
+      console.error('[webhook-cs] erro ao buscar codigo:', codigoError);
+      return res.status(500).json({ error: 'Erro ao buscar codigo' });
     }
 
-    if (!userRow) {
-      console.error('[webhook-cs] Usuário não encontrado:', userId);
-      return res.status(404).json({ error: 'Usuário não encontrado' });
+    if (!codigoDisponivel) {
+      console.error('[webhook-cs] sem codigos disponiveis');
+      return res.status(200).json({
+        ok: false,
+        message: 'Sem codigos disponiveis',
+      });
     }
 
-    const finalEmail = userRow.email || buyerEmail;
-
-    if (!finalEmail) {
-      console.error('[webhook-cs] Email do comprador não encontrado');
-      return res.status(400).json({ error: 'Email do comprador ausente' });
-    }
-
-    // ── Reserva/atribui código de forma atômica no banco ────────────────────
-    const { data: assigned, error: assignError } = await sb.rpc(
-      'assign_redeem_code',
-      {
-        p_user_id: userId,
-        p_payment_id: orderId,
-      }
-    );
-
-    if (assignError) {
-      console.error('[webhook-cs] Erro ao atribuir código:', assignError);
-      throw assignError;
-    }
-
-    const assignedCode = assigned?.[0]?.redeem_code;
-    const redeemCodeId = assigned?.[0]?.redeem_code_id;
-
-    if (!assignedCode || !redeemCodeId) {
-      throw new Error('Nenhum código foi retornado por assign_redeem_code');
-    }
-
-    // ── Envia email com Resend ───────────────────────────────────────────────
-    const emailResponse = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL,
-      to: finalEmail,
-      subject: 'Seu código de acesso',
-      html: `
-        <div style="font-family: Arial, sans-serif; color: #111;">
-          <h2>Pagamento confirmado</h2>
-          <p>Olá!</p>
-          <p>Seu código de acesso é:</p>
-          <div style="font-size: 28px; font-weight: bold; margin: 16px 0; letter-spacing: 1px;">
-            ${assignedCode}
-          </div>
-          <p>Guarde este código com segurança.</p>
-          <p><strong>Pedido:</strong> ${orderId}</p>
-        </div>
-      `,
-    });
-
-    console.log('[webhook-cs] Email enviado:', emailResponse?.data || emailResponse);
-
-    // ── Marca histórico como email enviado ──────────────────────────────────
-    const { error: updateError } = await sb
-      .from('redeemed_codes')
+    const { data: codigoAtualizado, error: reservarError } = await sb
+      .from('codigos')
       .update({
-        email_sent: true,
-        email_sent_at: new Date().toISOString(),
+        usado: true,
+        pedido_id: pedido.id,
+        usado_em: new Date().toISOString(),
       })
-      .eq('payment_id', orderId)
-      .eq('redeem_code_id', redeemCodeId);
+      .eq('id', codigoDisponivel.id)
+      .eq('usado', false)
+      .select()
+      .maybeSingle();
 
-    if (updateError) {
-      console.error('[webhook-cs] Erro ao marcar email_sent:', updateError);
+    if (reservarError) {
+      console.error('[webhook-cs] erro ao reservar codigo:', reservarError);
+      return res.status(500).json({ error: 'Erro ao reservar codigo' });
+    }
+
+    if (!codigoAtualizado) {
+      console.error('[webhook-cs] codigo ja foi reservado em paralelo');
+      return res.status(409).json({ error: 'Codigo indisponivel, tente novamente' });
+    }
+
+    const { error: updatePedidoError } = await sb
+      .from('pedidos')
+      .update({
+        status: 'aprovado',
+        codigo: codigoDisponivel.codigo,
+        transaction_id: transactionId || pedido.transaction_id,
+      })
+      .eq('id', pedido.id);
+
+    if (updatePedidoError) {
+      console.error('[webhook-cs] erro ao atualizar pedido:', updatePedidoError);
+      return res.status(500).json({ error: 'Erro ao atualizar pedido' });
     }
 
     console.log(
-      `[webhook-cs] ✓ Código enviado → userId=${userId} | payment=${orderId} | codeId=${redeemCodeId}`
+      `[webhook-cs] codigo entregue | ref=${referencia} | pagamento=${transactionId} | codigo=${codigoDisponivel.codigo}`
     );
 
     return res.status(200).json({
-      received: true,
+      ok: true,
       delivered: true,
-      payment_id: orderId,
-      email: finalEmail,
+      referencia,
+      codigo: codigoDisponivel.codigo,
     });
   } catch (err) {
-    console.error('[webhook-cs] Erro interno:', err?.message || err);
+    console.error('[webhook-cs] erro interno:', err?.message || err);
     return res.status(500).json({
-      error: err?.message || 'Erro interno ao enviar código.',
+      error: err?.message || 'Erro interno',
     });
   }
 }
