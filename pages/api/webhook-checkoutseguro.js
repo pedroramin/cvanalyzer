@@ -180,7 +180,7 @@ export default async function handler(req, res) {
       html: `
         <div style="font-family: Arial, sans-serif; color: #111;">
           <h2>Pagamento confirmado</h2>
-          <p>Olá${userRow.full_name ? `, ${userRow.full_name}` : ''}!</p>
+          <p>Olá!</p>
           <p>Seu código de acesso é:</p>
           <div style="font-size: 28px; font-weight: bold; margin: 16px 0; letter-spacing: 1px;">
             ${assignedCode}
