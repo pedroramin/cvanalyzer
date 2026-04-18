@@ -129,19 +129,18 @@ export default async function handler(req, res) {
 
     // ── Busca usuário ───────────────────────────────────────────────────────
     // Ajuste a tabela/campos se necessário.
-<<<<<<< HEAD
+HEAD
    const { data: userRow, error: userError } = await sb
   .from('users')
   .select('id, email')
   .eq('id', userId)
   .maybeSingle();
-=======
     const { data: userRow, error: userError } = await sb
       .from('users')
       .select('id, email')
       .eq('id', userId)
       .maybeSingle();
->>>>>>> 8dcced7 (Remove full_name from webhook user query)
+8dcced7 (Remove full_name from webhook user query)
 
     if (userError) {
       throw userError;
