@@ -140,7 +140,6 @@ HEAD
       .select('id, email')
       .eq('id', userId)
       .maybeSingle();
-8dcced7 (Remove full_name from webhook user query)
 
     if (userError) {
       throw userError;
