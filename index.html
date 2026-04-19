@@ -2,50 +2,213 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>CV Analyzer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CVAnalyzer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      max-width: 420px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    .box {
+      background: #1b1b1b;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    h1 { margin-top: 0; }
+    input {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #0f0f0f;
+      color: #fff;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: 0;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .btn {
+      background: #c8f060;
+      color: #000;
+    }
+    .btn-secondary {
+      background: #333;
+      color: #fff;
+    }
+    .msg {
+      font-size: 14px;
+      margin-top: 10px;
+      min-height: 20px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
-<body style="font-family: Arial; padding: 20px;">
+<body>
+  <div id="authBox" class="box">
+    <h1>CVAnalyzer</h1>
 
-  <h1>CV Analyzer</h1>
+    <h3>Cadastro</h3>
+    <input type="text" id="registerName" placeholder="Nome completo" />
+    <input type="email" id="registerEmail" placeholder="E-mail" />
+    <input type="password" id="registerPassword" placeholder="Senha" />
+    <button class="btn" onclick="handleRegister()">Criar conta</button>
 
-  <h2>Seu saldo:</h2>
-  <p id="saldo">Carregando...</p>
+    <hr style="margin:20px 0;border-color:#333;">
 
-  <h2>Comprar moedas</h2>
+    <h3>Login</h3>
+    <input type="email" id="loginEmail" placeholder="E-mail" />
+    <input type="password" id="loginPassword" placeholder="Senha" />
+    <button class="btn" onclick="handleLogin()">Entrar</button>
 
-  <button onclick="comprar(5)">Comprar 5 moedas</button>
-  <button onclick="comprar(20)">Comprar 20 moedas</button>
-  <button onclick="comprar(50)">Comprar 50 moedas</button>
+    <div id="authMsg" class="msg"></div>
+  </div>
 
+  <div id="appBox" class="box hidden">
+    <h2>Usuário logado</h2>
+    <p><strong>ID:</strong> <span id="userId"></span></p>
+    <p><strong>E-mail:</strong> <span id="userEmail"></span></p>
+    <p><strong>Nome:</strong> <span id="userName"></span></p>
+    <button class="btn-secondary" onclick="handleLogout()">Sair</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const userId = '4fb5c82f-a4a9-46b1-b9f6-6495d1a72434'; // depois vamos automatizar
+    const SUPABASE_URL = 'https://zmvkaqhiodkxugpvuezd.supabase.co';
+    const SUPABASE_ANON = 'SUA_PUBLISHABLE_KEY_COMPLETA';
 
-    async function carregarSaldo() {
-      const res = await fetch(`/api/wallet?userId=${userId}`);
-      const data = await res.json();
-      document.getElementById('saldo').innerText = data.coins + ' moedas';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    function showMsg(msg, ok = false) {
+      const el = document.getElementById('authMsg');
+      el.textContent = msg;
+      el.style.color = ok ? '#9eff7a' : '#ff7b7b';
     }
 
-    async function comprar(moedas) {
-      const res = await fetch('/api/criar-pedido', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, moedas })
-      });
+    function clearMsg() {
+      document.getElementById('authMsg').textContent = '';
+    }
 
-      const data = await res.json();
+    function traduzirErroAuth(msg) {
+      if (msg.includes('Invalid login credentials')) return 'E-mail ou senha incorretos.';
+      if (msg.includes('User already registered')) return 'Esse e-mail já está cadastrado.';
+      if (msg.includes('Password should be')) return 'A senha precisa ter pelo menos 6 caracteres.';
+      if (msg.includes('Email not confirmed')) return 'Confirme o e-mail antes de entrar.';
+      return msg;
+    }
 
-      if (!res.ok) {
-        alert(data.error);
+    async function handleRegister() {
+      clearMsg();
+
+      const full_name = document.getElementById('registerName').value.trim();
+      const email = document.getElementById('registerEmail').value.trim();
+      const password = document.getElementById('registerPassword').value;
+
+      if (!full_name || !email || !password) {
+        showMsg('Preencha todos os campos.');
         return;
       }
 
-      // redireciona pro checkout
-      window.location.href = data.checkoutUrl;
+      const { data, error } = await sb.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name }
+        }
+      });
+
+      if (error) {
+        showMsg(traduzirErroAuth(error.message));
+        return;
+      }
+
+      if (data.session) {
+        showMsg('Conta criada com sucesso. Entrando...', true);
+      } else {
+        showMsg('Conta criada. Agora faça login.', true);
+      }
     }
 
-    carregarSaldo();
-  </script>
+    async function handleLogin() {
+      clearMsg();
 
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      if (!email || !password) {
+        showMsg('Preencha e-mail e senha.');
+        return;
+      }
+
+      const { error } = await sb.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        showMsg(traduzirErroAuth(error.message));
+      }
+    }
+
+    async function handleLogout() {
+      await sb.auth.signOut();
+    }
+
+    async function loadProfile(user) {
+      const { data, error } = await sb
+        .from('profiles')
+        .select('id, email, full_name')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        document.getElementById('userId').textContent = user.id;
+        document.getElementById('userEmail').textContent = user.email || '-';
+        document.getElementById('userName').textContent = user.user_metadata?.full_name || '-';
+        return;
+      }
+
+      document.getElementById('userId').textContent = data.id || '-';
+      document.getElementById('userEmail').textContent = data.email || '-';
+      document.getElementById('userName').textContent = data.full_name || '-';
+    }
+
+    async function updateUI(session) {
+      const authBox = document.getElementById('authBox');
+      const appBox = document.getElementById('appBox');
+
+      if (session?.user) {
+        authBox.classList.add('hidden');
+        appBox.classList.remove('hidden');
+        await loadProfile(session.user);
+      } else {
+        authBox.classList.remove('hidden');
+        appBox.classList.add('hidden');
+      }
+    }
+
+    sb.auth.onAuthStateChange(async (_event, session) => {
+      await updateUI(session);
+    });
+
+    window.addEventListener('load', async () => {
+      const { data } = await sb.auth.getSession();
+      await updateUI(data.session);
+    });
+  </script>
 </body>
 </html>
